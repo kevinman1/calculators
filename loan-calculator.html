@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Calculator (4 Parts) – Wise Financial Cambodia</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* 3-column comparison table: columns 2 & 3 right-aligned */
+    #loanCmpTable th:nth-child(n+2) { text-align: right; }
+    #loanCmpTable td:nth-child(n+2) { text-align: right; font-weight: 600; color: var(--green-700); }
+    #loanCmpTable tr.current td     { font-weight: 700; color: var(--green-800); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1>Wise Financial Cambodia</h1>
+      <span>Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html">All Calculators</a>
+      <a href="savings-fixed.html">Fixed Savings</a>
+      <a href="savings-monthly.html">Monthly Savings</a>
+      <a href="loan-calculator.html" class="active">Loan Calculator</a>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html">Calculators</a> &rsaquo; Loans &rsaquo; Loan Calculator (4 Parts)
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Print-only header -->
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3>Wise Financial Cambodia</h3>
+      <p>Loan Calculator (4 Parts) &mdash; printed <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2>Loan Calculator (4 Parts)</h2>
+    <p>Know any 3 loan variables? Solve for the missing one &mdash; payment, principal, interest rate, or loan term.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- INPUTS -->
+    <div class="card">
+      <div class="card-header">Inputs</div>
+      <div class="card-body">
+
+        <div class="section-label">Solve For</div>
+        <div class="solve-tabs" style="margin-bottom:.9rem">
+          <button class="solve-tab active" data-solve="payment"   onclick="setSolveFor('payment')">Monthly<br>Payment</button>
+          <button class="solve-tab"        data-solve="principal" onclick="setSolveFor('principal')">Loan<br>Amount</button>
+          <button class="solve-tab"        data-solve="rate"      onclick="setSolveFor('rate')">Interest<br>Rate</button>
+          <button class="solve-tab"        data-solve="nper"      onclick="setSolveFor('nper')">Loan<br>Term</button>
+        </div>
+
+        <hr class="section-divider" style="margin-top:0">
+        <div class="section-label">Loan Details</div>
+
+        <div class="input-group" id="grp-principal">
+          <label id="lbl-principal">Loan Amount</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="principal" value="250000" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="input-group" id="grp-rate">
+          <label>Annual Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="rate" value="6.5" min="0" max="200" step="0.1">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="input-group" id="grp-nper">
+          <label>Loan Term</label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <input type="number" id="termValue" value="30" min="0" step="1">
+            </div>
+            <div class="input-wrapper">
+              <select id="termUnit">
+                <option value="years" selected>Years</option>
+                <option value="months">Months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group" id="grp-payment">
+          <label>Monthly Payment</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="payment" value="1580.17" min="0" step="10">
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()">Calculate</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div>
+      <div class="card">
+        <div class="card-header dark">Summary Results</div>
+        <div class="card-body">
+
+          <div class="result-hero">
+            <div class="r-label" id="r-heroLabel">Monthly Payment</div>
+            <div class="r-value" id="r-heroValue">—</div>
+            <div class="r-sub"  id="r-dateRange">—</div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label">Loan Amount</div>
+              <div class="r-value" id="r-principal">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Monthly Payment</div>
+              <div class="r-value" id="r-payment">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Total Amount Paid</div>
+              <div class="r-value" id="r-totalPaid">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Total Interest Paid</div>
+              <div class="r-value" id="r-totalInterest">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Interest as % of Principal</div>
+              <div class="r-value" id="r-interestPct">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Loan Term</div>
+              <div class="r-value" id="r-term">—</div>
+            </div>
+          </div>
+
+          <div class="section-label" style="margin-top:.25rem">Quick Comparison</div>
+          <table class="cmp-table" id="loanCmpTable">
+            <thead>
+              <tr><th>Scenario</th><th>Monthly Pmt</th><th>Total Interest</th></tr>
+            </thead>
+            <tbody>
+              <tr class="current"><td>&#9654; Current Plan</td><td id="cmp-pmt-current">—</td><td id="cmp-int-current">—</td></tr>
+              <tr><td>Rate +1%</td>      <td id="cmp-pmt-plus1">—</td>  <td id="cmp-int-plus1">—</td></tr>
+              <tr><td>Rate &minus;1%</td><td id="cmp-pmt-minus1">—</td> <td id="cmp-int-minus1">—</td></tr>
+              <tr><td>15-year term</td>  <td id="cmp-pmt-15yr">—</td>   <td id="cmp-int-15yr">—</td></tr>
+              <tr><td>30-year term</td>  <td id="cmp-pmt-30yr">—</td>   <td id="cmp-int-30yr">—</td></tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card chart-card">
+    <div class="card-header">Loan Balance Over Time</div>
+    <div class="chart-container">
+      <canvas id="loanChart"></canvas>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem">Amortization Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()">Show Schedule</button>
+      <span class="schedule-count" id="scheduleCount"></span>
+    </div>
+    <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th>Payment #</th>
+            <th>Date</th>
+            <th>Payment</th>
+            <th>Principal</th>
+            <th>Interest</th>
+            <th>Cum. Interest</th>
+            <th>Remaining Balance</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRINT BAR -->
+  <div class="print-bar">
+    <div class="print-note">
+      Click <strong>Print / Save as PDF</strong> to export results. Use your browser's print dialog and choose "Save as PDF" as the destination.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#128424; Print / Save as PDF
+    </button>
+  </div>
+
+</div>
+
+<footer>
+  <p>Wise Financial Cambodia &mdash; Calculators are for educational purposes only.</p>
+</footer>
+
+<script>
+let loanChart = null;
+let lastScheduleData = [];
+let solveFor = 'payment';
+
+function fmt$(v) {
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+function addMonths(date, m) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + m);
+  return d;
+}
+
+// ── Financial formulas ─────────────────────────────────────────────────────
+
+function calcPMT(pv, r, n) {
+  if (n <= 0) return 0;
+  if (r === 0) return pv / n;
+  return pv * r / (1 - Math.pow(1 + r, -n));
+}
+
+function calcPV(pmt, r, n) {
+  if (n <= 0) return 0;
+  if (r === 0) return pmt * n;
+  return pmt * (1 - Math.pow(1 + r, -n)) / r;
+}
+
+function calcNPER(pv, pmt, r) {
+  if (r === 0) return pmt > 0 ? pv / pmt : Infinity;
+  if (pmt <= pv * r) return Infinity;           // payment can't cover interest
+  return -Math.log(1 - pv * r / pmt) / Math.log(1 + r);
+}
+
+function calcRATE(pv, pmt, n) {
+  // Newton-Raphson — solve monthly rate, return annual rate
+  let r = 0.05 / 12;                            // starting guess ~5% p.a.
+  for (let i = 0; i < 300; i++) {
+    const p  = Math.pow(1 + r, -n);
+    const f  = pmt * (1 - p) / r - pv;
+    const df = pmt * (n * p / ((1 + r) * r) - (1 - p) / (r * r));
+    if (Math.abs(df) < 1e-20) break;
+    const rNew = r - f / df;
+    if (Math.abs(rNew - r) < 1e-12) { r = rNew; break; }
+    r = Math.max(rNew, 1e-9);
+  }
+  return r * 12;
+}
+
+// ── Mode switching ─────────────────────────────────────────────────────────
+
+function setSolveFor(mode) {
+  solveFor = mode;
+
+  // Update tab buttons
+  document.querySelectorAll('.solve-tab').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.solve === mode)
+  );
+
+  // Reset all field groups to editable
+  ['principal', 'rate', 'nper', 'payment'].forEach(id => {
+    document.getElementById('grp-' + id).classList.remove('is-solved');
+    const el = document.getElementById(id === 'nper' ? 'termValue' : id);
+    if (el) el.readOnly = false;
+  });
+  document.getElementById('termUnit').disabled = false;
+
+  // Mark the solved field
+  document.getElementById('grp-' + mode).classList.add('is-solved');
+  const solvedEl = document.getElementById(mode === 'nper' ? 'termValue' : mode);
+  if (solvedEl) solvedEl.readOnly = true;
+
+  calculate();
+}
+
+// ── Main calculation ───────────────────────────────────────────────────────
+
+function calculate() {
+  let pv   = Math.max(0, parseFloat(document.getElementById('principal').value) || 0);
+  let annR = Math.max(0, parseFloat(document.getElementById('rate').value)      || 0) / 100;
+  const tv   = Math.max(0, parseFloat(document.getElementById('termValue').value) || 0);
+  const unit = document.getElementById('termUnit').value;
+  let pmt  = Math.max(0, parseFloat(document.getElementById('payment').value)   || 0);
+
+  let r = annR / 12;
+  // Only read n from termValue when NOT solving for it
+  let n = (solveFor === 'nper') ? 0
+        : (unit === 'years' ? Math.round(tv * 12) : Math.round(tv));
+
+  // ── Solve for the unknown ──
+  if (solveFor === 'payment') {
+    if (pv <= 0 || n <= 0) { setHeroError('—'); return; }
+    pmt = calcPMT(pv, r, n);
+    document.getElementById('payment').value = pmt.toFixed(2);
+
+  } else if (solveFor === 'principal') {
+    if (pmt <= 0 || n <= 0) { setHeroError('—'); return; }
+    pv = calcPV(pmt, r, n);
+    document.getElementById('principal').value = pv.toFixed(2);
+
+  } else if (solveFor === 'rate') {
+    if (pv <= 0 || pmt <= 0 || n <= 0)  { setHeroError('—'); return; }
+    if (pmt * n <= pv)                   { setHeroError('Payment too low'); return; }
+    annR = calcRATE(pv, pmt, n);
+    r    = annR / 12;
+    document.getElementById('rate').value = (annR * 100).toFixed(4);
+
+  } else if (solveFor === 'nper') {
+    if (pv <= 0 || pmt <= 0)             { setHeroError('—'); return; }
+    if (annR > 0 && pmt <= pv * r)       { setHeroError('Payment too low to cover interest'); return; }
+    const rawN = calcNPER(pv, pmt, r);
+    if (!isFinite(rawN) || rawN <= 0)    { setHeroError('Payment too low'); return; }
+    n = Math.ceil(rawN);
+    document.getElementById('termValue').value =
+      unit === 'years' ? (n / 12).toFixed(2) : n;
+  }
+
+  // Guard against invalid results
+  if (pv <= 0 || pmt <= 0 || n <= 0) { setHeroError('—'); return; }
+
+  // ── Derived summary values ──
+  const totalPaid     = pmt * n;
+  const totalInterest = totalPaid - pv;
+  const interestPct   = pv > 0 ? totalInterest / pv * 100 : 0;
+  const termYrs       = n / 12;
+
+  const startDate = new Date();
+  const endDate   = addMonths(startDate, n);
+
+  // ── Hero display ──
+  const heroLabels = {
+    payment:   'Monthly Payment',
+    principal: 'Loan Amount',
+    rate:      'Annual Interest Rate',
+    nper:      'Loan Term'
+  };
+  document.getElementById('r-heroLabel').textContent = heroLabels[solveFor];
+
+  let heroText;
+  if      (solveFor === 'rate')  heroText = (annR * 100).toFixed(4) + '%';
+  else if (solveFor === 'nper')  heroText = n + ' payments (' + termYrs.toFixed(1) + ' yrs)';
+  else if (solveFor === 'payment')   heroText = fmt$(pmt);
+  else                               heroText = fmt$(pv);
+
+  document.getElementById('r-heroValue').textContent = heroText;
+  document.getElementById('r-dateRange').textContent =
+    fmtDate(startDate) + ' → ' + fmtDate(endDate);
+
+  // ── Summary grid ──
+  const termLabel = Number.isInteger(termYrs)
+    ? termYrs + ' yrs (' + n + ' pmts)'
+    : termYrs.toFixed(1) + ' yrs (' + n + ' pmts)';
+
+  document.getElementById('r-principal').textContent      = fmt$(pv);
+  document.getElementById('r-payment').textContent        = fmt$(pmt);
+  document.getElementById('r-totalPaid').textContent      = fmt$(totalPaid);
+  document.getElementById('r-totalInterest').textContent  = fmt$(totalInterest);
+  document.getElementById('r-interestPct').textContent    = interestPct.toFixed(1) + '%';
+  document.getElementById('r-term').textContent           = termLabel;
+
+  // ── Quick comparison (always solve for PMT) ──
+  function cmpCalc(pv2, annR2, n2) {
+    if (pv2 <= 0 || n2 <= 0 || annR2 < 0) return null;
+    const p2 = calcPMT(pv2, annR2 / 12, n2);
+    return { pmt: p2, interest: Math.max(0, p2 * n2 - pv2) };
+  }
+  function setCmpRow(pmtId, intId, res) {
+    if (res && res.pmt > 0) {
+      document.getElementById(pmtId).textContent = fmt$(res.pmt);
+      document.getElementById(intId).textContent = fmt$(res.interest);
+    } else {
+      document.getElementById(pmtId).textContent = '—';
+      document.getElementById(intId).textContent = '—';
+    }
+  }
+
+  setCmpRow('cmp-pmt-current',  'cmp-int-current',  cmpCalc(pv, annR,         n));
+  setCmpRow('cmp-pmt-plus1',    'cmp-int-plus1',    cmpCalc(pv, annR + 0.01,  n));
+  setCmpRow('cmp-pmt-minus1',   'cmp-int-minus1',   annR >= 0.01 ? cmpCalc(pv, annR - 0.01, n) : null);
+  setCmpRow('cmp-pmt-15yr',     'cmp-int-15yr',     cmpCalc(pv, annR, 180));
+  setCmpRow('cmp-pmt-30yr',     'cmp-int-30yr',     cmpCalc(pv, annR, 360));
+
+  // ── Build amortization data ──
+  lastScheduleData = buildAmortization(pv, pmt, r, n, startDate);
+
+  // Print date
+  document.getElementById('printDate').textContent = fmtDate(new Date());
+
+  // Render chart
+  renderChart(lastScheduleData, pv, n);
+
+  // Re-render schedule if open
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    renderSchedule(lastScheduleData);
+  }
+  document.getElementById('scheduleCount').textContent =
+    n + ' payment' + (n !== 1 ? 's' : '');
+}
+
+function setHeroError(msg) {
+  document.getElementById('r-heroValue').textContent = msg;
+  document.getElementById('r-dateRange').textContent = '—';
+}
+
+// ── Amortization schedule ──────────────────────────────────────────────────
+
+function buildAmortization(pv, pmt, r, n, startDate) {
+  const rows = [];
+  let balance     = pv;
+  let cumInterest = 0;
+
+  for (let i = 1; i <= n; i++) {
+    const interest = balance * r;
+    let   principal = pmt - interest;
+    let   actualPmt = pmt;
+
+    // Last payment (or if principal would overshoot): pay exact remainder
+    if (i === n || principal >= balance) {
+      principal = balance;
+      actualPmt = principal + interest;
+    }
+
+    balance = Math.max(0, balance - principal);
+    cumInterest += interest;
+
+    rows.push({
+      period:     i,
+      date:       addMonths(startDate, i),
+      pmt:        actualPmt,
+      principal,
+      interest,
+      cumInterest,
+      balance,
+      isYearEnd:  (i % 12 === 0)
+    });
+  }
+  return rows;
+}
+
+// ── Chart ──────────────────────────────────────────────────────────────────
+
+function renderChart(data, pv, n) {
+  const labels       = ['Start'];
+  const balances     = [pv];
+  const cumInterests = [0];
+
+  if (n <= 24) {
+    // Monthly sampling for short loans
+    data.forEach((row, i) => {
+      labels.push('Mo ' + (i + 1));
+      balances.push(row.balance);
+      cumInterests.push(row.cumInterest);
+    });
+  } else {
+    // Annual sampling
+    data.forEach((row, i) => {
+      if ((i + 1) % 12 === 0 || i === data.length - 1) {
+        labels.push('Yr ' + Math.round((i + 1) / 12));
+        balances.push(row.balance);
+        cumInterests.push(row.cumInterest);
+      }
+    });
+  }
+
+  const ctx = document.getElementById('loanChart').getContext('2d');
+  if (loanChart) loanChart.destroy();
+
+  loanChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Remaining Balance',
+          data: balances,
+          borderColor: '#739669',
+          backgroundColor: 'rgba(115,150,105,0.12)',
+          fill: true,
+          tension: 0.2,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#739669'
+        },
+        {
+          label: 'Cumulative Interest Paid',
+          data: cumInterests,
+          borderColor: '#a1bd66',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          tension: 0.2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 14 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' +
+              '$' + ctx.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: v => '$' + (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'k' : v),
+            font: { size: 11 }
+          },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ── Schedule rendering ─────────────────────────────────────────────────────
+
+function renderSchedule(data) {
+  const tbody = document.querySelector('#scheduleTable tbody');
+  tbody.innerHTML = '';
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    if (row.isYearEnd) tr.className = 'yr';
+    tr.innerHTML =
+      '<td>' + row.period + '</td>' +
+      '<td>' + fmtDate(row.date) + '</td>' +
+      '<td>' + fmt$(row.pmt) + '</td>' +
+      '<td>' + fmt$(row.principal) + '</td>' +
+      '<td>' + fmt$(row.interest) + '</td>' +
+      '<td>' + fmt$(row.cumInterest) + '</td>' +
+      '<td>' + fmt$(row.balance) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleSchedule() {
+  const wrapper  = document.getElementById('scheduleWrapper');
+  const btn      = document.getElementById('toggleBtn');
+  const isHidden = wrapper.style.display === 'none';
+  wrapper.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden ? 'Hide Schedule' : 'Show Schedule';
+  if (isHidden && lastScheduleData.length > 0) renderSchedule(lastScheduleData);
+}
+
+// ── Initialise ─────────────────────────────────────────────────────────────
+
+window.addEventListener('DOMContentLoaded', () => {
+  setSolveFor('payment');
+  ['principal', 'rate', 'termValue', 'termUnit', 'payment'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input',  calculate);
+      el.addEventListener('change', calculate);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
