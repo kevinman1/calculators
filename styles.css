@@ -340,6 +340,25 @@ a.toc-item .item-desc { color: var(--green-600); }
 .solve-tab.active  { background: var(--green-600); color: white; }
 .solve-tab:hover:not(.active) { background: var(--green-50); }
 
+/* ── CURRENCY TOGGLE ── */
+.currency-toggle { display: flex; gap: .3rem; }
+.currency-btn {
+  flex: 1;
+  padding: .3rem .4rem;
+  font-size: .78rem;
+  font-weight: 700;
+  border: 1.5px solid var(--green-600);
+  background: white;
+  color: var(--green-600);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: background .15s, color .15s;
+}
+.currency-btn.active  { background: var(--green-600); color: white; }
+.currency-btn:hover:not(.active) { background: var(--green-50); }
+
 /* ── SOLVED/OUTPUT FIELD STATE ── */
 .input-group.is-solved label::after {
   content: ' — calculated';
