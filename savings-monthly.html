@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-key="monthly.page_title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,21 +13,27 @@
   <div class="header-inner">
     <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
     <div class="header-title">
-      <h1>Wise Financial Cambodia</h1>
-      <span>Financial Education Tools</span>
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
     </div>
     <nav>
-      <a href="index.html">All Calculators</a>
-      <a href="savings-fixed.html">Fixed Savings</a>
-      <a href="savings-monthly.html" class="active">Monthly Savings</a>
-      <a href="loan-calculator.html">Loan Calculator</a>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="savings-fixed.html" data-i18n="nav.fixed">Fixed Savings</a>
+      <a href="savings-monthly.html" class="active" data-i18n="nav.monthly">Monthly Savings</a>
+      <a href="loan-calculator.html" data-i18n="nav.loan">Loan Calculator</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
     </nav>
   </div>
 </header>
 
 <div class="breadcrumb">
   <div class="breadcrumb-inner">
-    <a href="index.html">Calculators</a> &rsaquo; Savings &rsaquo; Monthly Contribution Savings Calculator
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.savings">Savings</span>
+    &rsaquo; <span data-i18n="monthly.bread">Monthly Contribution Savings Calculator</span>
   </div>
 </div>
 
@@ -37,27 +43,27 @@
   <div class="print-header">
     <img src="assets/logo.png" alt="Wise Financial Cambodia">
     <div class="print-header-text">
-      <h3>Wise Financial Cambodia</h3>
-      <p>Monthly Contribution Savings Calculator &mdash; printed <span id="printDate"></span></p>
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="monthly.print_title">Monthly Contribution Savings Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
     </div>
   </div>
 
   <div class="page-title">
-    <h2>Monthly Contribution Savings Calculator</h2>
-    <p>See how regular monthly deposits — with or without an initial lump sum — grow over time.</p>
+    <h2 data-i18n="monthly.page_title">Monthly Contribution Savings Calculator</h2>
+    <p data-i18n="monthly.page_desc">See how regular monthly deposits — with or without an initial lump sum — grow over time.</p>
   </div>
 
   <div class="calc-grid">
 
     <!-- INPUTS -->
     <div class="card">
-      <div class="card-header">Inputs</div>
+      <div class="card-header" data-i18n="input.label">Inputs</div>
       <div class="card-body">
 
-        <div class="section-label">Main Inputs</div>
+        <div class="section-label" data-i18n="input.main">Main Inputs</div>
 
         <div class="input-group">
-          <label>Monthly Contribution</label>
+          <label data-i18n="monthly.input.contrib">Monthly Contribution</label>
           <div class="input-wrapper">
             <span class="input-prefix">$</span>
             <input type="number" id="monthlyContrib" value="250" min="0" step="10">
@@ -65,7 +71,7 @@
         </div>
 
         <div class="input-group">
-          <label>Annual Interest Rate</label>
+          <label data-i18n="input.annual_rate">Annual Interest Rate</label>
           <div class="input-wrapper">
             <input type="number" id="rate" value="5" min="0" max="100" step="0.1">
             <span class="input-suffix">%</span>
@@ -74,27 +80,27 @@
 
         <div class="input-row">
           <div class="input-group">
-            <label>Time Period</label>
+            <label data-i18n="input.time_period">Time Period</label>
             <div class="input-wrapper">
               <input type="number" id="timePeriod" value="10" min="1" step="1">
             </div>
           </div>
           <div class="input-group">
-            <label>Unit</label>
+            <label data-i18n="input.unit">Unit</label>
             <div class="input-wrapper">
               <select id="timeUnit">
-                <option value="Years" selected>Years</option>
-                <option value="Months">Months</option>
+                <option value="Years" selected data-i18n="input.years">Years</option>
+                <option value="Months" data-i18n="input.months">Months</option>
               </select>
             </div>
           </div>
         </div>
 
         <hr class="section-divider">
-        <div class="section-label">Optional Settings</div>
+        <div class="section-label" data-i18n="input.optional">Optional Settings</div>
 
         <div class="input-group">
-          <label>Initial Deposit (optional)</label>
+          <label data-i18n="monthly.input.principal">Initial Deposit (optional)</label>
           <div class="input-wrapper">
             <span class="input-prefix">$</span>
             <input type="number" id="principal" value="0" min="0" step="100">
@@ -102,82 +108,103 @@
         </div>
 
         <div class="input-group">
-          <label>Compounding Frequency</label>
+          <label data-i18n="input.comp_freq">Compounding Frequency</label>
           <div class="input-wrapper">
             <select id="compFreq">
-              <option value="12" selected>Monthly</option>
-              <option value="4">Quarterly</option>
-              <option value="2">Semi-Annual</option>
-              <option value="1">Annual</option>
+              <option value="12" selected data-i18n="input.freq.monthly">Monthly</option>
+              <option value="4" data-i18n="input.freq.quarterly">Quarterly</option>
+              <option value="2" data-i18n="input.freq.semi">Semi-Annual</option>
+              <option value="1" data-i18n="input.freq.annual">Annual</option>
             </select>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Contribution Timing</label>
+          <label data-i18n="monthly.input.timing">Contribution Timing</label>
           <div class="input-wrapper">
             <select id="contribTiming">
-              <option value="end" selected>End of Period</option>
-              <option value="beginning">Beginning of Period</option>
+              <option value="end" selected data-i18n="monthly.timing.end">End of Period</option>
+              <option value="beginning" data-i18n="monthly.timing.begin">Beginning of Period</option>
             </select>
           </div>
         </div>
 
-        <button class="btn-primary" onclick="calculate()">Calculate</button>
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
       </div>
     </div>
 
     <!-- RESULTS -->
     <div>
       <div class="card">
-        <div class="card-header dark">Summary Results</div>
+        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
         <div class="card-body">
 
           <div class="result-hero">
-            <div class="r-label">Future Value</div>
+            <div class="r-label" data-i18n="monthly.result.future_value">Future Value</div>
             <div class="r-value" id="r-futureValue">—</div>
             <div class="r-sub" id="r-dateRange">—</div>
           </div>
 
           <div class="results-grid">
             <div class="result-item">
-              <div class="r-label">Initial Deposit</div>
+              <div class="r-label" data-i18n="monthly.result.principal">Initial Deposit</div>
               <div class="r-value" id="r-principal">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Total Contributions</div>
+              <div class="r-label" data-i18n="monthly.result.total_contribs">Total Contributions</div>
               <div class="r-value" id="r-totalContribs">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Total Principal Invested</div>
+              <div class="r-label" data-i18n="monthly.result.total_principal">Total Principal Invested</div>
               <div class="r-value" id="r-totalPrincipal">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Total Interest Earned</div>
+              <div class="r-label" data-i18n="monthly.result.total_interest">Total Interest Earned</div>
               <div class="r-value" id="r-totalInterest">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Effective Annual Yield</div>
+              <div class="r-label" data-i18n="result.effective_rate">Effective Annual Yield</div>
               <div class="r-value" id="r-effectiveRate">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Years to Double (Rule of 72)</div>
+              <div class="r-label" data-i18n="result.rule72">Years to Double (Rule of 72)</div>
               <div class="r-value" id="r-rule72">—</div>
             </div>
           </div>
 
-          <div class="section-label" style="margin-top:.25rem">Quick Comparison</div>
+          <div class="section-label" style="margin-top:.25rem" data-i18n="result.quick_cmp">Quick Comparison</div>
           <table class="cmp-table">
             <thead>
-              <tr><th>Scenario</th><th>Future Value</th></tr>
+              <tr>
+                <th data-i18n="cmp.scenario">Scenario</th>
+                <th data-i18n="cmp.future_value">Future Value</th>
+              </tr>
             </thead>
             <tbody>
-              <tr class="current"><td>&#9654; Current Plan</td><td id="cmp-current">—</td></tr>
-              <tr><td>Lump sum only (no monthly)</td><td id="cmp-lumponly">—</td></tr>
-              <tr><td>Monthly only (no lump sum)</td><td id="cmp-monthonly">—</td></tr>
-              <tr><td>If rate were +1%</td><td id="cmp-plus1">—</td></tr>
-              <tr><td>If rate were −1%</td><td id="cmp-minus1">—</td></tr>
-              <tr><td>Double the time</td><td id="cmp-doubletime">—</td></tr>
+              <tr class="current">
+                <td data-i18n="cmp.current">&#9654; Current Plan</td>
+                <td id="cmp-current">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.monthly.lump_only">Lump sum only (no monthly)</td>
+                <td id="cmp-lumponly">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.monthly.month_only">Monthly only (no lump sum)</td>
+                <td id="cmp-monthonly">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.plus1">If rate were +1%</td>
+                <td id="cmp-plus1">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.minus1">If rate were −1%</td>
+                <td id="cmp-minus1">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.double_time">Double the time</td>
+                <td id="cmp-doubletime">—</td>
+              </tr>
             </tbody>
           </table>
 
@@ -188,7 +215,7 @@
 
   <!-- CHART -->
   <div class="card chart-card">
-    <div class="card-header">Savings Growth Chart</div>
+    <div class="card-header" data-i18n="monthly.chart.title">Savings Growth Chart</div>
     <div class="chart-container">
       <canvas id="growthChart"></canvas>
     </div>
@@ -197,22 +224,22 @@
   <!-- SCHEDULE -->
   <div class="card schedule-card">
     <div class="schedule-controls">
-      <strong style="font-size:.82rem">Period-by-Period Schedule</strong>
-      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()">Show Schedule</button>
+      <strong style="font-size:.82rem" data-i18n="schedule.title">Period-by-Period Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
       <span class="schedule-count" id="scheduleCount"></span>
     </div>
     <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
       <table class="schedule-table" id="scheduleTable">
         <thead>
           <tr>
-            <th>Period</th>
-            <th>Date</th>
-            <th>Beg. Balance</th>
-            <th>Contribution</th>
-            <th>Interest Earned</th>
-            <th>End Balance</th>
-            <th>Cum. Contributions</th>
-            <th>Cum. Interest</th>
+            <th data-i18n="sched.period">Period</th>
+            <th data-i18n="sched.date">Date</th>
+            <th data-i18n="sched.beg_balance">Beg. Balance</th>
+            <th data-i18n="monthly.input.contrib">Contribution</th>
+            <th data-i18n="sched.interest">Interest Earned</th>
+            <th data-i18n="sched.end_balance">End Balance</th>
+            <th data-i18n="sched.cum_contribs">Cum. Contributions</th>
+            <th data-i18n="sched.cum_interest">Cum. Interest</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -222,20 +249,22 @@
 
   <!-- PRINT BAR -->
   <div class="print-bar">
-    <div class="print-note">
+    <div class="print-note" data-i18n-html="print.note">
       Click <strong>Print / Save as PDF</strong> to export results. Use your browser's print dialog and choose "Save as PDF" as the destination.
     </div>
     <button class="btn-print" onclick="window.print()">
-      🖨 Print / Save as PDF
+      🖨 <span data-i18n="print.btn">Print / Save as PDF</span>
     </button>
   </div>
 
 </div>
 
 <footer>
-  <p>Wise Financial Cambodia &mdash; Calculators are for educational purposes only.</p>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
 <script>
 const FREQ = { '12': 12, '4': 4, '2': 2, '1': 1 };
 let growthChart = null;
@@ -257,11 +286,6 @@ function addPeriods(date, periods, n) {
 }
 
 function calcFV(pv, pmt, r, n, totalPeriods, timing) {
-  // pv  = initial deposit
-  // pmt = payment per PERIOD (monthly contribution, adjusted if n != 12)
-  // r   = annual rate
-  // n   = periods/year
-  // timing: 'end' | 'beginning'
   const pr = r / n;
   const growth = Math.pow(1 + pr, totalPeriods);
   const fvPV  = pv * growth;
@@ -277,35 +301,29 @@ function calcFV(pv, pmt, r, n, totalPeriods, timing) {
 }
 
 function calculate() {
-  const principal     = Math.max(0, parseFloat(document.getElementById('principal').value)     || 0);
-  const monthlyContrib= Math.max(0, parseFloat(document.getElementById('monthlyContrib').value)|| 0);
-  const rate          = Math.max(0, parseFloat(document.getElementById('rate').value)           || 0) / 100;
-  const timePeriod    = Math.max(0, parseFloat(document.getElementById('timePeriod').value)     || 0);
-  const timeUnit      = document.getElementById('timeUnit').value;
-  const n             = FREQ[document.getElementById('compFreq').value] || 12;
-  const timing        = document.getElementById('contribTiming').value;
+  const principal      = Math.max(0, parseFloat(document.getElementById('principal').value)      || 0);
+  const monthlyContrib = Math.max(0, parseFloat(document.getElementById('monthlyContrib').value) || 0);
+  const rate           = Math.max(0, parseFloat(document.getElementById('rate').value)            || 0) / 100;
+  const timePeriod     = Math.max(0, parseFloat(document.getElementById('timePeriod').value)      || 0);
+  const timeUnit       = document.getElementById('timeUnit').value;
+  const n              = FREQ[document.getElementById('compFreq').value] || 12;
+  const timing         = document.getElementById('contribTiming').value;
 
-  const t            = timeUnit === 'Years' ? timePeriod : timePeriod / 12;
-  const totalPeriods = Math.round(n * t);
-  const periodicRate = rate / n;
-
-  // Scale monthly contribution to the compounding period
-  // If n=12, contrib per period = monthlyContrib
-  // If n=4 (quarterly), contrib per period = monthlyContrib * 3
+  const t               = timeUnit === 'Years' ? timePeriod : timePeriod / 12;
+  const totalPeriods    = Math.round(n * t);
+  const periodicRate    = rate / n;
   const contribPerPeriod = monthlyContrib * (12 / n);
 
-  const futureValue      = calcFV(principal, contribPerPeriod, rate, n, totalPeriods, timing);
-  const totalContribs    = contribPerPeriod * totalPeriods;
-  const totalPrincipal   = principal + totalContribs;
-  const totalInterest    = futureValue - totalPrincipal;
-  const effectiveRate    = Math.pow(1 + periodicRate, n) - 1;
-  const yearsToDouble    = rate > 0 ? 72 / (rate * 100) : 0;
+  const futureValue    = calcFV(principal, contribPerPeriod, rate, n, totalPeriods, timing);
+  const totalContribs  = contribPerPeriod * totalPeriods;
+  const totalPrincipal = principal + totalContribs;
+  const totalInterest  = futureValue - totalPrincipal;
+  const effectiveRate  = Math.pow(1 + periodicRate, n) - 1;
+  const yearsToDouble  = rate > 0 ? 72 / (rate * 100) : 0;
 
-  // Dates
   const startDate = new Date();
   const endDate   = addPeriods(startDate, totalPeriods, n);
 
-  // Display
   document.getElementById('r-futureValue').textContent    = fmt$(futureValue);
   document.getElementById('r-dateRange').textContent      = fmtDate(startDate) + ' → ' + fmtDate(endDate);
   document.getElementById('r-principal').textContent      = fmt$(principal);
@@ -315,7 +333,6 @@ function calculate() {
   document.getElementById('r-effectiveRate').textContent  = (effectiveRate * 100).toFixed(4) + '%';
   document.getElementById('r-rule72').textContent         = yearsToDouble.toFixed(1) + ' yrs';
 
-  // Comparisons
   document.getElementById('cmp-current').textContent    = fmt$(futureValue);
   document.getElementById('cmp-lumponly').textContent   = fmt$(principal * Math.pow(1 + periodicRate, totalPeriods));
   document.getElementById('cmp-monthonly').textContent  = fmt$(calcFV(0, contribPerPeriod, rate, n, totalPeriods, timing));
@@ -325,16 +342,12 @@ function calculate() {
     : '—';
   document.getElementById('cmp-doubletime').textContent = fmt$(calcFV(principal, contribPerPeriod, rate, n, totalPeriods * 2, timing));
 
-  // Build schedule
   lastScheduleData = buildSchedule(principal, contribPerPeriod, periodicRate, totalPeriods, n, startDate, timing);
 
-  // Print date
   document.getElementById('printDate').textContent = fmtDate(new Date());
 
-  // Chart
-  renderChart(lastScheduleData, principal, n, t, contribPerPeriod);
+  renderChart(lastScheduleData, principal, n, t);
 
-  // Schedule (if open)
   if (document.getElementById('scheduleWrapper').style.display !== 'none') {
     renderSchedule(lastScheduleData);
   }
@@ -353,13 +366,11 @@ function buildSchedule(principal, contribPerPeriod, periodicRate, totalPeriods, 
     let contrib, interest;
 
     if (timing === 'beginning') {
-      // Deposit at start of period, then earn interest
       beg      = balance + contribPerPeriod;
       interest = beg * periodicRate;
       balance  = beg + interest;
       contrib  = contribPerPeriod;
     } else {
-      // Earn interest on balance, then deposit
       interest = beg * periodicRate;
       balance  = beg + interest + contribPerPeriod;
       contrib  = contribPerPeriod;
@@ -383,10 +394,10 @@ function buildSchedule(principal, contribPerPeriod, periodicRate, totalPeriods, 
   return rows;
 }
 
-function renderChart(data, principal, n, t, contribPerPeriod) {
-  const labels      = ['Start'];
-  const balances    = [principal];
-  const principals  = [principal];
+function renderChart(data, principal, n, t) {
+  const labels     = ['Start'];
+  const balances   = [principal];
+  const principals = [principal];
   const step = Math.round(n);
 
   data.forEach((row, idx) => {
@@ -400,6 +411,8 @@ function renderChart(data, principal, n, t, contribPerPeriod) {
     for (let i = 1; i < labels.length; i++) labels[i] = 'Mo ' + (i * step);
   }
 
+  const T = (typeof WFC !== 'undefined') ? WFC.t : function(k){ return k; };
+
   const ctx = document.getElementById('growthChart').getContext('2d');
   if (growthChart) growthChart.destroy();
 
@@ -409,7 +422,7 @@ function renderChart(data, principal, n, t, contribPerPeriod) {
       labels,
       datasets: [
         {
-          label: 'Balance',
+          label: T('monthly.chart.balance'),
           data: balances,
           borderColor: '#739669',
           backgroundColor: 'rgba(115,150,105,0.12)',
@@ -420,7 +433,7 @@ function renderChart(data, principal, n, t, contribPerPeriod) {
           pointBackgroundColor: '#739669'
         },
         {
-          label: 'Total Invested',
+          label: T('monthly.chart.invested'),
           data: principals,
           borderColor: '#a1bd66',
           borderWidth: 2,
@@ -481,7 +494,8 @@ function toggleSchedule() {
   const btn      = document.getElementById('toggleBtn');
   const isHidden = wrapper.style.display === 'none';
   wrapper.style.display = isHidden ? 'block' : 'none';
-  btn.textContent = isHidden ? 'Hide Schedule' : 'Show Schedule';
+  const T = (typeof WFC !== 'undefined') ? WFC.t : function(k){ return k; };
+  btn.textContent = isHidden ? T('schedule.hide') : T('schedule.show');
   if (isHidden && lastScheduleData.length > 0) renderSchedule(lastScheduleData);
 }
 

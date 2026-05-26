@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-key="loan.page_title">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,21 +19,27 @@
   <div class="header-inner">
     <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
     <div class="header-title">
-      <h1>Wise Financial Cambodia</h1>
-      <span>Financial Education Tools</span>
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
     </div>
     <nav>
-      <a href="index.html">All Calculators</a>
-      <a href="savings-fixed.html">Fixed Savings</a>
-      <a href="savings-monthly.html">Monthly Savings</a>
-      <a href="loan-calculator.html" class="active">Loan Calculator</a>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="savings-fixed.html" data-i18n="nav.fixed">Fixed Savings</a>
+      <a href="savings-monthly.html" data-i18n="nav.monthly">Monthly Savings</a>
+      <a href="loan-calculator.html" class="active" data-i18n="nav.loan">Loan Calculator</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
     </nav>
   </div>
 </header>
 
 <div class="breadcrumb">
   <div class="breadcrumb-inner">
-    <a href="index.html">Calculators</a> &rsaquo; Loans &rsaquo; Loan Calculator (4 Parts)
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="loan.bread">Loan Calculator (4 Parts)</span>
   </div>
 </div>
 
@@ -43,31 +49,31 @@
   <div class="print-header">
     <img src="assets/logo.png" alt="Wise Financial Cambodia">
     <div class="print-header-text">
-      <h3>Wise Financial Cambodia</h3>
-      <p>Loan Calculator (4 Parts) &mdash; printed <span id="printDate"></span></p>
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="loan.print_title">Loan Calculator (4 Parts)</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
     </div>
   </div>
 
   <div class="page-title">
-    <h2>Loan Calculator (4 Parts)</h2>
-    <p>Know any 3 loan variables? Solve for the missing one &mdash; payment, principal, interest rate, or loan term.</p>
+    <h2 data-i18n="loan.page_title">Loan Calculator (4 Parts)</h2>
+    <p data-i18n="loan.page_desc">Know any 3 loan variables? Solve for the missing one &mdash; payment, principal, interest rate, or loan term.</p>
   </div>
 
   <div class="calc-grid">
 
     <!-- INPUTS -->
     <div class="card">
-      <div class="card-header">Inputs</div>
+      <div class="card-header" data-i18n="input.label">Inputs</div>
       <div class="card-body">
 
         <!-- Currency toggle -->
-        <div class="section-label">Currency</div>
+        <div class="section-label" data-i18n="loan.section.currency">Currency</div>
         <div class="currency-toggle" style="margin-bottom:.6rem">
           <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
           <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
         </div>
         <div class="input-group" id="exrateGroup" style="display:none;margin-bottom:.6rem">
-          <label>Exchange Rate (1 USD =)</label>
+          <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
           <div class="input-wrapper">
             <input type="number" id="exchangeRate" value="4100" min="1" step="100">
             <span class="input-suffix">KHR</span>
@@ -75,19 +81,19 @@
         </div>
 
         <hr class="section-divider" style="margin-top:0">
-        <div class="section-label">Solve For</div>
+        <div class="section-label" data-i18n="loan.section.solve">Solve For</div>
         <div class="solve-tabs" style="margin-bottom:.9rem">
-          <button class="solve-tab active" data-solve="payment"   onclick="setSolveFor('payment')">Monthly<br>Payment</button>
-          <button class="solve-tab"        data-solve="principal" onclick="setSolveFor('principal')">Loan<br>Amount</button>
-          <button class="solve-tab"        data-solve="rate"      onclick="setSolveFor('rate')">Interest<br>Rate</button>
-          <button class="solve-tab"        data-solve="nper"      onclick="setSolveFor('nper')">Loan<br>Term</button>
+          <button class="solve-tab active" data-solve="payment"   onclick="setSolveFor('payment')"   data-i18n="loan.solve.payment">Monthly&#10;Payment</button>
+          <button class="solve-tab"        data-solve="principal" onclick="setSolveFor('principal')" data-i18n="loan.solve.principal">Loan&#10;Amount</button>
+          <button class="solve-tab"        data-solve="rate"      onclick="setSolveFor('rate')"      data-i18n="loan.solve.rate">Interest&#10;Rate</button>
+          <button class="solve-tab"        data-solve="nper"      onclick="setSolveFor('nper')"      data-i18n="loan.solve.nper">Loan&#10;Term</button>
         </div>
 
         <hr class="section-divider" style="margin-top:0">
-        <div class="section-label">Loan Details</div>
+        <div class="section-label" data-i18n="loan.section.details">Loan Details</div>
 
         <div class="input-group" id="grp-principal">
-          <label>Loan Amount</label>
+          <label data-i18n="loan.input.principal">Loan Amount</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfx-principal">$</span>
             <input type="number" id="principal" value="5000" min="0" step="100">
@@ -95,7 +101,7 @@
         </div>
 
         <div class="input-group" id="grp-rate">
-          <label>Annual Interest Rate</label>
+          <label data-i18n="loan.input.rate">Annual Interest Rate</label>
           <div class="input-wrapper">
             <input type="number" id="rate" value="6.5" min="0" max="200" step="0.1">
             <span class="input-suffix">%</span>
@@ -103,82 +109,106 @@
         </div>
 
         <div class="input-group" id="grp-nper">
-          <label>Loan Term</label>
+          <label data-i18n="loan.input.term">Loan Term</label>
           <div class="input-row">
             <div class="input-wrapper">
               <input type="number" id="termValue" value="2" min="0" step="1">
             </div>
             <div class="input-wrapper">
               <select id="termUnit">
-                <option value="years" selected>Years</option>
-                <option value="months">Months</option>
+                <option value="years" selected data-i18n="input.years">Years</option>
+                <option value="months" data-i18n="input.months">Months</option>
               </select>
             </div>
           </div>
         </div>
 
         <div class="input-group" id="grp-payment">
-          <label>Monthly Payment</label>
+          <label data-i18n="loan.input.payment">Monthly Payment</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfx-payment">$</span>
             <input type="number" id="payment" value="221.94" min="0" step="10">
           </div>
         </div>
 
-        <button class="btn-primary" onclick="calculate()">Calculate</button>
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
       </div>
     </div>
 
     <!-- RESULTS -->
     <div>
       <div class="card">
-        <div class="card-header dark">Summary Results</div>
+        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
         <div class="card-body">
 
           <div class="result-hero">
-            <div class="r-label" id="r-heroLabel">Monthly Payment</div>
+            <div class="r-label" id="r-heroLabel" data-i18n="loan.hero.payment">Monthly Payment</div>
             <div class="r-value" id="r-heroValue">—</div>
             <div class="r-sub"  id="r-dateRange">—</div>
           </div>
 
           <div class="results-grid">
             <div class="result-item">
-              <div class="r-label">Loan Amount</div>
+              <div class="r-label" data-i18n="loan.result.principal">Loan Amount</div>
               <div class="r-value" id="r-principal">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Monthly Payment</div>
+              <div class="r-label" data-i18n="loan.result.payment">Monthly Payment</div>
               <div class="r-value" id="r-payment">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Total Amount Paid</div>
+              <div class="r-label" data-i18n="loan.result.total_paid">Total Amount Paid</div>
               <div class="r-value" id="r-totalPaid">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Total Interest Paid</div>
+              <div class="r-label" data-i18n="loan.result.total_interest">Total Interest Paid</div>
               <div class="r-value" id="r-totalInterest">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Interest as % of Principal</div>
+              <div class="r-label" data-i18n="loan.result.interest_pct">Interest as % of Principal</div>
               <div class="r-value" id="r-interestPct">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Loan Term</div>
+              <div class="r-label" data-i18n="loan.result.term">Loan Term</div>
               <div class="r-value" id="r-term">—</div>
             </div>
           </div>
 
-          <div class="section-label" style="margin-top:.25rem">Quick Comparison</div>
+          <div class="section-label" style="margin-top:.25rem" data-i18n="result.quick_cmp">Quick Comparison</div>
           <table class="cmp-table" id="loanCmpTable">
             <thead>
-              <tr><th>Scenario</th><th>Monthly Pmt</th><th>Total Interest</th></tr>
+              <tr>
+                <th data-i18n="cmp.scenario">Scenario</th>
+                <th data-i18n="cmp.loan.header.pmt">Monthly Pmt</th>
+                <th data-i18n="cmp.loan.header.int">Total Interest</th>
+              </tr>
             </thead>
             <tbody>
-              <tr class="current"><td>&#9654; Current Plan</td><td id="cmp-pmt-current">—</td><td id="cmp-int-current">—</td></tr>
-              <tr><td>Rate +1%</td>      <td id="cmp-pmt-plus1">—</td>  <td id="cmp-int-plus1">—</td></tr>
-              <tr><td>Rate &minus;1%</td><td id="cmp-pmt-minus1">—</td> <td id="cmp-int-minus1">—</td></tr>
-              <tr><td>1-year term</td>   <td id="cmp-pmt-1yr">—</td>    <td id="cmp-int-1yr">—</td></tr>
-              <tr><td>3-year term</td>   <td id="cmp-pmt-3yr">—</td>    <td id="cmp-int-3yr">—</td></tr>
+              <tr class="current">
+                <td data-i18n="cmp.current">&#9654; Current Plan</td>
+                <td id="cmp-pmt-current">—</td>
+                <td id="cmp-int-current">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.loan.plus1">Rate +1%</td>
+                <td id="cmp-pmt-plus1">—</td>
+                <td id="cmp-int-plus1">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.loan.minus1">Rate −1%</td>
+                <td id="cmp-pmt-minus1">—</td>
+                <td id="cmp-int-minus1">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.loan.1yr">1-year term</td>
+                <td id="cmp-pmt-1yr">—</td>
+                <td id="cmp-int-1yr">—</td>
+              </tr>
+              <tr>
+                <td data-i18n="cmp.loan.3yr">3-year term</td>
+                <td id="cmp-pmt-3yr">—</td>
+                <td id="cmp-int-3yr">—</td>
+              </tr>
             </tbody>
           </table>
 
@@ -189,7 +219,7 @@
 
   <!-- CHART -->
   <div class="card chart-card">
-    <div class="card-header">Loan Balance Over Time</div>
+    <div class="card-header" data-i18n="loan.chart.title">Loan Balance Over Time</div>
     <div class="chart-container">
       <canvas id="loanChart"></canvas>
     </div>
@@ -198,21 +228,21 @@
   <!-- SCHEDULE -->
   <div class="card schedule-card">
     <div class="schedule-controls">
-      <strong style="font-size:.82rem">Amortization Schedule</strong>
-      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()">Show Schedule</button>
+      <strong style="font-size:.82rem" data-i18n="loan.schedule.title">Amortization Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
       <span class="schedule-count" id="scheduleCount"></span>
     </div>
     <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
       <table class="schedule-table" id="scheduleTable">
         <thead>
           <tr>
-            <th>Payment #</th>
-            <th>Date</th>
-            <th>Payment</th>
-            <th>Principal</th>
-            <th>Interest</th>
-            <th>Cum. Interest</th>
-            <th>Remaining Balance</th>
+            <th data-i18n="loan.sched.payment_num">Payment #</th>
+            <th data-i18n="sched.date">Date</th>
+            <th data-i18n="loan.sched.payment">Payment</th>
+            <th data-i18n="loan.sched.principal">Principal</th>
+            <th data-i18n="sched.interest">Interest</th>
+            <th data-i18n="sched.cum_interest">Cum. Interest</th>
+            <th data-i18n="loan.sched.remaining">Remaining Balance</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -222,31 +252,38 @@
 
   <!-- PRINT BAR -->
   <div class="print-bar">
-    <div class="print-note">
+    <div class="print-note" data-i18n-html="print.note">
       Click <strong>Print / Save as PDF</strong> to export results. Use your browser's print dialog and choose "Save as PDF" as the destination.
     </div>
     <button class="btn-print" onclick="window.print()">
-      &#128424; Print / Save as PDF
+      &#128424; <span data-i18n="print.btn">Print / Save as PDF</span>
     </button>
   </div>
 
 </div>
 
 <footer>
-  <p>Wise Financial Cambodia &mdash; Calculators are for educational purposes only.</p>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
 <script>
-let loanChart       = null;
+let loanChart        = null;
 let lastScheduleData = [];
-let solveFor        = 'payment';
-let currency        = 'USD';
+let solveFor         = 'payment';
+let currency         = 'USD';
+
+// ── Shorthand for translation ──────────────────────────────────────────────
+function T(key) {
+  return (typeof WFC !== 'undefined') ? WFC.t(key) : key;
+}
 
 // ── Currency helpers ───────────────────────────────────────────────────────
 
 function fmtMoney(v) {
   if (currency === 'KHR') {
-    return '៛ ' + Math.round(v).toLocaleString('en-US');
+    return '៛ ' + Math.round(v).toLocaleString('en-US');
   }
   return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -264,7 +301,6 @@ function setCurrency(newCur) {
 
   const xr = getExchangeRate();
 
-  // Convert editable money inputs only (readonly = calculated, will be refreshed by calculate())
   ['principal', 'payment'].forEach(id => {
     const el = document.getElementById(id);
     if (el && !el.readOnly) {
@@ -277,15 +313,12 @@ function setCurrency(newCur) {
 
   currency = newCur;
 
-  // Toggle button states
   document.querySelectorAll('.currency-btn').forEach(btn =>
     btn.classList.toggle('active', btn.dataset.currency === newCur)
   );
 
-  // Show/hide exchange rate field
   document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? '' : 'none';
 
-  // Update $ / ₭ prefixes on money inputs
   const sym = currencySym();
   document.getElementById('pfx-principal').textContent = sym;
   document.getElementById('pfx-payment').textContent   = sym;
@@ -325,7 +358,6 @@ function calcNPER(pv, pmt, r) {
 }
 
 function calcRATE(pv, pmt, n) {
-  // Newton-Raphson → monthly rate → return annual rate
   let r = 0.05 / 12;
   for (let i = 0; i < 300; i++) {
     const p  = Math.pow(1 + r, -n);
@@ -348,7 +380,6 @@ function setSolveFor(mode) {
     btn.classList.toggle('active', btn.dataset.solve === mode)
   );
 
-  // Reset all fields to editable
   ['principal', 'rate', 'nper', 'payment'].forEach(id => {
     document.getElementById('grp-' + id).classList.remove('is-solved');
     const el = document.getElementById(id === 'nper' ? 'termValue' : id);
@@ -356,10 +387,12 @@ function setSolveFor(mode) {
   });
   document.getElementById('termUnit').disabled = false;
 
-  // Mark solved field
   document.getElementById('grp-' + mode).classList.add('is-solved');
   const solvedEl = document.getElementById(mode === 'nper' ? 'termValue' : mode);
   if (solvedEl) solvedEl.readOnly = true;
+
+  // Update hero label to match current solve mode
+  document.getElementById('r-heroLabel').textContent = T('loan.hero.' + mode);
 
   calculate();
 }
@@ -377,7 +410,6 @@ function calculate() {
   let n = (solveFor === 'nper') ? 0
         : (unit === 'years' ? Math.round(tv * 12) : Math.round(tv));
 
-  // ── Solve ──
   if (solveFor === 'payment') {
     if (pv <= 0 || n <= 0) { setHeroError('—'); return; }
     pmt = calcPMT(pv, r, n);
@@ -409,7 +441,6 @@ function calculate() {
 
   if (pv <= 0 || pmt <= 0 || n <= 0) { setHeroError('—'); return; }
 
-  // ── Derived values ──
   const totalPaid     = pmt * n;
   const totalInterest = totalPaid - pv;
   const interestPct   = pv > 0 ? totalInterest / pv * 100 : 0;
@@ -418,14 +449,8 @@ function calculate() {
   const startDate = new Date();
   const endDate   = addMonths(startDate, n);
 
-  // ── Hero ──
-  const heroLabels = {
-    payment:   'Monthly Payment',
-    principal: 'Loan Amount',
-    rate:      'Annual Interest Rate',
-    nper:      'Loan Term'
-  };
-  document.getElementById('r-heroLabel').textContent = heroLabels[solveFor];
+  // Hero label updates via i18n — just set the value
+  document.getElementById('r-heroLabel').textContent = T('loan.hero.' + solveFor);
 
   let heroText;
   if      (solveFor === 'rate')      heroText = (annR * 100).toFixed(2) + '%';
@@ -437,7 +462,6 @@ function calculate() {
   document.getElementById('r-dateRange').textContent =
     fmtDate(startDate) + ' → ' + fmtDate(endDate);
 
-  // ── Summary grid ──
   const termLabel = Number.isInteger(termYrs)
     ? termYrs + ' yrs (' + n + ' pmts)'
     : termYrs.toFixed(1) + ' yrs (' + n + ' pmts)';
@@ -449,7 +473,6 @@ function calculate() {
   document.getElementById('r-interestPct').textContent    = interestPct.toFixed(1) + '%';
   document.getElementById('r-term').textContent           = termLabel;
 
-  // ── Quick comparison (always solve for PMT) ──
   function cmpCalc(pv2, annR2, n2) {
     if (pv2 <= 0 || n2 <= 0 || annR2 < 0) return null;
     const p2 = calcPMT(pv2, annR2 / 12, n2);
@@ -471,7 +494,6 @@ function calculate() {
   setCmpRow('cmp-pmt-1yr',     'cmp-int-1yr',     cmpCalc(pv, annR, 12));
   setCmpRow('cmp-pmt-3yr',     'cmp-int-3yr',     cmpCalc(pv, annR, 36));
 
-  // ── Build amortization ──
   lastScheduleData = buildAmortization(pv, pmt, r, n, startDate);
 
   document.getElementById('printDate').textContent = fmtDate(new Date());
@@ -557,7 +579,7 @@ function renderChart(data, pv, n) {
       labels,
       datasets: [
         {
-          label: 'Remaining Balance',
+          label: T('loan.chart.balance'),
           data: balances,
           borderColor: '#739669',
           backgroundColor: 'rgba(115,150,105,0.12)',
@@ -568,7 +590,7 @@ function renderChart(data, pv, n) {
           pointBackgroundColor: '#739669'
         },
         {
-          label: 'Cumulative Interest Paid',
+          label: T('loan.chart.cum_interest'),
           data: cumInterests,
           borderColor: '#a1bd66',
           borderWidth: 2,
@@ -629,7 +651,7 @@ function toggleSchedule() {
   const btn      = document.getElementById('toggleBtn');
   const isHidden = wrapper.style.display === 'none';
   wrapper.style.display = isHidden ? 'block' : 'none';
-  btn.textContent = isHidden ? 'Hide Schedule' : 'Show Schedule';
+  btn.textContent = isHidden ? T('schedule.hide') : T('schedule.show');
   if (isHidden && lastScheduleData.length > 0) renderSchedule(lastScheduleData);
 }
 

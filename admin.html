@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Translation Editor – Wise Financial Cambodia</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── Admin-specific styles ── */
+    .admin-login {
+      max-width: 440px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    }
+    .admin-login h2 {
+      color: var(--green-800);
+      font-size: 1.25rem;
+      margin-bottom: .35rem;
+    }
+    .admin-login p {
+      color: var(--text-light);
+      font-size: .85rem;
+      margin-bottom: 1.25rem;
+    }
+    .admin-login label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--text-medium);
+      margin-bottom: .3rem;
+    }
+    .admin-login input[type=password],
+    .admin-login input[type=text] {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      padding: .55rem .7rem;
+      font-size: .9rem;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 1rem;
+    }
+    .admin-login input:focus { border-color: var(--green-600); }
+    .login-error {
+      color: #c0392b;
+      font-size: .82rem;
+      margin-bottom: .75rem;
+      display: none;
+    }
+    /* editor */
+    #editorSection { display: none; }
+    .admin-toolbar {
+      background: white;
+      border-radius: 8px;
+      padding: .85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .admin-toolbar h2 {
+      font-size: 1.05rem;
+      color: var(--green-800);
+      font-weight: 700;
+    }
+    .toolbar-btns { display: flex; gap: .5rem; align-items: center; }
+    .save-status {
+      font-size: .8rem;
+      color: var(--text-light);
+      font-style: italic;
+    }
+    .save-status.ok  { color: #27ae60; font-style: normal; font-weight: 600; }
+    .save-status.err { color: #c0392b; font-style: normal; font-weight: 600; }
+
+    .section-block {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+    .section-block-header {
+      background: var(--green-700);
+      color: white;
+      padding: .65rem 1.1rem;
+      font-weight: 700;
+      font-size: .82rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-block-header:hover { background: var(--green-800); }
+    .section-block-header .chevron { transition: transform .2s; }
+    .section-block-header.collapsed .chevron { transform: rotate(-90deg); }
+    .section-block-body { display: grid; grid-template-columns: 220px 1fr 1fr; border-top: 1px solid var(--green-100); }
+    .section-block-body.hidden { display: none; }
+
+    .col-header {
+      background: var(--green-100);
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--green-700);
+      padding: .45rem .75rem;
+      border-bottom: 1px solid var(--green-200);
+    }
+
+    .trans-row {
+      display: contents;
+    }
+    .trans-row > div {
+      padding: .45rem .75rem;
+      border-bottom: 1px solid var(--green-50);
+      min-height: 44px;
+    }
+    .trans-row:nth-child(even) > div { background: var(--green-50); }
+    .trans-row:hover > div { background: var(--green-100); }
+
+    .key-cell {
+      font-size: .72rem;
+      color: var(--text-light);
+      font-family: monospace;
+      padding-top: .55rem !important;
+    }
+    .key-cell .key-label {
+      font-size: .77rem;
+      font-weight: 600;
+      color: var(--text-medium);
+      font-family: inherit;
+      display: block;
+      margin-bottom: .1rem;
+    }
+
+    .trans-row textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      padding: .35rem .5rem;
+      font-size: .85rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 34px;
+      line-height: 1.4;
+      outline: none;
+      transition: border-color .15s;
+      background: white;
+    }
+    .trans-row textarea:focus { border-color: var(--green-600); }
+    .trans-row textarea.km { font-family: 'Hanuman', 'Khmer OS', sans-serif; }
+
+    @media (max-width: 780px) {
+      .section-block-body {
+        grid-template-columns: 1fr;
+      }
+      .col-header:first-child { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1>Wise Financial Cambodia</h1>
+      <span>Translation Editor</span>
+    </div>
+    <nav>
+      <a href="index.html">← Back to Calculators</a>
+      <button class="lang-btn" id="logoutBtn" onclick="logout()" style="margin-left:.5rem;display:none">Log out</button>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── Login ── -->
+  <div class="admin-login" id="loginSection">
+    <h2>Translation Editor</h2>
+    <p>Enter your GitHub Personal Access Token to edit translations. Only authorised team members can access this page.</p>
+    <label>GitHub Personal Access Token</label>
+    <input type="password" id="patInput" placeholder="ghp_..." autocomplete="off">
+    <div class="login-error" id="loginError">Could not authenticate. Please check your token and try again.</div>
+    <button class="btn-primary" onclick="login()">Access Editor</button>
+    <p style="margin-top:.9rem;font-size:.75rem;color:var(--text-light)">Your token is only stored for this browser tab and is never sent anywhere except the GitHub API.</p>
+  </div>
+
+  <!-- ── Editor ── -->
+  <div id="editorSection">
+    <div class="admin-toolbar">
+      <h2>Translation Editor</h2>
+      <div class="toolbar-btns">
+        <span class="save-status" id="saveStatus">Unsaved changes</span>
+        <button class="btn-secondary" onclick="saveTranslations()">💾 Save to GitHub</button>
+      </div>
+    </div>
+    <div id="editorContent"></div>
+  </div>
+
+</div>
+
+<footer>
+  <p>Translation Editor — Wise Financial Cambodia</p>
+</footer>
+
+<script src="lang.js"></script>
+<script>
+// ── Config ─────────────────────────────────────────────────────────────────
+const REPO     = 'kevinman1/calculators';
+const FILEPATH = 'lang.js';
+const API_BASE = 'https://api.github.com';
+
+// ── Sections definition: [ sectionTitle, [ [key, friendlyLabel], ... ] ] ───
+const SECTIONS = [
+  ['🌐 Navigation & Site', [
+    ['site.name',            'Site name'],
+    ['site.tagline',         'Site tagline'],
+    ['site.footer.main',     'Footer main line'],
+    ['site.footer.edu',      'Footer education note (long)'],
+    ['site.footer.edu_short','Footer education note (short)'],
+    ['nav.all',              'Nav: All Calculators'],
+    ['nav.fixed',            'Nav: Fixed Savings'],
+    ['nav.monthly',          'Nav: Monthly Savings'],
+    ['nav.loan',             'Nav: Loan Calculator'],
+    ['bread.calculators',    'Breadcrumb: Calculators'],
+    ['bread.savings',        'Breadcrumb: Savings'],
+    ['bread.loans',          'Breadcrumb: Loans'],
+  ]],
+  ['🏠 Index / Home Page', [
+    ['index.title',          'Page heading'],
+    ['index.desc',           'Intro description'],
+    ['index.savings_col',    'Savings column header'],
+    ['index.loans_col',      'Loans column header'],
+    ['index.budget_col',     'Budgeting column header'],
+    ['badge.live',           'Badge: Live'],
+    ['badge.soon',           'Badge: Coming Soon'],
+  ]],
+  ['📋 Calculator Names & Descriptions', [
+    ['calc.fixed.name',          'Fixed Deposit — name'],
+    ['calc.fixed.desc',          'Fixed Deposit — description'],
+    ['calc.monthly.name',        'Monthly Savings — name'],
+    ['calc.monthly.desc',        'Monthly Savings — description'],
+    ['calc.loan4.name',          'Loan (4 Parts) — name'],
+    ['calc.loan4.desc',          'Loan (4 Parts) — description'],
+    ['calc.emergency.name',      'Emergency Fund — name'],
+    ['calc.emergency.desc',      'Emergency Fund — description'],
+    ['calc.nssf.name',           'NSSF Pension — name'],
+    ['calc.nssf.desc',           'NSSF Pension — description'],
+    ['calc.retire.name',         'Retirement Balance — name'],
+    ['calc.retire.desc',         'Retirement Balance — description'],
+    ['calc.homevsbank.name',     'Home vs Bank — name'],
+    ['calc.homevsbank.desc',     'Home vs Bank — description'],
+    ['calc.invest.name',         'Investment Evaluation — name'],
+    ['calc.invest.desc',         'Investment Evaluation — description'],
+    ['calc.simple_daily.name',   'Simple Interest Daily — name'],
+    ['calc.simple_daily.desc',   'Simple Interest Daily — description'],
+    ['calc.simple_monthly.name', 'Simple Interest Monthly — name'],
+    ['calc.simple_monthly.desc', 'Simple Interest Monthly — description'],
+    ['calc.compound_loan.name',  'Compound Loan — name'],
+    ['calc.compound_loan.desc',  'Compound Loan — description'],
+    ['calc.loan_comp.name',      'Loan Comparison — name'],
+    ['calc.loan_comp.desc',      'Loan Comparison — description'],
+    ['calc.promo.name',          'Promotional Loan — name'],
+    ['calc.promo.desc',          'Promotional Loan — description'],
+    ['calc.cambodia_loans.name', 'Cambodian Loans — name'],
+    ['calc.cambodia_loans.desc', 'Cambodian Loans — description'],
+    ['calc.credit_card.name',    'Credit Card — name'],
+    ['calc.credit_card.desc',    'Credit Card — description'],
+    ['calc.debt_payoff.name',    'Debt Pay-Off — name'],
+    ['calc.debt_payoff.desc',    'Debt Pay-Off — description'],
+    ['calc.dti.name',            'DTI Ratio — name'],
+    ['calc.dti.desc',            'DTI Ratio — description'],
+    ['calc.rent_vs_buy.name',    'Renting vs Financing — name'],
+    ['calc.rent_vs_buy.desc',    'Renting vs Financing — description'],
+    ['calc.family_budget.name',  'Family Budget — name'],
+    ['calc.family_budget.desc',  'Family Budget — description'],
+    ['calc.church_budget.name',  'Church Budget — name'],
+    ['calc.church_budget.desc',  'Church Budget — description'],
+    ['calc.farm_budget.name',    'Farm Budget — name'],
+    ['calc.farm_budget.desc',    'Farm Budget — description'],
+    ['calc.insurance.name',      'Insurance — name'],
+    ['calc.insurance.desc',      'Insurance — description'],
+    ['calc.inflation.name',      'Inflation Calculator — name'],
+    ['calc.inflation.desc',      'Inflation Calculator — description'],
+  ]],
+  ['🔧 Shared Input Labels', [
+    ['input.label',          'Card header: Inputs'],
+    ['input.main',           'Section label: Main Inputs'],
+    ['input.optional',       'Section label: Optional Settings'],
+    ['input.annual_rate',    'Label: Annual Interest Rate'],
+    ['input.time_period',    'Label: Time Period'],
+    ['input.unit',           'Label: Unit'],
+    ['input.years',          'Option: Years'],
+    ['input.months',         'Option: Months'],
+    ['input.comp_freq',      'Label: Compounding Frequency'],
+    ['input.freq.monthly',   'Freq option: Monthly'],
+    ['input.freq.quarterly', 'Freq option: Quarterly'],
+    ['input.freq.semi',      'Freq option: Semi-Annual'],
+    ['input.freq.annual',    'Freq option: Annual'],
+    ['input.freq.daily',     'Freq option: Daily'],
+    ['btn.calculate',        'Button: Calculate'],
+  ]],
+  ['📊 Shared Result Labels', [
+    ['result.summary',       'Card header: Summary Results'],
+    ['result.effective_rate','Label: Effective Annual Yield'],
+    ['result.rule72',        'Label: Rule of 72'],
+    ['result.quick_cmp',     'Section label: Quick Comparison'],
+    ['cmp.scenario',         'Table header: Scenario'],
+    ['cmp.future_value',     'Table header: Future Value'],
+    ['cmp.current',          'Row: Current Plan'],
+    ['cmp.plus1',            'Row: Rate +1%'],
+    ['cmp.minus1',           'Row: Rate −1%'],
+    ['cmp.double_time',      'Row: Double the time'],
+  ]],
+  ['💰 Fixed Deposit Savings', [
+    ['fixed.page_title',          'Page title'],
+    ['fixed.page_desc',           'Page description'],
+    ['fixed.bread',               'Breadcrumb label'],
+    ['fixed.print_title',         'Print header title'],
+    ['fixed.input.principal',     'Input: Initial Deposit'],
+    ['fixed.result.future_value', 'Result: Future Value'],
+    ['fixed.result.principal',    'Result: Initial Deposit'],
+    ['fixed.result.total_interest','Result: Total Interest Earned'],
+    ['fixed.chart.title',         'Chart card header'],
+    ['fixed.chart.balance',       'Chart legend: Balance'],
+    ['fixed.chart.principal',     'Chart legend: Principal'],
+    ['cmp.fixed.half',            'Comparison: half deposit'],
+    ['cmp.fixed.double',          'Comparison: double deposit'],
+  ]],
+  ['📅 Monthly Contribution Savings', [
+    ['monthly.page_title',             'Page title'],
+    ['monthly.page_desc',              'Page description'],
+    ['monthly.bread',                  'Breadcrumb label'],
+    ['monthly.print_title',            'Print header title'],
+    ['monthly.input.contrib',          'Input: Monthly Contribution'],
+    ['monthly.input.principal',        'Input: Initial Deposit (optional)'],
+    ['monthly.input.timing',           'Input: Contribution Timing'],
+    ['monthly.timing.end',             'Option: End of Period'],
+    ['monthly.timing.begin',           'Option: Beginning of Period'],
+    ['monthly.result.future_value',    'Result: Future Value'],
+    ['monthly.result.principal',       'Result: Initial Deposit'],
+    ['monthly.result.total_contribs',  'Result: Total Contributions'],
+    ['monthly.result.total_principal', 'Result: Total Principal'],
+    ['monthly.result.total_interest',  'Result: Total Interest'],
+    ['monthly.chart.title',            'Chart card header'],
+    ['monthly.chart.balance',          'Chart legend: Balance'],
+    ['monthly.chart.invested',         'Chart legend: Total Invested'],
+    ['cmp.monthly.lump_only',          'Comparison: lump sum only'],
+    ['cmp.monthly.month_only',         'Comparison: monthly only'],
+  ]],
+  ['🏦 Loan Calculator (4 Parts)', [
+    ['loan.page_title',           'Page title'],
+    ['loan.page_desc',            'Page description'],
+    ['loan.bread',                'Breadcrumb label'],
+    ['loan.print_title',          'Print header title'],
+    ['loan.section.currency',     'Section: Currency'],
+    ['loan.exrate',               'Label: Exchange Rate'],
+    ['loan.section.solve',        'Section: Solve For'],
+    ['loan.solve.payment',        'Tab: Monthly Payment'],
+    ['loan.solve.principal',      'Tab: Loan Amount'],
+    ['loan.solve.rate',           'Tab: Interest Rate'],
+    ['loan.solve.nper',           'Tab: Loan Term'],
+    ['loan.section.details',      'Section: Loan Details'],
+    ['loan.input.principal',      'Input: Loan Amount'],
+    ['loan.input.rate',           'Input: Annual Interest Rate'],
+    ['loan.input.term',           'Input: Loan Term'],
+    ['loan.input.payment',        'Input: Monthly Payment'],
+    ['loan.result.principal',     'Result: Loan Amount'],
+    ['loan.result.payment',       'Result: Monthly Payment'],
+    ['loan.result.total_paid',    'Result: Total Amount Paid'],
+    ['loan.result.total_interest','Result: Total Interest Paid'],
+    ['loan.result.interest_pct',  'Result: Interest as % of Principal'],
+    ['loan.result.term',          'Result: Loan Term'],
+    ['loan.hero.payment',         'Hero label: Monthly Payment'],
+    ['loan.hero.principal',       'Hero label: Loan Amount'],
+    ['loan.hero.rate',            'Hero label: Annual Interest Rate'],
+    ['loan.hero.nper',            'Hero label: Loan Term'],
+    ['loan.chart.title',          'Chart card header'],
+    ['loan.chart.balance',        'Chart legend: Remaining Balance'],
+    ['loan.chart.cum_interest',   'Chart legend: Cumulative Interest'],
+    ['loan.schedule.title',       'Schedule card header'],
+    ['loan.sched.payment_num',    'Schedule col: Payment #'],
+    ['loan.sched.payment',        'Schedule col: Payment'],
+    ['loan.sched.principal',      'Schedule col: Principal'],
+    ['loan.sched.remaining',      'Schedule col: Remaining Balance'],
+    ['cmp.loan.header.pmt',       'Comparison header: Monthly Pmt'],
+    ['cmp.loan.header.int',       'Comparison header: Total Interest'],
+    ['cmp.loan.plus1',            'Comparison: Rate +1%'],
+    ['cmp.loan.minus1',           'Comparison: Rate −1%'],
+    ['cmp.loan.1yr',              'Comparison: 1-year term'],
+    ['cmp.loan.3yr',              'Comparison: 3-year term'],
+  ]],
+  ['📆 Shared Schedule & Chart', [
+    ['schedule.title',      'Schedule section title'],
+    ['schedule.show',       'Button: Show Schedule'],
+    ['schedule.hide',       'Button: Hide Schedule'],
+    ['sched.period',        'Column: Period'],
+    ['sched.date',          'Column: Date'],
+    ['sched.beg_balance',   'Column: Beginning Balance'],
+    ['sched.interest',      'Column: Interest Earned'],
+    ['sched.end_balance',   'Column: End Balance'],
+    ['sched.cum_interest',  'Column: Cumulative Interest'],
+    ['sched.cum_contribs',  'Column: Cumulative Contributions'],
+  ]],
+  ['🖨 Print', [
+    ['print.note',        'Print note text (HTML allowed)'],
+    ['print.btn',         'Print button label'],
+    ['print.date_prefix', 'Print date prefix (e.g. "printed")'],
+  ]],
+];
+
+// ── State ──────────────────────────────────────────────────────────────────
+let authToken  = '';
+let fileSHA    = '';
+let strings    = { en: {}, km: {} };  // live editable copy
+
+// ── Login ──────────────────────────────────────────────────────────────────
+async function login() {
+  const pat = document.getElementById('patInput').value.trim();
+  if (!pat) return;
+
+  document.getElementById('loginError').style.display = 'none';
+  document.querySelector('.admin-login .btn-primary').textContent = 'Connecting…';
+
+  try {
+    // Verify token by fetching the file
+    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + FILEPATH, {
+      headers: { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+    const data = await resp.json();
+    fileSHA    = data.sha;
+    authToken  = pat;
+    sessionStorage.setItem('wfc-pat', pat);
+
+    // Decode and parse lang.js
+    const raw = atob(data.content.replace(/\n/g, ''));
+    parseAndLoad(raw);
+
+    // Show editor
+    document.getElementById('loginSection').style.display   = 'none';
+    document.getElementById('editorSection').style.display  = 'block';
+    document.getElementById('logoutBtn').style.display      = 'inline';
+    buildEditor();
+
+  } catch (e) {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent   = 'Error: ' + e.message;
+    document.querySelector('.admin-login .btn-primary').textContent = 'Access Editor';
+  }
+}
+
+// ── Parse lang.js content → strings ───────────────────────────────────────
+function parseAndLoad(raw) {
+  // Extract the object literal from window.WFC_STRINGS = {...};
+  const m = raw.match(/window\.WFC_STRINGS\s*=\s*(\{[\s\S]*\})\s*;?\s*$/);
+  if (!m) throw new Error('Could not parse lang.js format');
+  const parsed = JSON.parse(m[1]);
+  strings.en = Object.assign({}, parsed.en || {});
+  strings.km = Object.assign({}, parsed.km || {});
+}
+
+// ── Build editor UI ────────────────────────────────────────────────────────
+function buildEditor() {
+  const container = document.getElementById('editorContent');
+  container.innerHTML = '';
+
+  SECTIONS.forEach(([title, rows]) => {
+    const block = document.createElement('div');
+    block.className = 'section-block';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'section-block-header';
+    hdr.innerHTML = title + ' <span class="chevron">▾</span>';
+    hdr.onclick = function() {
+      this.classList.toggle('collapsed');
+      this.nextElementSibling.classList.toggle('hidden');
+    };
+    block.appendChild(hdr);
+
+    const body = document.createElement('div');
+    body.className = 'section-block-body';
+
+    // Column headers
+    ['Key / Description', 'English', 'ខ្មែរ (Khmer)'].forEach(h => {
+      const ch = document.createElement('div');
+      ch.className = 'col-header';
+      ch.textContent = h;
+      body.appendChild(ch);
+    });
+
+    rows.forEach(([key, label]) => {
+      const row = document.createElement('div');
+      row.className = 'trans-row';
+
+      // Key cell
+      const kc = document.createElement('div');
+      kc.className = 'key-cell';
+      kc.innerHTML = '<span class="key-label">' + escHtml(label) + '</span>' + escHtml(key);
+      row.appendChild(kc);
+
+      // English textarea
+      const enCell = document.createElement('div');
+      const enTA   = document.createElement('textarea');
+      enTA.value   = strings.en[key] || '';
+      enTA.rows    = rows.length > 1 ? 2 : 2;
+      enTA.setAttribute('data-key', key);
+      enTA.setAttribute('data-lang', 'en');
+      enTA.addEventListener('input', onStringChange);
+      autoResize(enTA);
+      enCell.appendChild(enTA);
+      row.appendChild(enCell);
+
+      // Khmer textarea
+      const kmCell = document.createElement('div');
+      const kmTA   = document.createElement('textarea');
+      kmTA.value   = strings.km[key] || '';
+      kmTA.className = 'km';
+      kmTA.setAttribute('data-key', key);
+      kmTA.setAttribute('data-lang', 'km');
+      kmTA.addEventListener('input', onStringChange);
+      autoResize(kmTA);
+      kmCell.appendChild(kmTA);
+      row.appendChild(kmCell);
+
+      body.appendChild(row);
+    });
+
+    block.appendChild(body);
+    container.appendChild(block);
+  });
+
+  setStatus('Loaded from GitHub ✓', 'ok');
+}
+
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight + 2) + 'px';
+  ta.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight + 2) + 'px';
+  });
+}
+
+// ── Handle string edits ────────────────────────────────────────────────────
+function onStringChange(e) {
+  const key  = e.target.getAttribute('data-key');
+  const lang = e.target.getAttribute('data-lang');
+  strings[lang][key] = e.target.value;
+  setStatus('Unsaved changes', '');
+}
+
+// ── Save to GitHub ─────────────────────────────────────────────────────────
+async function saveTranslations() {
+  setStatus('Saving…', '');
+  document.querySelector('[onclick="saveTranslations()"]').disabled = true;
+
+  try {
+    const content = buildLangJs();
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+
+    // Re-fetch SHA in case it changed
+    const checkResp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + FILEPATH, {
+      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (checkResp.ok) {
+      const checkData = await checkResp.json();
+      fileSHA = checkData.sha;
+    }
+
+    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + FILEPATH, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'token ' + authToken,
+        Accept:        'application/vnd.github.v3+json',
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Update translations via admin editor',
+        content: encoded,
+        sha:     fileSHA
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.message || 'HTTP ' + resp.status);
+    }
+
+    const result = await resp.json();
+    fileSHA = result.content.sha;
+    setStatus('Saved ✓ — live in ~1 minute', 'ok');
+
+  } catch (e) {
+    setStatus('Save failed: ' + e.message, 'err');
+  } finally {
+    document.querySelector('[onclick="saveTranslations()"]').disabled = false;
+  }
+}
+
+// ── Rebuild lang.js from strings ──────────────────────────────────────────
+function buildLangJs() {
+  // Merge any keys that exist in the current strings but weren't shown in the editor
+  // (preserves keys not listed in SECTIONS)
+  const existingEn = (window.WFC_STRINGS || {}).en || {};
+  const existingKm = (window.WFC_STRINGS || {}).km || {};
+  const mergedEn = Object.assign({}, existingEn, strings.en);
+  const mergedKm = Object.assign({}, existingKm, strings.km);
+
+  return 'window.WFC_STRINGS = ' + JSON.stringify({ en: mergedEn, km: mergedKm }, null, 2) + ';\n';
+}
+
+// ── Logout ─────────────────────────────────────────────────────────────────
+function logout() {
+  authToken = '';
+  fileSHA   = '';
+  strings   = { en: {}, km: {} };
+  sessionStorage.removeItem('wfc-pat');
+  document.getElementById('loginSection').style.display  = 'flex';
+  document.getElementById('editorSection').style.display = 'none';
+  document.getElementById('logoutBtn').style.display     = 'none';
+  document.getElementById('patInput').value              = '';
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function setStatus(msg, type) {
+  const el = document.getElementById('saveStatus');
+  el.textContent = msg;
+  el.className   = 'save-status' + (type ? ' ' + type : '');
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Auto-login if session has token ───────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const stored = sessionStorage.getItem('wfc-pat');
+  if (stored) {
+    document.getElementById('patInput').value = stored;
+    login();
+  }
+  // Allow Enter key in token field
+  document.getElementById('patInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+});
+</script>
+
+</body>
+</html>

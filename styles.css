@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&display=swap');
+
 :root {
   --green-900: #2d3620;
   --green-800: #495436;
@@ -336,6 +338,7 @@ a.toc-item .item-desc { color: var(--green-600); }
   font-family: inherit;
   letter-spacing: .02em;
   line-height: 1.3;
+  white-space: pre-line;
 }
 .solve-tab.active  { background: var(--green-600); color: white; }
 .solve-tab:hover:not(.active) { background: var(--green-50); }
@@ -358,6 +361,45 @@ a.toc-item .item-desc { color: var(--green-600); }
 }
 .currency-btn.active  { background: var(--green-600); color: white; }
 .currency-btn:hover:not(.active) { background: var(--green-50); }
+
+/* ── LANGUAGE SWITCHER ── */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+  margin-left: .5rem;
+  border-left: 1px solid rgba(255,255,255,.25);
+  padding-left: .65rem;
+}
+.lang-btn {
+  background: transparent;
+  color: rgba(255,255,255,.7);
+  border: 1px solid transparent;
+  padding: .22rem .45rem;
+  font-size: .72rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 3px;
+  cursor: pointer;
+  letter-spacing: .02em;
+  transition: all .15s;
+  line-height: 1.4;
+}
+.lang-btn:hover { color: white; border-color: rgba(255,255,255,.35); }
+.lang-btn.active {
+  background: rgba(255,255,255,.18);
+  color: white;
+  border-color: rgba(255,255,255,.4);
+}
+
+/* Khmer font override */
+.lang-km body,
+.lang-km input,
+.lang-km select,
+.lang-km button,
+.lang-km textarea {
+  font-family: 'Hanuman', 'Khmer OS', 'Khmer UI', sans-serif;
+}
 
 /* ── SOLVED/OUTPUT FIELD STATE ── */
 .input-group.is-solved label::after {
