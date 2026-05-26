@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Body -->
+  <rect width="32" height="32" rx="5" fill="#495436"/>
+
+  <!-- Screen -->
+  <rect x="3" y="3" width="26" height="9" rx="2" fill="#c8e4a0"/>
+  <!-- Screen right glow -->
+  <rect x="17" y="5" width="10" height="5" rx="1.5" fill="#dff0ba"/>
+
+  <!-- Row 1 buttons (operators — lighter) -->
+  <rect x="3"  y="15" width="7" height="4" rx="1.2" fill="#6b8c61"/>
+  <rect x="12" y="15" width="7" height="4" rx="1.2" fill="#6b8c61"/>
+  <rect x="22" y="15" width="7" height="4" rx="1.2" fill="#a1bd66"/>
+
+  <!-- Row 2 buttons (numbers — mid) -->
+  <rect x="3"  y="21" width="7" height="4" rx="1.2" fill="#5a6943"/>
+  <rect x="12" y="21" width="7" height="4" rx="1.2" fill="#5a6943"/>
+  <rect x="22" y="21" width="7" height="4" rx="1.2" fill="#5a6943"/>
+
+  <!-- Row 3 buttons (0 + equals) -->
+  <rect x="3"  y="27" width="16" height="4" rx="1.2" fill="#5a6943"/>
+  <rect x="22" y="27" width="7"  height="4" rx="1.2" fill="#8aaa7a"/>
+</svg>
