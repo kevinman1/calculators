@@ -448,8 +448,9 @@ async function login() {
     authToken  = pat;
     sessionStorage.setItem('wfc-pat', pat);
 
-    // Decode and parse lang.js
-    const raw = atob(data.content.replace(/\n/g, ''));
+    // Decode base64 → UTF-8 string (atob alone gives raw bytes, not proper Unicode)
+    const bytes = Uint8Array.from(atob(data.content.replace(/\n/g, '')), c => c.charCodeAt(0));
+    const raw = new TextDecoder('utf-8').decode(bytes);
     parseAndLoad(raw);
 
     // Show editor
