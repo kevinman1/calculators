@@ -18,9 +18,9 @@
     </div>
     <nav>
       <a href="index.html" class="active" data-i18n="nav.all">All Calculators</a>
-      <a href="savings-fixed.html" data-i18n="nav.fixed">Fixed Savings</a>
-      <a href="savings-monthly.html" data-i18n="nav.monthly">Monthly Savings</a>
-      <a href="loan-calculator.html" data-i18n="nav.loan">Loan Calculator</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
       <div class="lang-switch">
         <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
         <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
@@ -40,7 +40,7 @@
   <div class="toc-grid">
 
     <!-- SAVINGS -->
-    <div class="toc-col">
+    <div class="toc-col" id="savings">
       <div class="toc-col-header" data-i18n="index.savings_col">💰 Savings Calculators</div>
 
       <a href="savings-fixed.html" class="toc-item">
@@ -87,7 +87,7 @@
     </div>
 
     <!-- LOANS -->
-    <div class="toc-col">
+    <div class="toc-col" id="loans">
       <div class="toc-col-header" data-i18n="index.loans_col">🏦 Loan Calculators</div>
 
       <a href="simple-interest-daily.html" class="toc-item">
@@ -140,7 +140,7 @@
     </div>
 
     <!-- BUDGETING -->
-    <div class="toc-col">
+    <div class="toc-col" id="budgeting">
       <div class="toc-col-header" data-i18n="index.budget_col">📊 Budgeting Calculators</div>
 
       <div class="toc-item dim">
@@ -200,7 +200,7 @@
   <p style="margin-top:.3rem" data-i18n="site.footer.edu">Calculators are for educational purposes. Consult a financial advisor for personal advice.</p>
 </footer>
 
-<script src="lang.js?v=2"></script>
+<script src="lang.js?v=3"></script>
 <script src="i18n.js?v=2"></script>
 </body>
 </html>
