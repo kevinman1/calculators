@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="simple_daily.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Interest – Daily Calculator – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="savings-fixed.html" data-i18n="nav.fixed">Fixed Savings</a>
+      <a href="savings-monthly.html" data-i18n="nav.monthly">Monthly Savings</a>
+      <a href="loan-calculator.html" data-i18n="nav.loan">Loan Calculator</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="simple_daily.bread">Simple Interest – Daily</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Print-only header -->
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="simple_daily.print_title">Simple Interest Daily Repayment Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="simple_daily.page_title">Simple Interest Daily Repayment Calculator</h2>
+    <p data-i18n="simple_daily.page_desc">Enter the loan amount and total payback amount to see the daily payment schedule and true annual interest rate for up to three repayment term options.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- INPUTS -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-body">
+
+        <div class="section-label" data-i18n="input.main">Main Inputs</div>
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.currency">Currency</label>
+          <div class="input-wrapper">
+            <select id="currency">
+              <option value="USD">USD ($)</option>
+              <option value="KHR">KHR (&#x17DB;)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.loan">Loan Amount (Principal)</label>
+          <div class="input-wrapper">
+            <span class="input-prefix currency-sym">$</span>
+            <input type="number" id="loanAmount" value="400000" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.payback">Payback Amount (Total to Repay)</label>
+          <div class="input-wrapper">
+            <span class="input-prefix currency-sym">$</span>
+            <input type="number" id="paybackAmount" value="600000" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.start_date">Loan Start Date (optional)</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label" data-i18n="simple_daily.input.options_label">Repayment Term Options (days)</div>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label data-i18n="simple_daily.input.opt1">Option 1</label>
+            <div class="input-wrapper">
+              <input type="number" id="days1" value="20" min="1" step="1">
+              <span class="input-suffix" data-i18n="input.days_unit">days</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="simple_daily.input.opt2">Option 2</label>
+            <div class="input-wrapper">
+              <input type="number" id="days2" value="30" min="1" step="1">
+              <span class="input-suffix" data-i18n="input.days_unit">days</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group" style="max-width:50%">
+          <label data-i18n="simple_daily.input.opt3">Option 3</label>
+          <div class="input-wrapper">
+            <input type="number" id="days3" value="120" min="1" step="1">
+            <span class="input-suffix" data-i18n="input.days_unit">days</span>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div>
+      <div class="card">
+        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
+        <div class="card-body">
+
+          <div class="result-hero">
+            <div class="r-label" data-i18n="simple_daily.result.total_interest">Total Interest (Lender Profit)</div>
+            <div class="r-value" id="r-totalInterest">—</div>
+            <div class="r-sub" id="r-interestPct">—</div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label" data-i18n="simple_daily.result.loan_amount">Loan Amount</div>
+              <div class="r-value" id="r-loanAmount">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="simple_daily.result.payback_amount">Payback Amount</div>
+              <div class="r-value" id="r-paybackAmount">—</div>
+            </div>
+          </div>
+
+          <div class="section-label" style="margin-top:.1rem" data-i18n="simple_daily.result.comparison">Option Comparison</div>
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th data-i18n="simple_daily.result.option_col">Option</th>
+                <th data-i18n="simple_daily.result.days_col">Days</th>
+                <th data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</th>
+                <th data-i18n="simple_daily.result.annual_rate_col">Annual Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="current">
+                <td>1</td>
+                <td id="cmp-days1">—</td>
+                <td id="cmp-pmt1">—</td>
+                <td id="cmp-rate1">—</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td id="cmp-days2">—</td>
+                <td id="cmp-pmt2">—</td>
+                <td id="cmp-rate2">—</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td id="cmp-days3">—</td>
+                <td id="cmp-pmt3">—</td>
+                <td id="cmp-rate3">—</td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card chart-card">
+    <div class="card-header" data-i18n="simple_daily.chart.title">Daily Remaining Balance</div>
+    <div class="chart-container">
+      <canvas id="balanceChart"></canvas>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem" data-i18n="schedule.title">Period-by-Period Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+      <span class="schedule-count" id="scheduleCount"></span>
+    </div>
+    <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th data-i18n="simple_daily.sched.day">Day</th>
+            <th data-i18n="simple_daily.sched.date">Date</th>
+            <th id="sched-h1">Option 1</th>
+            <th id="sched-h2">Option 2</th>
+            <th id="sched-h3">Option 3</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRINT BAR -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results. Use your browser's print dialog and choose "Save as PDF" as the destination.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#x1F5A8; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div>
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
+<script>
+let balanceChart = null;
+
+/* ── formatting ─────────────────────────────────────── */
+function fmtMoney(v) {
+  const cur = document.getElementById('currency').value;
+  if (cur === 'KHR') {
+    return v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + '៛';
+  }
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+/* ── main calculate ─────────────────────────────────── */
+function calculate() {
+  const loan    = Math.max(0, parseFloat(document.getElementById('loanAmount').value)    || 0);
+  const payback = Math.max(0, parseFloat(document.getElementById('paybackAmount').value) || 0);
+  const days1   = Math.max(1, parseInt(document.getElementById('days1').value)           || 1);
+  const days2   = Math.max(1, parseInt(document.getElementById('days2').value)           || 1);
+  const days3   = Math.max(1, parseInt(document.getElementById('days3').value)           || 1);
+  const dateStr = document.getElementById('startDate').value;
+  const startDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
+
+  const totalInterest = Math.max(0, payback - loan);
+  const interestPct   = loan > 0 ? (totalInterest / loan) * 100 : 0;
+
+  // Per-option calculations  (matches Excel: daily = payback/days, rate = (payback-loan)/(loan*(days/360)))
+  const opts = [days1, days2, days3].map(days => ({
+    days,
+    dailyPmt:   days  > 0             ? payback / days                                      : 0,
+    annualRate: loan  > 0 && days > 0 ? (totalInterest / (loan * (days / 360))) * 100        : 0
+  }));
+
+  // Currency symbol in prefix
+  const sym = document.getElementById('currency').value === 'KHR' ? '៛' : '$';
+  document.querySelectorAll('.currency-sym').forEach(el => el.textContent = sym);
+
+  // Hero
+  document.getElementById('r-totalInterest').textContent = fmtMoney(totalInterest);
+  document.getElementById('r-interestPct').textContent   =
+    loan > 0 ? interestPct.toFixed(1) + '% of loan amount' : '—';
+
+  // Summary grid
+  document.getElementById('r-loanAmount').textContent   = fmtMoney(loan);
+  document.getElementById('r-paybackAmount').textContent = fmtMoney(payback);
+
+  // Comparison table
+  opts.forEach((o, i) => {
+    document.getElementById('cmp-days' + (i + 1)).textContent = o.days + ' days';
+    document.getElementById('cmp-pmt'  + (i + 1)).textContent = fmtMoney(o.dailyPmt);
+    document.getElementById('cmp-rate' + (i + 1)).textContent = o.annualRate.toFixed(2) + '%';
+  });
+
+  // Schedule column headers
+  opts.forEach((o, i) => {
+    const el = document.getElementById('sched-h' + (i + 1));
+    if (el) el.textContent = 'Option ' + (i + 1) + ' (' + o.days + 'd)';
+  });
+
+  const maxDays = Math.max(days1, days2, days3);
+  document.getElementById('scheduleCount').textContent =
+    maxDays + ' day' + (maxDays !== 1 ? 's' : '');
+
+  document.getElementById('printDate').textContent = fmtDate(new Date());
+
+  renderChart(opts, payback, maxDays);
+
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    renderSchedule(opts, payback, maxDays, startDate);
+  }
+}
+
+/* ── chart ──────────────────────────────────────────── */
+function renderChart(opts, payback, maxDays) {
+  const step = maxDays <= 60 ? 1 : maxDays <= 180 ? 5 : maxDays <= 365 ? 7 : 30;
+  const labels = [];
+  const series = [[], [], []];
+
+  for (let d = 0; d <= maxDays; d += step) {
+    labels.push('Day ' + d);
+    opts.forEach((o, i) => series[i].push(Math.max(0, payback - d * o.dailyPmt)));
+  }
+  if (maxDays % step !== 0) {
+    labels.push('Day ' + maxDays);
+    opts.forEach((o, i) => series[i].push(0));
+  }
+
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  const colors = ['#739669', '#c8a84b', '#5b8db8'];
+
+  const datasets = opts.map((o, i) => ({
+    label:       T('simple_daily.chart.opt' + (i + 1)) + ' (' + o.days + 'd)',
+    data:        series[i],
+    borderColor: colors[i],
+    borderWidth: 2.5,
+    fill:        false,
+    tension:     0.1,
+    pointRadius: maxDays <= 40 ? 3 : 0
+  }));
+
+  const ctx = document.getElementById('balanceChart').getContext('2d');
+  if (balanceChart) balanceChart.destroy();
+
+  balanceChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 14 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmtMoney(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          ticks: {
+            callback: v => {
+              const cur = document.getElementById('currency').value;
+              const abbr = v >= 1000000 ? (v / 1000000).toFixed(1) + 'M'
+                         : v >= 1000    ? (v / 1000).toFixed(0) + 'k'
+                         : v;
+              return cur === 'KHR' ? abbr + '៛' : '$' + abbr;
+            },
+            font: { size: 11 }
+          },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+/* ── schedule ───────────────────────────────────────── */
+function renderSchedule(opts, payback, maxDays, startDate) {
+  const tbody = document.querySelector('#scheduleTable tbody');
+  tbody.innerHTML = '';
+  for (let d = 0; d <= maxDays; d++) {
+    const tr = document.createElement('tr');
+    if (opts.some(o => d === o.days)) tr.className = 'yr';
+    const dateCell = startDate ? fmtDate(addDays(startDate, d)) : '—';
+    let html = '<td>' + d + '</td><td>' + dateCell + '</td>';
+    opts.forEach(o => {
+      if (d > o.days) {
+        html += '<td style="color:#bbb">—</td>';
+      } else {
+        const rem = Math.max(0, payback - d * o.dailyPmt);
+        html += '<td>' + fmtMoney(rem) + '</td>';
+      }
+    });
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  }
+}
+
+function toggleSchedule() {
+  const wrapper  = document.getElementById('scheduleWrapper');
+  const btn      = document.getElementById('toggleBtn');
+  const isHidden = wrapper.style.display === 'none';
+  wrapper.style.display = isHidden ? 'block' : 'none';
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  btn.textContent = isHidden ? T('schedule.hide') : T('schedule.show');
+  if (isHidden) {
+    const loan    = Math.max(0, parseFloat(document.getElementById('loanAmount').value)    || 0);
+    const payback = Math.max(0, parseFloat(document.getElementById('paybackAmount').value) || 0);
+    const days1   = Math.max(1, parseInt(document.getElementById('days1').value)           || 1);
+    const days2   = Math.max(1, parseInt(document.getElementById('days2').value)           || 1);
+    const days3   = Math.max(1, parseInt(document.getElementById('days3').value)           || 1);
+    const dateStr = document.getElementById('startDate').value;
+    const startDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
+    const totalInterest = Math.max(0, payback - loan);
+    const opts = [days1, days2, days3].map(days => ({
+      days,
+      dailyPmt:   days > 0             ? payback / days                                     : 0,
+      annualRate: loan  > 0 && days > 0 ? (totalInterest / (loan * (days / 360))) * 100 : 0
+    }));
+    renderSchedule(opts, payback, Math.max(days1, days2, days3), startDate);
+  }
+}
+
+/* ── init ───────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
+  calculate();
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input',  calculate);
+    el.addEventListener('change', calculate);
+  });
+});
+</script>
+
+</body>
+</html>
