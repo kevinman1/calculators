@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="simple_monthly.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Interest – Monthly/Yearly Calculator – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" class="active" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="simple_monthly.bread">Simple Interest – Monthly/Yearly</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Print-only header -->
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="simple_monthly.print_title">Simple Interest – Monthly/Yearly Repayment Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="simple_monthly.page_title">Simple Interest – Monthly/Yearly Repayment Calculator</h2>
+    <p data-i18n="simple_monthly.page_desc">Calculate interest and repayment schedules for simple-interest loans. Choose whether interest is charged monthly or yearly, and whether it is based on the original or remaining balance. Optionally set a higher payment to start reducing the principal.</p>
+  </div>
+
+  <!-- 3-column layout -->
+  <div style="display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:1.25rem; align-items:start;">
+
+    <!-- MAIN INPUTS -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.main">Main Inputs</div>
+      <div class="card-body">
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.currency">Currency</label>
+          <div class="input-wrapper">
+            <select id="currency">
+              <option value="USD">USD ($)</option>
+              <option value="KHR" selected>KHR (&#x17DB;)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.loan">Loan Amount (Principal)</label>
+          <div class="input-wrapper">
+            <span class="input-prefix currency-sym">&#x17DB;</span>
+            <input type="number" id="loanAmount" value="400000" min="0" step="10000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label id="rateLabel" data-i18n="simple_monthly.input.rate">Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="rate" value="3" min="0" max="1000" step="0.1">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_monthly.input.rate_period">Rate Period</label>
+          <div class="input-wrapper">
+            <select id="ratePeriod">
+              <option value="monthly" selected data-i18n="simple_monthly.input.period.monthly">Per Month</option>
+              <option value="yearly" data-i18n="simple_monthly.input.period.yearly">Per Year</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_monthly.input.interest_base">Calculate Interest On</label>
+          <div class="input-wrapper">
+            <select id="interestBase">
+              <option value="original" selected data-i18n="simple_monthly.input.base.original">Original Principal</option>
+              <option value="remaining" data-i18n="simple_monthly.input.base.remaining">Remaining Balance</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAYMENT SETTINGS -->
+    <div class="card">
+      <div class="card-header" data-i18n="simple_monthly.card.payment">Payment Settings</div>
+      <div class="card-body">
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.start_date">Loan Start Date (optional)</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label" data-i18n="simple_monthly.input.principal_label">Principal Reduction (optional)</div>
+        <p style="font-size:.75rem;color:#6b7b5c;margin:-.25rem 0 .75rem;line-height:1.4" data-i18n="simple_monthly.input.principal_hint">Set a monthly payment above the interest amount to start paying off the principal.</p>
+
+        <div class="input-group">
+          <label data-i18n="simple_monthly.input.new_payment">Monthly Payment</label>
+          <div class="input-wrapper">
+            <span class="input-prefix currency-sym">&#x17DB;</span>
+            <input type="number" id="newPayment" value="" min="0" step="10000" placeholder="—">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_monthly.input.new_payment_date">Payment Start Date (optional)</label>
+          <div class="input-wrapper">
+            <input type="date" id="newPaymentDate">
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+      </div>
+    </div>
+
+    <!-- SUMMARY RESULTS -->
+    <div class="card">
+      <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
+      <div class="card-body">
+
+        <div class="result-hero">
+          <div class="r-label" id="r-heroLabel">&nbsp;</div>
+          <div class="r-value" id="r-hero">—</div>
+          <div class="r-sub" id="r-heroSub">—</div>
+        </div>
+
+        <div class="results-grid">
+          <div class="result-item">
+            <div class="r-label" data-i18n="simple_daily.result.loan_amount">Loan Amount</div>
+            <div class="r-value" id="r-loanAmount">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" id="r-pmtLabel">&nbsp;</div>
+            <div class="r-value" id="r-regularPayment">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="simple_monthly.result.total_interest">Total Interest Paid</div>
+            <div class="r-value" id="r-totalInterest">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="simple_monthly.result.term">Loan Term</div>
+            <div class="r-value" id="r-term">—</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHART -->
+  <div class="card chart-card" style="margin-top:1.25rem">
+    <div class="card-header" data-i18n="simple_monthly.chart.title">Remaining Balance Over Time</div>
+    <div class="chart-container">
+      <canvas id="balanceChart"></canvas>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem" data-i18n="schedule.title">Period-by-Period Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+      <span class="schedule-count" id="scheduleCount"></span>
+    </div>
+    <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th data-i18n="simple_monthly.sched.month">Month</th>
+            <th data-i18n="sched.date">Date</th>
+            <th data-i18n="sched.beg_balance">Beg. Balance</th>
+            <th data-i18n="simple_monthly.sched.interest">Interest</th>
+            <th data-i18n="simple_monthly.sched.payment">Payment</th>
+            <th data-i18n="simple_monthly.sched.principal_paid">Principal Paid</th>
+            <th data-i18n="sched.end_balance">End Balance</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRINT BAR -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results. Use your browser's print dialog and choose "Save as PDF" as the destination.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#x1F5A8; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div>
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=5"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+let balanceChart = null;
+let lastScheduleData = null;
+
+/* ── formatting ──────────────────────────────────── */
+function fmtMoney(v) {
+  const cur = document.getElementById('currency').value;
+  if (cur === 'KHR')
+    return v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + '៛';
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+function addMonths(date, n) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + n);
+  return d;
+}
+
+/* ── schedule builder ────────────────────────────── */
+function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaymentDate, startDate) {
+  const rows = [];
+  let balance = loan;
+  let cumInterest = 0;
+  let cumPaid = 0;
+  let neverPaidOff = false;
+  let stableCount = 0;
+  let prevBalance = -999;
+  const MAX_MONTHS = 600;
+
+  for (let m = 1; m <= MAX_MONTHS; m++) {
+    const date = startDate ? addMonths(startDate, m - 1) : null;
+    const begBalance = balance;
+
+    // Interest this period
+    // Monthly mode: charged every month (rate = monthly rate)
+    // Yearly mode:  charged once per year on months 1, 13, 25... (rate = annual rate)
+    let interest;
+    if (ratePeriod === 'yearly') {
+      interest = ((m - 1) % 12 === 0)
+        ? (interestBase === 'original' ? loan : begBalance) * rate
+        : 0;
+    } else {
+      interest = (interestBase === 'original' ? loan : begBalance) * rate;
+    }
+
+    // Payment
+    let payment;
+    if (newPayment > 0) {
+      if (newPaymentDate && date && date < newPaymentDate) {
+        payment = interest;    // interest-only until new payment date
+      } else {
+        payment = newPayment;
+      }
+    } else {
+      payment = interest;      // interest-only (no principal reduction)
+    }
+
+    // Cap payment at total owed
+    const totalOwed = begBalance + interest;
+    payment = Math.min(Math.max(payment, 0), totalOwed);
+
+    const principalPaid = payment - interest;
+    balance = begBalance + interest - payment;
+    if (balance < 0.005) balance = 0;
+
+    cumInterest += interest;
+    cumPaid += payment;
+
+    rows.push({ month: m, date, begBalance, interest, payment, principalPaid, endBalance: balance, cumInterest, cumPaid });
+
+    if (balance <= 0) break;
+
+    // Detect stable balance → never paid off
+    if (Math.abs(balance - prevBalance) < 0.01) {
+      stableCount++;
+      if (stableCount >= 13) { neverPaidOff = true; break; }
+    } else {
+      stableCount = 0;
+    }
+    prevBalance = balance;
+  }
+
+  if (balance > 0 && !neverPaidOff) neverPaidOff = true;
+  return { rows, neverPaidOff };
+}
+
+/* ── main calculate ──────────────────────────────── */
+function calculate() {
+  const loan          = Math.max(0, parseFloat(document.getElementById('loanAmount').value)   || 0);
+  const rate          = Math.max(0, parseFloat(document.getElementById('rate').value) / 100    || 0);
+  const ratePeriod    = document.getElementById('ratePeriod').value;
+  const interestBase  = document.getElementById('interestBase').value;
+  const startDateStr  = document.getElementById('startDate').value;
+  const startDate     = startDateStr ? new Date(startDateStr + 'T00:00:00') : null;
+  const newPaymentVal = parseFloat(document.getElementById('newPayment').value) || 0;
+  const newPmtDateStr = document.getElementById('newPaymentDate').value;
+  const newPaymentDate = newPmtDateStr ? new Date(newPmtDateStr + 'T00:00:00') : null;
+
+  // Currency symbol
+  const sym = document.getElementById('currency').value === 'KHR' ? '៛' : '$';
+  document.querySelectorAll('.currency-sym').forEach(el => el.textContent = sym);
+
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+
+  const { rows, neverPaidOff } = buildSchedule(loan, rate, ratePeriod, interestBase, newPaymentVal, newPaymentDate, startDate);
+  lastScheduleData = { rows, neverPaidOff };
+
+  // First-period interest (for display)
+  const firstInterest = rows.length > 0 ? rows[0].interest : loan * rate;
+
+  // Rate-period label
+  const pmtSuffix = ratePeriod === 'monthly' ? T('simple_monthly.per_month') : T('simple_monthly.per_year');
+  document.getElementById('r-pmtLabel').textContent =
+    ratePeriod === 'monthly' ? T('simple_monthly.result.monthly_interest') : T('simple_monthly.result.yearly_interest');
+  document.getElementById('r-regularPayment').textContent = fmtMoney(firstInterest) + ' ' + pmtSuffix;
+
+  document.getElementById('r-loanAmount').textContent = fmtMoney(loan);
+
+  if (neverPaidOff) {
+    document.getElementById('r-heroLabel').textContent = T('simple_monthly.result.interest_only');
+    document.getElementById('r-hero').textContent      = fmtMoney(firstInterest);
+    document.getElementById('r-heroSub').textContent   = T('simple_monthly.result.never_paid_hint');
+    document.getElementById('r-totalInterest').textContent = '—';
+    document.getElementById('r-term').textContent          = T('simple_monthly.result.never_paid');
+  } else {
+    const last = rows[rows.length - 1];
+    document.getElementById('r-heroLabel').textContent = T('simple_monthly.result.total_repaid');
+    document.getElementById('r-hero').textContent      = fmtMoney(last.cumPaid);
+    document.getElementById('r-heroSub').textContent   = rows.length + ' ' + T('simple_monthly.result.months');
+    document.getElementById('r-totalInterest').textContent = fmtMoney(last.cumInterest);
+    document.getElementById('r-term').textContent          = rows.length + ' ' + T('simple_monthly.result.months');
+  }
+
+  document.getElementById('scheduleCount').textContent =
+    rows.length + ' ' + T('simple_monthly.result.months') + (neverPaidOff ? ' (' + T('simple_monthly.result.partial') + ')' : '');
+
+  document.getElementById('printDate').textContent = fmtDate(new Date());
+
+  renderChart(rows, loan, neverPaidOff);
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    renderSchedule(rows, neverPaidOff);
+  }
+}
+
+/* ── chart ───────────────────────────────────────── */
+function renderChart(rows, loan, neverPaidOff) {
+  const maxDisplay = neverPaidOff ? Math.min(rows.length, 48) : rows.length;
+  const step = maxDisplay <= 60 ? 1 : maxDisplay <= 120 ? 3 : maxDisplay <= 240 ? 6 : 12;
+
+  const labels   = ['Month 0'];
+  const balances = [loan];
+
+  for (let i = 0; i < maxDisplay; i++) {
+    const row = rows[i];
+    if (i % step === 0 || i === maxDisplay - 1) {
+      labels.push('Month ' + row.month);
+      balances.push(row.endBalance);
+    }
+  }
+
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  const ctx = document.getElementById('balanceChart').getContext('2d');
+  if (balanceChart) balanceChart.destroy();
+
+  balanceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: T('simple_monthly.chart.balance'),
+        data: balances,
+        borderColor: '#739669',
+        backgroundColor: 'rgba(115,150,105,0.12)',
+        fill: true,
+        tension: 0.2,
+        borderWidth: 2.5,
+        pointRadius: maxDisplay <= 24 ? 3 : 0,
+        borderDash: neverPaidOff ? [6, 4] : []
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 14 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmtMoney(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 0,
+          ticks: {
+            callback: v => {
+              const cur = document.getElementById('currency').value;
+              const abbr = v >= 1000000 ? (v / 1000000).toFixed(1) + 'M'
+                         : v >= 1000    ? (v / 1000).toFixed(0) + 'k'
+                         : v;
+              return cur === 'KHR' ? abbr + '៛' : '$' + abbr;
+            },
+            font: { size: 11 }
+          },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+/* ── schedule ────────────────────────────────────── */
+function renderSchedule(rows, neverPaidOff) {
+  const tbody = document.querySelector('#scheduleTable tbody');
+  tbody.innerHTML = '';
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+    // Highlight year boundaries (every 12 months)
+    if (row.month % 12 === 1 && row.month > 1) tr.className = 'yr';
+    tr.innerHTML =
+      '<td>' + row.month + '</td>' +
+      '<td>' + (row.date ? fmtDate(row.date) : '—') + '</td>' +
+      '<td>' + fmtMoney(row.begBalance) + '</td>' +
+      '<td>' + fmtMoney(row.interest) + '</td>' +
+      '<td>' + fmtMoney(row.payment) + '</td>' +
+      '<td>' + fmtMoney(Math.max(0, row.principalPaid)) + '</td>' +
+      '<td>' + fmtMoney(row.endBalance) + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  if (neverPaidOff) {
+    const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+    const note = document.createElement('tr');
+    note.innerHTML = '<td colspan="7" style="text-align:center;color:#9b6b47;font-style:italic;padding:.6rem">'
+      + T('simple_monthly.sched.never_paid_note') + '</td>';
+    tbody.appendChild(note);
+  }
+}
+
+function toggleSchedule() {
+  const wrapper  = document.getElementById('scheduleWrapper');
+  const btn      = document.getElementById('toggleBtn');
+  const isHidden = wrapper.style.display === 'none';
+  wrapper.style.display = isHidden ? 'block' : 'none';
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  btn.textContent = isHidden ? T('schedule.hide') : T('schedule.show');
+  if (isHidden && lastScheduleData) renderSchedule(lastScheduleData.rows, lastScheduleData.neverPaidOff);
+}
+
+/* ── init ────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
+  calculate();
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input',  calculate);
+    el.addEventListener('change', calculate);
+  });
+});
+</script>
+
+</body>
+</html>
