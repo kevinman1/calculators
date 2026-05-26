@@ -1,20 +1,17 @@
 window.WFC_STRINGS = {
   "en": {
     "site.name": "Wise Financial Cambodia",
-    "site.tagline": "Financial Education Tools",
+    "site.tagline": "Financial Education Tool",
     "site.footer.main": "Wise Financial Cambodia — Financial Education for the Kingdom of Cambodia",
     "site.footer.edu": "Calculators are for educational purposes. Consult a financial advisor for personal advice.",
     "site.footer.edu_short": "Calculators are for educational purposes only.",
-
     "nav.all": "All Calculators",
     "nav.fixed": "Fixed Savings",
     "nav.monthly": "Monthly Savings",
     "nav.loan": "Loan Calculator",
-
     "bread.calculators": "Calculators",
     "bread.savings": "Savings",
     "bread.loans": "Loans",
-
     "index.title": "Financial Calculators",
     "index.desc": "Free, easy-to-use tools to help you plan your savings, understand loans, and make wise financial decisions. All calculations happen right in your browser.",
     "index.savings_col": "💰 Savings Calculators",
@@ -22,7 +19,6 @@ window.WFC_STRINGS = {
     "index.budget_col": "📊 Budgeting Calculators",
     "badge.live": "Live",
     "badge.soon": "Soon",
-
     "calc.fixed.name": "Fixed Deposit Savings",
     "calc.fixed.desc": "Grow a lump-sum deposit at compound interest over time",
     "calc.monthly.name": "Monthly Contribution Savings",
@@ -69,7 +65,6 @@ window.WFC_STRINGS = {
     "calc.insurance.desc": "Evaluate whether cancelling an insurance policy is a good idea",
     "calc.inflation.name": "Cambodian Inflation Calculator",
     "calc.inflation.desc": "What is a fixed amount of money worth in today’s terms?",
-
     "input.label": "Inputs",
     "input.main": "Main Inputs",
     "input.optional": "Optional Settings",
@@ -85,7 +80,6 @@ window.WFC_STRINGS = {
     "input.freq.annual": "Annual",
     "input.freq.daily": "Daily",
     "btn.calculate": "Calculate",
-
     "result.summary": "Summary Results",
     "result.effective_rate": "Effective Annual Yield",
     "result.rule72": "Years to Double (Rule of 72)",
@@ -96,7 +90,6 @@ window.WFC_STRINGS = {
     "cmp.plus1": "If rate were +1%",
     "cmp.minus1": "If rate were −1%",
     "cmp.double_time": "Double the time",
-
     "fixed.page_title": "Fixed Deposit Savings Calculator",
     "fixed.page_desc": "See how a one-time deposit grows with compound interest over time.",
     "fixed.bread": "Fixed Deposit Savings Calculator",
@@ -110,7 +103,6 @@ window.WFC_STRINGS = {
     "fixed.chart.principal": "Principal",
     "cmp.fixed.half": "If deposit were half",
     "cmp.fixed.double": "If deposit were double",
-
     "monthly.page_title": "Monthly Contribution Savings Calculator",
     "monthly.page_desc": "See how regular monthly deposits — with or without an initial lump sum — grow over time.",
     "monthly.bread": "Monthly Contribution Savings Calculator",
@@ -130,7 +122,6 @@ window.WFC_STRINGS = {
     "monthly.chart.invested": "Total Invested",
     "cmp.monthly.lump_only": "Lump sum only (no monthly)",
     "cmp.monthly.month_only": "Monthly only (no lump sum)",
-
     "loan.page_title": "Loan Calculator (4 Parts)",
     "loan.page_desc": "Know any 3 loan variables? Solve for the missing one — payment, principal, interest rate, or loan term.",
     "loan.bread": "Loan Calculator (4 Parts)",
@@ -171,7 +162,6 @@ window.WFC_STRINGS = {
     "cmp.loan.minus1": "Rate −1%",
     "cmp.loan.1yr": "1-year term",
     "cmp.loan.3yr": "3-year term",
-
     "schedule.title": "Period-by-Period Schedule",
     "schedule.show": "Show Schedule",
     "schedule.hide": "Hide Schedule",
@@ -182,28 +172,23 @@ window.WFC_STRINGS = {
     "sched.end_balance": "End Balance",
     "sched.cum_interest": "Cumulative Interest",
     "sched.cum_contribs": "Cum. Contributions",
-
     "print.note": "Click <strong>Print / Save as PDF</strong> to export results. Use your browser’s print dialog and choose “Save as PDF” as the destination.",
     "print.btn": "Print / Save as PDF",
     "print.date_prefix": "printed"
   },
-
   "km": {
     "site.name": "ហិរញ្ញវត្តប្រាជ្ញា កម្ពុជា",
     "site.tagline": "ឧបករណ៍អប់រំហិរញ្ញវត្ត",
     "site.footer.main": "ហិរញ្ញវត្តប្រាជ្ញា កម្ពុជា — ការអប័រាហិរញ្ញវត្តសម្រាបឦរ១ករាជាណចក្រកម្ពុជា",
     "site.footer.edu": "ម័ស៊ឹនគណនាសម្រាបគូលបម្ណងអប័រា។ សូមពិគ្រូហជាមួយអ្នកប្រឹក្សាហិរញ្ញវត្តសម្រាបដាម្បាលផ្តល្ខួន។",
     "site.footer.edu_short": "ម័ស៊ឹនគណនាសម្រាបគូលបម្ណងអប័រាប័ណ្ណ។",
-
     "nav.all": "ម័ស៊ឹនគណនាតាងអស់",
     "nav.fixed": "សន្សាំប្រាក័ថែរ",
     "nav.monthly": "សន្សាំប្រចាំខែ",
     "nav.loan": "ម័ស៊ឹនគណនាប្រាកកម្ចឹ",
-
     "bread.calculators": "ម័ស៊ឹនគណនា",
     "bread.savings": "ការសន្សាំ",
     "bread.loans": "ប្រាកកម្ចឹ",
-
     "index.title": "ម័ស៊ឹនគណនាហិរញ្ញវត្ត",
     "index.desc": "ឧបករណ៍ដែលប្រើប្រាស់ស្រួល ដើម្បីជួយអ្នករៀបចំផែនការសន្សាំ យល់ដឹងអំពីប្រាក់កម្ចី និងធ្វើការសម្រេចចិត្តហិរញ្ញវត្តប្រកបដោយប្រាជ្ញា។",
     "index.savings_col": "💰 ម័ស៊ឹនគណនាការសន្សាំ",
@@ -211,7 +196,6 @@ window.WFC_STRINGS = {
     "index.budget_col": "📊 ម័ស៊ឹនគណនាថវិកា",
     "badge.live": "ដាច័ត្តការ",
     "badge.soon": "១ាប្ំ។",
-
     "calc.fixed.name": "ការសន្សាំប្រាកប្រភេតថែរ",
     "calc.fixed.desc": "ពង្រឹកប្រាកបញ្ញើត្បើនដូយការប្រាកផ្នត់តាមពេវេលា",
     "calc.monthly.name": "ការសន្សាំប្រចាំខែ",
@@ -258,7 +242,6 @@ window.WFC_STRINGS = {
     "calc.insurance.desc": "វាយតម្លថាតើលការបញ្កាប់ប័ណ្ណឹក្សាធានារ័ប្រងជាគាលល័ឡ",
     "calc.inflation.name": "ម័ស៊ឹនគណនាអតិផរណាកម្ពុជា",
     "calc.inflation.desc": "ចានសមប្រាកថែរមានតម្ល័ប័ម្នក្នុងស្ណានភ្កបច្ចុប្បន្ន?",
-
     "input.label": "ការបញ្ចូល",
     "input.main": "ការបញ្ចូលចម្បង",
     "input.optional": "ការកឳនត់បន្ថែម",
@@ -274,7 +257,6 @@ window.WFC_STRINGS = {
     "input.freq.annual": "ប្រចាំឆ្នាំ",
     "input.freq.daily": "ប្រចាំថ្ងៃ",
     "btn.calculate": "គណនា",
-
     "result.summary": "សង្ខេបលត្ធផល",
     "result.effective_rate": "តិន្នផលប្រចាំឆ្នាំជាក់ស័ត្តែ",
     "result.rule72": "ឆ្នាំដើម្បីត្វែដង (ច្បាប់ ៧ ។ ។ )",
@@ -285,7 +267,6 @@ window.WFC_STRINGS = {
     "cmp.plus1": "ប្រសិនអត្រា +១%",
     "cmp.minus1": "ប្រសិនអត្រា −១%",
     "cmp.double_time": "ត្វែដងរយែពេល",
-
     "fixed.page_title": "ម័ស៊ឹនគណនាការសន្សាំប្រភេតថែរ",
     "fixed.page_desc": "មើលពីរប្បិហនោទឹប្រាកបញ្ញើត្បើនរឹកចម្រើនជាមួយការប្រាកផ្នត់តាមពេវេលា។",
     "fixed.bread": "ម័ស៊ឹនគណនាការសន្សាំប្រភេតថែរ",
@@ -299,7 +280,6 @@ window.WFC_STRINGS = {
     "fixed.chart.principal": "ដើមតុន",
     "cmp.fixed.half": "ប្រសិនប្រាកបញ្ញើ ÷ ២",
     "cmp.fixed.double": "ប្រសិនប្រាកបញ្ញើ × ២",
-
     "monthly.page_title": "ម័ស៊ឹនគណនាការសន្សាំប្រចាំខែ",
     "monthly.page_desc": "មើលពីរប្បិហនោទឹការបញ្ញើប្រចាំខែ — ជាមួយ ៤ គ្មានប្រាកបញ្ញើដាំបឹ — រឹកចម្រើនតាមពេវេលា។",
     "monthly.bread": "ម័ស៊ឹនគណនាការសន្សាំប្រចាំខែ",
@@ -319,7 +299,6 @@ window.WFC_STRINGS = {
     "monthly.chart.invested": "ការវិនិយឹគសរុប",
     "cmp.monthly.lump_only": "ប្រាកបញ្ញើត្បើន (គ្មានប្រចាំខែ)",
     "cmp.monthly.month_only": "ប្រចាំខែត្បើន (គ្មានប្រាកបញ្ញើដាំបឹ)",
-
     "loan.page_title": "ម័ស៊ឹនគណនាប្រាកកម្ចឹ (៤ ផ្នែក)",
     "loan.page_desc": "ដឹងអានអត្វរប្រាកកម្ចឹ ៣? ស្វែងរកអត្វរតី ៤ — ការតូតកាត់, ដើមតុន, អត្រាការប្រាក, ៤រយែពេល។",
     "loan.bread": "ម័ស៊ឹនគណនាប្រាកកម្ចឹ (៤ ផ្នែក)",
@@ -360,7 +339,6 @@ window.WFC_STRINGS = {
     "cmp.loan.minus1": "អត្រា −១%",
     "cmp.loan.1yr": "រយែពេល ១ ឆ្នាំ",
     "cmp.loan.3yr": "រយែពេល ៣ ឆ្នាំ",
-
     "schedule.title": "កាលវិភាគតាមរយែពេល",
     "schedule.show": "បង្ហាញកាលវិភាគ",
     "schedule.hide": "លាកកាលវិភាគ",
@@ -371,7 +349,6 @@ window.WFC_STRINGS = {
     "sched.end_balance": "សមតុល្យចុងក្រោយ",
     "sched.cum_interest": "ការប្រាកសរុប",
     "sched.cum_contribs": "ការបញ្ចូលសរុប",
-
     "print.note": "ចុច <strong>បឹកពិម្ព / រក្សាតុកជា PDF</strong> ដើម្បីនាំចេញលត្ធផល។",
     "print.btn": "បឹកពិម្ព / រក្សាតុកជា PDF",
     "print.date_prefix": "បឹកពិម្ពនៅ"
