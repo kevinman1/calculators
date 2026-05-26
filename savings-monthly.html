@@ -130,6 +130,16 @@
           </div>
         </div>
 
+        <div class="input-group">
+          <label data-i18n="input.nationality">Depositor Type</label>
+          <div class="input-wrapper">
+            <select id="nationality">
+              <option value="national" data-i18n="input.nat.national">Cambodian National (6% tax)</option>
+              <option value="foreigner" data-i18n="input.nat.foreigner">Foreigner (12% tax)</option>
+            </select>
+          </div>
+        </div>
+
         <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
       </div>
     </div>
@@ -141,7 +151,7 @@
         <div class="card-body">
 
           <div class="result-hero">
-            <div class="r-label" data-i18n="monthly.result.future_value">Future Value</div>
+            <div class="r-label" data-i18n="monthly.result.future_value_net">After-Tax Future Value</div>
             <div class="r-value" id="r-futureValue">—</div>
             <div class="r-sub" id="r-dateRange">—</div>
           </div>
@@ -156,20 +166,20 @@
               <div class="r-value" id="r-totalContribs">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label" data-i18n="monthly.result.total_principal">Total Principal Invested</div>
-              <div class="r-value" id="r-totalPrincipal">—</div>
+              <div class="r-label" data-i18n="monthly.result.gross_interest">Gross Interest Earned</div>
+              <div class="r-value" id="r-grossInterest">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label" data-i18n="monthly.result.total_interest">Total Interest Earned</div>
-              <div class="r-value" id="r-totalInterest">—</div>
+              <div class="r-label" id="r-taxLabel" data-i18n="monthly.result.tax_deducted">Tax Deducted</div>
+              <div class="r-value" id="r-taxPaid">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="monthly.result.net_interest">Net Interest (after tax)</div>
+              <div class="r-value" id="r-netInterest">—</div>
             </div>
             <div class="result-item">
               <div class="r-label" data-i18n="result.effective_rate">Effective Annual Yield</div>
               <div class="r-value" id="r-effectiveRate">—</div>
-            </div>
-            <div class="result-item">
-              <div class="r-label" data-i18n="result.rule72">Years to Double (Rule of 72)</div>
-              <div class="r-value" id="r-rule72">—</div>
             </div>
           </div>
 
@@ -237,10 +247,11 @@
             <th data-i18n="sched.date">Date</th>
             <th data-i18n="sched.beg_balance">Beg. Balance</th>
             <th data-i18n="monthly.input.contrib">Contribution</th>
-            <th data-i18n="sched.interest">Interest Earned</th>
+            <th data-i18n="sched.gross_interest">Gross Interest</th>
+            <th data-i18n="sched.tax">Tax</th>
+            <th data-i18n="sched.net_interest">Net Interest</th>
             <th data-i18n="sched.end_balance">End Balance</th>
-            <th data-i18n="sched.cum_contribs">Cum. Contributions</th>
-            <th data-i18n="sched.cum_interest">Cum. Interest</th>
+            <th data-i18n="sched.cum_net_interest">Cum. Net Interest</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -264,7 +275,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=3"></script>
+<script src="lang.js?v=4"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 const FREQ = { '12': 12, '4': 4, '2': 2, '1': 1 };
@@ -287,9 +298,9 @@ function addPeriods(date, periods, n) {
 }
 
 function calcFV(pv, pmt, r, n, totalPeriods, timing) {
-  const pr = r / n;
+  const pr     = r / n;
   const growth = Math.pow(1 + pr, totalPeriods);
-  const fvPV  = pv * growth;
+  const fvPV   = pv * growth;
   let fvPMT;
   if (pr === 0) {
     fvPMT = pmt * totalPeriods;
@@ -302,48 +313,58 @@ function calcFV(pv, pmt, r, n, totalPeriods, timing) {
 }
 
 function calculate() {
-  const principal      = Math.max(0, parseFloat(document.getElementById('principal').value)      || 0);
-  const monthlyContrib = Math.max(0, parseFloat(document.getElementById('monthlyContrib').value) || 0);
-  const rate           = Math.max(0, parseFloat(document.getElementById('rate').value)            || 0) / 100;
-  const timePeriod     = Math.max(0, parseFloat(document.getElementById('timePeriod').value)      || 0);
-  const timeUnit       = document.getElementById('timeUnit').value;
-  const n              = FREQ[document.getElementById('compFreq').value] || 12;
-  const timing         = document.getElementById('contribTiming').value;
+  const principal       = Math.max(0, parseFloat(document.getElementById('principal').value)      || 0);
+  const monthlyContrib  = Math.max(0, parseFloat(document.getElementById('monthlyContrib').value) || 0);
+  const rate            = Math.max(0, parseFloat(document.getElementById('rate').value)            || 0) / 100;
+  const timePeriod      = Math.max(0, parseFloat(document.getElementById('timePeriod').value)      || 0);
+  const timeUnit        = document.getElementById('timeUnit').value;
+  const n               = FREQ[document.getElementById('compFreq').value] || 12;
+  const timing          = document.getElementById('contribTiming').value;
+  const taxRate         = document.getElementById('nationality').value === 'national' ? 0.06 : 0.12;
 
-  const t               = timeUnit === 'Years' ? timePeriod : timePeriod / 12;
-  const totalPeriods    = Math.round(n * t);
-  const periodicRate    = rate / n;
+  const t                = timeUnit === 'Years' ? timePeriod : timePeriod / 12;
+  const totalPeriods     = Math.round(n * t);
+  const periodicRate     = rate / n;
+  const netRate          = rate * (1 - taxRate);
+  const netPeriodicRate  = netRate / n;
   const contribPerPeriod = monthlyContrib * (12 / n);
-
-  const futureValue    = calcFV(principal, contribPerPeriod, rate, n, totalPeriods, timing);
-  const totalContribs  = contribPerPeriod * totalPeriods;
-  const totalPrincipal = principal + totalContribs;
-  const totalInterest  = futureValue - totalPrincipal;
-  const effectiveRate  = Math.pow(1 + periodicRate, n) - 1;
-  const yearsToDouble  = rate > 0 ? 72 / (rate * 100) : 0;
 
   const startDate = new Date();
   const endDate   = addPeriods(startDate, totalPeriods, n);
 
-  document.getElementById('r-futureValue').textContent    = fmt$(futureValue);
-  document.getElementById('r-dateRange').textContent      = fmtDate(startDate) + ' → ' + fmtDate(endDate);
-  document.getElementById('r-principal').textContent      = fmt$(principal);
-  document.getElementById('r-totalContribs').textContent  = fmt$(totalContribs);
-  document.getElementById('r-totalPrincipal').textContent = fmt$(totalPrincipal);
-  document.getElementById('r-totalInterest').textContent  = fmt$(totalInterest);
-  document.getElementById('r-effectiveRate').textContent  = (effectiveRate * 100).toFixed(4) + '%';
-  document.getElementById('r-rule72').textContent         = yearsToDouble.toFixed(1) + ' yrs';
+  const T = (typeof WFC !== 'undefined') ? WFC.t : function(k){ return k; };
 
-  document.getElementById('cmp-current').textContent    = fmt$(futureValue);
-  document.getElementById('cmp-lumponly').textContent   = fmt$(principal * Math.pow(1 + periodicRate, totalPeriods));
-  document.getElementById('cmp-monthonly').textContent  = fmt$(calcFV(0, contribPerPeriod, rate, n, totalPeriods, timing));
-  document.getElementById('cmp-plus1').textContent      = fmt$(calcFV(principal, contribPerPeriod, rate + 0.01, n, totalPeriods, timing));
+  // Build schedule first — gives exact cumulative tax totals
+  lastScheduleData = buildSchedule(principal, contribPerPeriod, periodicRate, taxRate, totalPeriods, n, startDate, timing);
+
+  const lastRow          = lastScheduleData.length > 0 ? lastScheduleData[lastScheduleData.length - 1] : {};
+  const futureValueNet   = lastRow.end             || 0;
+  const totalCumGross    = lastRow.cumGrossInterest || 0;
+  const totalTax         = lastRow.cumTax           || 0;
+  const totalNetInterest = lastRow.cumNetInterest   || 0;
+  const totalContribs    = contribPerPeriod * totalPeriods;
+  const effectiveRateNet = Math.pow(1 + netPeriodicRate, n) - 1;
+
+  document.getElementById('r-futureValue').textContent   = fmt$(futureValueNet);
+  document.getElementById('r-dateRange').textContent     = fmtDate(startDate) + ' → ' + fmtDate(endDate);
+  document.getElementById('r-principal').textContent     = fmt$(principal);
+  document.getElementById('r-totalContribs').textContent = fmt$(totalContribs);
+  document.getElementById('r-grossInterest').textContent = fmt$(totalCumGross);
+  document.getElementById('r-taxLabel').textContent      = T('monthly.result.tax_deducted') + ' (' + (taxRate * 100).toFixed(0) + '%)';
+  document.getElementById('r-taxPaid').textContent       = fmt$(totalTax);
+  document.getElementById('r-netInterest').textContent   = fmt$(totalNetInterest);
+  document.getElementById('r-effectiveRate').textContent = (effectiveRateNet * 100).toFixed(4) + '%';
+
+  // Comparison table — all values after tax
+  const fvNet = (p, pmt, r) => calcFV(p, pmt, r * (1 - taxRate), n, totalPeriods, timing);
+  document.getElementById('cmp-current').textContent    = fmt$(futureValueNet);
+  document.getElementById('cmp-lumponly').textContent   = fmt$(principal * Math.pow(1 + netPeriodicRate, totalPeriods));
+  document.getElementById('cmp-monthonly').textContent  = fmt$(calcFV(0, contribPerPeriod, netRate, n, totalPeriods, timing));
+  document.getElementById('cmp-plus1').textContent      = fmt$(fvNet(principal, contribPerPeriod, rate + 0.01));
   document.getElementById('cmp-minus1').textContent     = rate >= 0.01
-    ? fmt$(calcFV(principal, contribPerPeriod, rate - 0.01, n, totalPeriods, timing))
+    ? fmt$(fvNet(principal, contribPerPeriod, rate - 0.01))
     : '—';
-  document.getElementById('cmp-doubletime').textContent = fmt$(calcFV(principal, contribPerPeriod, rate, n, totalPeriods * 2, timing));
-
-  lastScheduleData = buildSchedule(principal, contribPerPeriod, periodicRate, totalPeriods, n, startDate, timing);
+  document.getElementById('cmp-doubletime').textContent = fmt$(calcFV(principal, contribPerPeriod, netRate, n, totalPeriods * 2, timing));
 
   document.getElementById('printDate').textContent = fmtDate(new Date());
 
@@ -356,55 +377,72 @@ function calculate() {
     totalPeriods + ' period' + (totalPeriods !== 1 ? 's' : '');
 }
 
-function buildSchedule(principal, contribPerPeriod, periodicRate, totalPeriods, n, startDate, timing) {
+function buildSchedule(principal, contribPerPeriod, periodicRate, taxRate, totalPeriods, n, startDate, timing) {
   const rows = [];
-  let balance     = principal;
-  let cumInterest = 0;
-  let cumContribs = 0;
+  let balance          = principal;
+  let balanceGross     = principal;
+  let cumGrossInterest = 0;
+  let cumTax           = 0;
+  let cumNetInterest   = 0;
+  let cumContribs      = 0;
 
   for (let i = 1; i <= totalPeriods; i++) {
-    let beg = balance;
-    let contrib, interest;
+    let begDisplay, grossInterest, tax, netInterest;
 
     if (timing === 'beginning') {
-      beg      = balance + contribPerPeriod;
-      interest = beg * periodicRate;
-      balance  = beg + interest;
-      contrib  = contribPerPeriod;
+      begDisplay    = balance;
+      const base    = balance + contribPerPeriod;
+      grossInterest = base * periodicRate;
+      tax           = grossInterest * taxRate;
+      netInterest   = grossInterest - tax;
+      balance       = base + netInterest;
+      balanceGross  = (balanceGross + contribPerPeriod) * (1 + periodicRate);
     } else {
-      interest = beg * periodicRate;
-      balance  = beg + interest + contribPerPeriod;
-      contrib  = contribPerPeriod;
+      begDisplay    = balance;
+      grossInterest = balance * periodicRate;
+      tax           = grossInterest * taxRate;
+      netInterest   = grossInterest - tax;
+      balance       = balance + netInterest + contribPerPeriod;
+      balanceGross  = balanceGross * (1 + periodicRate) + contribPerPeriod;
     }
 
-    cumContribs += contrib;
-    cumInterest += interest;
+    cumContribs      += contribPerPeriod;
+    cumGrossInterest += grossInterest;
+    cumTax           += tax;
+    cumNetInterest   += netInterest;
 
     rows.push({
-      period:     i,
-      date:       addPeriods(startDate, i, n),
-      beg:        timing === 'beginning' ? balance - interest - contribPerPeriod : beg,
-      contrib,
-      interest,
-      end:        balance,
+      period:          i,
+      date:            addPeriods(startDate, i, n),
+      beg:             begDisplay,
+      contrib:         contribPerPeriod,
+      grossInterest,
+      tax,
+      netInterest,
+      end:             balance,
+      endGross:        balanceGross,
       cumContribs,
-      cumInterest,
-      isYearEnd:  (i % Math.round(n) === 0)
+      cumGrossInterest,
+      cumTax,
+      cumNetInterest,
+      isYearEnd:       (i % Math.round(n) === 0)
     });
   }
   return rows;
 }
 
 function renderChart(data, principal, n, t) {
-  const labels     = ['Start'];
-  const balances   = [principal];
-  const principals = [principal];
+  const labels      = ['Start'];
+  const balances    = [principal];
+  const grossBals   = [principal];
+  const principals  = [principal];
   const step = Math.round(n);
 
   data.forEach((row, idx) => {
     if ((idx + 1) % step === 0 || idx === data.length - 1) {
       labels.push('Yr ' + Math.round((idx + 1) / n));
       balances.push(row.end);
+      grossBals.push(row.endGross);
       principals.push(principal + row.cumContribs);
     }
   });
@@ -432,6 +470,17 @@ function renderChart(data, principal, n, t) {
           borderWidth: 2.5,
           pointRadius: 3,
           pointBackgroundColor: '#739669'
+        },
+        {
+          label: T('monthly.chart.gross_balance'),
+          data: grossBals,
+          borderColor: '#c8a84b',
+          backgroundColor: 'rgba(0,0,0,0)',
+          fill: false,
+          tension: 0.35,
+          borderWidth: 2,
+          borderDash: [5, 4],
+          pointRadius: 0
         },
         {
           label: T('monthly.chart.invested'),
@@ -482,10 +531,11 @@ function renderSchedule(data) {
       '<td>' + fmtDate(row.date) + '</td>' +
       '<td>' + fmt$(row.beg) + '</td>' +
       '<td>' + fmt$(row.contrib) + '</td>' +
-      '<td>' + fmt$(row.interest) + '</td>' +
+      '<td>' + fmt$(row.grossInterest) + '</td>' +
+      '<td>' + fmt$(row.tax) + '</td>' +
+      '<td>' + fmt$(row.netInterest) + '</td>' +
       '<td>' + fmt$(row.end) + '</td>' +
-      '<td>' + fmt$(row.cumContribs) + '</td>' +
-      '<td>' + fmt$(row.cumInterest) + '</td>';
+      '<td>' + fmt$(row.cumNetInterest) + '</td>';
     tbody.appendChild(tr);
   });
 }
