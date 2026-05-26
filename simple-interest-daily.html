@@ -54,14 +54,12 @@
     <p data-i18n="simple_daily.page_desc">Enter the loan amount and total payback amount to see the daily payment schedule and true annual interest rate for up to three repayment term options.</p>
   </div>
 
-  <div class="calc-grid">
+  <div style="display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:1.25rem; align-items:start;">
 
-    <!-- INPUTS -->
+    <!-- MAIN INPUTS -->
     <div class="card">
-      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-header" data-i18n="input.main">Main Inputs</div>
       <div class="card-body">
-
-        <div class="section-label" data-i18n="input.main">Main Inputs</div>
 
         <div class="input-group">
           <label data-i18n="simple_daily.input.currency">Currency</label>
@@ -96,10 +94,15 @@
           </div>
         </div>
 
-        <hr class="section-divider">
-        <div class="section-label" data-i18n="simple_daily.input.options_label">Repayment Term Options (days)</div>
+      </div>
+    </div>
 
-        <div class="input-group" style="max-width:55%">
+    <!-- REPAYMENT OPTIONS -->
+    <div class="card">
+      <div class="card-header" data-i18n="simple_daily.input.options_label">Repayment Term Options</div>
+      <div class="card-body">
+
+        <div class="input-group">
           <label data-i18n="simple_daily.input.opt1">Option 1</label>
           <div class="input-wrapper">
             <input type="number" id="days1" value="20" min="1" step="1">
@@ -107,7 +110,7 @@
           </div>
         </div>
 
-        <div class="input-group" style="max-width:55%">
+        <div class="input-group">
           <label data-i18n="simple_daily.input.opt2">Option 2</label>
           <div class="input-wrapper">
             <input type="number" id="days2" value="30" min="1" step="1">
@@ -115,7 +118,7 @@
           </div>
         </div>
 
-        <div class="input-group" style="max-width:55%">
+        <div class="input-group">
           <label data-i18n="simple_daily.input.opt3">Option 3</label>
           <div class="input-wrapper">
             <input type="number" id="days3" value="120" min="1" step="1">
@@ -127,32 +130,31 @@
       </div>
     </div>
 
-    <!-- RESULTS -->
-    <div>
-      <div class="card">
-        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
-        <div class="card-body">
+    <!-- SUMMARY RESULTS -->
+    <div class="card">
+      <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
+      <div class="card-body">
 
-          <div class="result-hero">
-            <div class="r-label" data-i18n="simple_daily.result.total_interest">Total Interest (Lender Profit)</div>
-            <div class="r-value" id="r-totalInterest">—</div>
-            <div class="r-sub" id="r-interestPct">—</div>
-          </div>
-
-          <div class="results-grid">
-            <div class="result-item">
-              <div class="r-label" data-i18n="simple_daily.result.loan_amount">Loan Amount</div>
-              <div class="r-value" id="r-loanAmount">—</div>
-            </div>
-            <div class="result-item">
-              <div class="r-label" data-i18n="simple_daily.result.payback_amount">Payback Amount</div>
-              <div class="r-value" id="r-paybackAmount">—</div>
-            </div>
-          </div>
-
+        <div class="result-hero">
+          <div class="r-label" data-i18n="simple_daily.result.total_interest">Total Interest (Lender Profit)</div>
+          <div class="r-value" id="r-totalInterest">—</div>
+          <div class="r-sub" id="r-interestPct">—</div>
         </div>
+
+        <div class="results-grid">
+          <div class="result-item">
+            <div class="r-label" data-i18n="simple_daily.result.loan_amount">Loan Amount</div>
+            <div class="r-value" id="r-loanAmount">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="simple_daily.result.payback_amount">Payback Amount</div>
+            <div class="r-value" id="r-paybackAmount">—</div>
+          </div>
+        </div>
+
       </div>
     </div>
+
   </div>
 
   <!-- OPTION COMPARISON TABLE (full-width) -->
