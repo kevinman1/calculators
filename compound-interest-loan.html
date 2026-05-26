@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="cln.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compound Interest Loan – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* Payment label row with reset link */
+    .payment-label-row { display:flex; align-items:baseline; gap:.4rem; }
+    .payment-label-row label { flex:1; }
+    .reset-link { font-size:.72rem; color:var(--green-700); cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
+    .reset-link:hover { color:var(--green-900); }
+    .auto-badge { font-size:.68rem; font-weight:600; color:var(--green-700); background:var(--green-50); border:1px solid var(--green-200); border-radius:3px; padding:0 4px; }
+    /* Schedule totals row */
+    .sched-totals td { font-weight:700; background:var(--green-50); border-top:2px solid var(--green-300); }
+    /* Date inputs */
+    input[type="date"] { font-family:inherit; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" class="active" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="cln.bread">Compound Interest Loan</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Print-only header -->
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="cln.print_title">Compound Interest Loan Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="cln.page_title">Compound Interest Loan</h2>
+    <p data-i18n="cln.page_desc">Build a full date-based amortisation schedule for a compound interest loan.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── INPUTS ───────────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-body">
+
+        <!-- Currency -->
+        <div class="section-label" data-i18n="loan.section.currency">Currency</div>
+        <div class="currency-toggle" style="margin-bottom:.6rem">
+          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+        </div>
+        <div class="input-group" id="exrateGroup" style="display:none;margin-bottom:.6rem">
+          <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
+          <div class="input-wrapper">
+            <input type="number" id="exchangeRate" value="4100" min="1" step="100" oninput="onMainInput()">
+            <span class="input-suffix">KHR</span>
+          </div>
+        </div>
+
+        <hr class="section-divider" style="margin-top:0">
+
+        <!-- Loan Amount -->
+        <div class="input-group">
+          <label data-i18n="cln.input.loan_amount">Loan Amount</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx-loan">$</span>
+            <input type="number" id="loanAmount" value="10000" min="0" step="100" oninput="onMainInput()">
+          </div>
+        </div>
+
+        <!-- Annual Rate -->
+        <div class="input-group">
+          <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="annualRate" value="12" min="0" max="200" step="0.1" oninput="onMainInput()">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <!-- Term -->
+        <div class="input-group">
+          <label data-i18n="cln.input.term">Loan Term</label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <input type="number" id="termValue" value="2" min="1" step="1" oninput="onMainInput()">
+            </div>
+            <div class="input-wrapper">
+              <select id="termUnit" onchange="onMainInput()">
+                <option value="years" selected data-i18n="input.years">Years</option>
+                <option value="months" data-i18n="input.months">Months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Start Date -->
+        <div class="input-group">
+          <label data-i18n="cln.input.start_date">Loan Start Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate" oninput="onStartDateChange()">
+          </div>
+        </div>
+
+        <!-- First Payment Date -->
+        <div class="input-group">
+          <label data-i18n="cln.input.first_payment">First Payment Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="firstPaymentDate" oninput="calculate()">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Day Count Method -->
+        <div class="input-group">
+          <label data-i18n="cln.input.day_count">Day Count Method</label>
+          <div class="input-wrapper">
+            <select id="dayCount" onchange="calculate()">
+              <option value="30_360" selected data-i18n="cln.day_count.30_360">30/360 (rate ÷ 12 per period)</option>
+              <option value="actual_360" data-i18n="cln.day_count.actual_360">Actual/360 (rate ÷ 360 × actual days)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Payment Delay Rule -->
+        <div class="input-group">
+          <label data-i18n="cln.input.delay_rule">Payment Date Rule</label>
+          <div class="input-wrapper">
+            <select id="delayRule" onchange="calculate()">
+              <option value="none" selected data-i18n="cln.delay.none">No adjustment</option>
+              <option value="skip_sun" data-i18n="cln.delay.skip_sun">Skip Sunday → Monday</option>
+              <option value="skip_sun_hol" data-i18n="cln.delay.skip_sun_hol">Skip Sunday &amp; Cambodian Holidays</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Monthly Payment (auto/override) -->
+        <div class="input-group">
+          <div class="payment-label-row">
+            <label data-i18n="cln.input.payment">Monthly Payment</label>
+            <span class="auto-badge" id="autoBadge" data-i18n="cln.input.payment_auto">auto</span>
+            <button class="reset-link" id="resetBtn" onclick="resetPayment()" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+          </div>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx-payment">$</span>
+            <input type="number" id="monthlyPayment" value="" min="0" step="10" oninput="onPaymentInput()">
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+
+      </div>
+    </div>
+
+    <!-- ── RESULTS ──────────────────────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
+        <div class="card-body">
+
+          <div class="result-hero">
+            <div class="r-label" data-i18n="cln.result.payment">Monthly Payment</div>
+            <div class="r-value" id="r-payment">—</div>
+            <div class="r-sub"  id="r-dateRange">—</div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.input.loan_amount">Loan Amount</div>
+              <div class="r-value" id="r-principal">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.num_payments">Number of Payments</div>
+              <div class="r-value" id="r-numPayments">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.total_paid">Total Amount Paid</div>
+              <div class="r-value" id="r-totalPaid">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.total_interest">Total Interest Paid</div>
+              <div class="r-value" id="r-totalInterest">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.interest_pct">Interest as % of Principal</div>
+              <div class="r-value" id="r-interestPct">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.final_date">Final Payment Date</div>
+              <div class="r-value" id="r-finalDate">—</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── CHART ──────────────────────────────────────────────────────────── -->
+  <div class="card chart-card">
+    <div class="card-header" data-i18n="cln.chart.title">Loan Balance Over Time</div>
+    <div class="chart-container">
+      <canvas id="loanChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ── SCHEDULE ────────────────────────────────────────────────────────── -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem" data-i18n="cln.sched.title">Amortisation Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+      <span class="schedule-count" id="scheduleCount"></span>
+    </div>
+    <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th data-i18n="cln.sched.num">Payment #</th>
+            <th data-i18n="cln.sched.date">Date</th>
+            <th data-i18n="cln.sched.days">Days</th>
+            <th data-i18n="cln.sched.principal">Principal</th>
+            <th data-i18n="cln.sched.interest">Interest</th>
+            <th data-i18n="cln.sched.payment">Payment</th>
+            <th data-i18n="cln.sched.balance">Balance</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PRINT BAR ───────────────────────────────────────────────────────── -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#128424; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=7"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+// ── State ───────────────────────────────────────────────────────────────────
+let clnChart        = null;
+let lastSchedule    = [];
+let currency        = 'USD';
+let paymentTouched  = false;
+
+// ── i18n shorthand ──────────────────────────────────────────────────────────
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+// ── Formatting ───────────────────────────────────────────────────────────────
+function fmtMoney(v) {
+  if (currency === 'KHR') return '៛ ' + Math.round(v).toLocaleString('en-US');
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtMoneyRound(v) {
+  if (currency === 'KHR') return '៛ ' + Math.round(v).toLocaleString('en-US');
+  return '$' + Math.round(v).toLocaleString('en-US');
+}
+function currSym() { return currency === 'KHR' ? '៛' : '$'; }
+function getXR()   { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function toISO(d) {
+  return d.getFullYear() + '-'
+    + String(d.getMonth() + 1).padStart(2, '0') + '-'
+    + String(d.getDate()).padStart(2, '0');
+}
+function parseISO(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+// ── Currency toggle ──────────────────────────────────────────────────────────
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr   = getXR();
+  const loan = document.getElementById('loanAmount');
+  const pmt  = document.getElementById('monthlyPayment');
+  if (loan) {
+    const v = parseFloat(loan.value) || 0;
+    loan.value = newCur === 'KHR' ? Math.round(v * xr) : (v / xr).toFixed(2);
+  }
+  if (pmt && pmt.value) {
+    const v = parseFloat(pmt.value) || 0;
+    pmt.value = newCur === 'KHR' ? Math.round(v * xr) : (v / xr).toFixed(2);
+  }
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === newCur)
+  );
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? '' : 'none';
+  const sym = currSym();
+  document.getElementById('pfx-loan').textContent    = sym;
+  document.getElementById('pfx-payment').textContent = sym;
+  onMainInput();
+}
+
+// ── Date utilities ────────────────────────────────────────────────────────────
+function addOneMonth(date) {
+  const orig = date.getDate();
+  const d    = new Date(date.getFullYear(), date.getMonth() + 1, orig);
+  if (d.getDate() !== orig) d.setDate(0); // overflow → last day of target month
+  return d;
+}
+
+function daysBetween(a, b) {
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
+
+// Cambodia fixed public holidays (returned as Set of ISO strings for a given year)
+const _holCache = {};
+function getHolidays(year) {
+  if (_holCache[year]) return _holCache[year];
+  const h = new Set();
+  const add = (m, d) => h.add(year + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0'));
+  [[1,1],[1,7],[4,13],[4,14],[4,15],[5,1],[5,13],[5,14],[5,15],
+   [6,18],[9,24],[10,23],[10,29],[11,9],[12,10]].forEach(([m,d]) => add(m,d));
+  _holCache[year] = h;
+  return h;
+}
+
+function adjustDate(date, rule) {
+  if (rule === 'none') return new Date(date);
+  let d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  for (let i = 0; i < 10; i++) {
+    let moved = false;
+    if (d.getDay() === 0) { d.setDate(d.getDate() + 1); moved = true; continue; }
+    if (rule === 'skip_sun_hol') {
+      const hols = getHolidays(d.getFullYear());
+      if (hols.has(toISO(d))) { d.setDate(d.getDate() + 1); moved = true; continue; }
+    }
+    if (!moved) break;
+  }
+  return d;
+}
+
+// ── PMT ───────────────────────────────────────────────────────────────────────
+function calcPMT(principal, annualRate, nMonths) {
+  if (nMonths <= 0) return 0;
+  if (annualRate === 0) return principal / nMonths;
+  const r = annualRate / 12;
+  return principal * r / (1 - Math.pow(1 + r, -nMonths));
+}
+
+// ── Schedule builder ──────────────────────────────────────────────────────────
+function buildSchedule(loanAmt, annualRate, nMonths, startDate, firstPmtDate, dayCount, delayRule, paymentAmt) {
+  const rows = [];
+  let balance  = loanAmt;
+  let prevDate = startDate;
+  let curDate  = new Date(firstPmtDate);
+
+  for (let i = 1; i <= 600 && balance > 0.005; i++) {
+    const days = daysBetween(prevDate, curDate);
+    let interest;
+    if (dayCount === '30_360') {
+      interest = balance * annualRate / 12;
+    } else {
+      interest = balance * annualRate / 360 * days;
+    }
+    interest = Math.round(interest * 100) / 100;
+
+    // Last payment: clear balance
+    let thisPmt = Math.round(paymentAmt * 100) / 100;
+    if (balance + interest <= thisPmt + 0.005) {
+      thisPmt = Math.round((balance + interest) * 100) / 100;
+    }
+
+    const principalPaid = Math.round((thisPmt - interest) * 100) / 100;
+    balance = Math.max(0, Math.round((balance - principalPaid) * 100) / 100);
+
+    rows.push({ num: i, date: new Date(curDate), days, principal: principalPaid, interest, payment: thisPmt, balance });
+
+    prevDate = new Date(curDate);
+    curDate  = adjustDate(addOneMonth(curDate), delayRule);
+
+    if (balance < 0.005) break;
+  }
+
+  return rows;
+}
+
+// ── Payment field management ──────────────────────────────────────────────────
+function getAutoPayment() {
+  const principal  = parseFloat(document.getElementById('loanAmount').value) || 0;
+  const annualRate = (parseFloat(document.getElementById('annualRate').value) || 0) / 100;
+  const termVal    = parseInt(document.getElementById('termValue').value, 10)  || 1;
+  const termUnit   = document.getElementById('termUnit').value;
+  const nMonths    = termUnit === 'years' ? termVal * 12 : termVal;
+  return calcPMT(principal, annualRate, nMonths);
+}
+
+function onMainInput() {
+  paymentTouched = false;
+  const auto = getAutoPayment();
+  const pmtEl = document.getElementById('monthlyPayment');
+  if (currency === 'KHR') {
+    pmtEl.value = Math.round(auto).toString();
+  } else {
+    pmtEl.value = auto.toFixed(2);
+  }
+  document.getElementById('autoBadge').style.display = '';
+  document.getElementById('resetBtn').style.display  = 'none';
+  calculate();
+}
+
+function onPaymentInput() {
+  paymentTouched = true;
+  document.getElementById('autoBadge').style.display = 'none';
+  document.getElementById('resetBtn').style.display  = '';
+  calculate();
+}
+
+function resetPayment() {
+  paymentTouched = false;
+  const auto = getAutoPayment();
+  const pmtEl = document.getElementById('monthlyPayment');
+  pmtEl.value = currency === 'KHR' ? Math.round(auto).toString() : auto.toFixed(2);
+  document.getElementById('autoBadge').style.display = '';
+  document.getElementById('resetBtn').style.display  = 'none';
+  calculate();
+}
+
+function onStartDateChange() {
+  const startStr = document.getElementById('startDate').value;
+  if (!startStr) { calculate(); return; }
+  const start = parseISO(startStr);
+  const firstRaw = addOneMonth(start);
+  const rule = document.getElementById('delayRule').value;
+  const firstAdj = adjustDate(firstRaw, rule);
+  document.getElementById('firstPaymentDate').value = toISO(firstAdj);
+  calculate();
+}
+
+// ── Main calculate ────────────────────────────────────────────────────────────
+function calculate() {
+  const loanAmt    = parseFloat(document.getElementById('loanAmount').value) || 0;
+  const annualRate = (parseFloat(document.getElementById('annualRate').value) || 0) / 100;
+  const termVal    = parseInt(document.getElementById('termValue').value, 10) || 1;
+  const termUnit   = document.getElementById('termUnit').value;
+  const nMonths    = termUnit === 'years' ? termVal * 12 : termVal;
+  const startStr   = document.getElementById('startDate').value;
+  const firstStr   = document.getElementById('firstPaymentDate').value;
+  const dayCount   = document.getElementById('dayCount').value;
+  const delayRule  = document.getElementById('delayRule').value;
+
+  // Validation
+  if (loanAmt <= 0 || nMonths <= 0 || !startStr || !firstStr) {
+    clearResults();
+    return;
+  }
+
+  const startDate    = parseISO(startStr);
+  const firstPmtDate = parseISO(firstStr);
+
+  if (!startDate || !firstPmtDate || firstPmtDate <= startDate) {
+    clearResults();
+    return;
+  }
+
+  // Get payment amount
+  const autoPayment = calcPMT(loanAmt, annualRate, nMonths);
+  let paymentAmt = parseFloat(document.getElementById('monthlyPayment').value);
+  if (!paymentAmt || paymentAmt <= 0) paymentAmt = autoPayment;
+
+  // Check payment covers at least first period interest
+  let firstInterest;
+  if (dayCount === '30_360') {
+    firstInterest = loanAmt * annualRate / 12;
+  } else {
+    const firstDays = daysBetween(startDate, firstPmtDate);
+    firstInterest = loanAmt * annualRate / 360 * firstDays;
+  }
+  if (paymentAmt <= firstInterest + 0.005) {
+    showError('Payment is too small to cover interest. Increase the payment.');
+    return;
+  }
+
+  const schedule = buildSchedule(loanAmt, annualRate, nMonths, startDate, firstPmtDate, dayCount, delayRule, paymentAmt);
+  lastSchedule   = schedule;
+
+  if (schedule.length === 0) { clearResults(); return; }
+
+  // Summary
+  const totalPaid     = schedule.reduce((s, r) => s + r.payment,   0);
+  const totalInterest = schedule.reduce((s, r) => s + r.interest,  0);
+  const totalPrincipal= schedule.reduce((s, r) => s + r.principal, 0);
+  const finalDate     = schedule[schedule.length - 1].date;
+  const typicalPmt    = schedule[0].payment;
+
+  document.getElementById('r-payment').textContent     = fmtMoney(typicalPmt);
+  document.getElementById('r-dateRange').textContent   = fmtDate(firstPmtDate) + ' – ' + fmtDate(finalDate);
+  document.getElementById('r-principal').textContent   = fmtMoney(loanAmt);
+  document.getElementById('r-numPayments').textContent = schedule.length;
+  document.getElementById('r-totalPaid').textContent   = fmtMoney(totalPaid);
+  document.getElementById('r-totalInterest').textContent = fmtMoney(totalInterest);
+  document.getElementById('r-interestPct').textContent   = (totalInterest / loanAmt * 100).toFixed(1) + '%';
+  document.getElementById('r-finalDate').textContent     = fmtDate(finalDate);
+
+  // Print date
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+
+  // Chart
+  drawChart(schedule, loanAmt);
+
+  // Schedule count
+  document.getElementById('scheduleCount').textContent = schedule.length + ' payments';
+
+  // Rebuild schedule table if visible
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    renderScheduleTable(schedule);
+  }
+}
+
+function clearResults() {
+  ['r-payment','r-dateRange','r-principal','r-numPayments','r-totalPaid','r-totalInterest','r-interestPct','r-finalDate']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
+  document.getElementById('scheduleCount').textContent = '';
+  if (clnChart) { clnChart.destroy(); clnChart = null; }
+}
+
+function showError(msg) {
+  clearResults();
+  document.getElementById('r-payment').textContent = msg;
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function drawChart(schedule, loanAmt) {
+  const ctx = document.getElementById('loanChart').getContext('2d');
+  if (clnChart) clnChart.destroy();
+
+  // Build cumulative interest array alongside schedule, then sample
+  let running = 0;
+  const cumByIdx = schedule.map(r => { running += r.interest; return running; });
+
+  // Sample to max 120 points for performance
+  const step    = Math.max(1, Math.floor(schedule.length / 120));
+  const indices = [];
+  for (let i = 0; i < schedule.length; i++) {
+    if (i % step === 0 || i === schedule.length - 1) indices.push(i);
+  }
+
+  const labels   = indices.map(i => fmtDate(schedule[i].date));
+  const balances = indices.map(i => Math.round(schedule[i].balance    * 100) / 100);
+  const cumIntArr= indices.map(i => Math.round(cumByIdx[i]            * 100) / 100);
+
+  const green700 = getComputedStyle(document.documentElement).getPropertyValue('--green-700').trim() || '#3b6e2f';
+  const green300 = getComputedStyle(document.documentElement).getPropertyValue('--green-300').trim() || '#a3c880';
+
+  clnChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: T('cln.chart.balance'),
+          data: balances,
+          borderColor: green700,
+          backgroundColor: green700 + '22',
+          fill: true,
+          tension: 0.3,
+          pointRadius: schedule.length > 60 ? 0 : 3,
+          borderWidth: 2,
+          yAxisID: 'y'
+        },
+        {
+          label: T('cln.chart.cum_interest'),
+          data: cumIntArr,
+          borderColor: green300,
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.3,
+          pointRadius: schedule.length > 60 ? 0 : 3,
+          borderWidth: 2,
+          borderDash: [5, 4],
+          yAxisID: 'y'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmtMoney(ctx.raw)
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { maxTicksLimit: 10, maxRotation: 30 } },
+        y: {
+          ticks: {
+            callback: v => {
+              if (currency === 'KHR') return '៛' + (v / 1000).toFixed(0) + 'K';
+              return '$' + (v / 1000).toFixed(1) + 'K';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── Schedule table ────────────────────────────────────────────────────────────
+function renderScheduleTable(schedule) {
+  const tbody = document.getElementById('scheduleBody');
+  tbody.innerHTML = '';
+
+  let totPrincipal = 0, totInterest = 0, totPayment = 0;
+
+  schedule.forEach(r => {
+    totPrincipal += r.principal;
+    totInterest  += r.interest;
+    totPayment   += r.payment;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td>${r.num}</td>` +
+      `<td>${fmtDate(r.date)}</td>` +
+      `<td style="text-align:right">${r.days}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.principal)}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.interest)}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.payment)}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.balance)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Totals row
+  const totRow = document.createElement('tr');
+  totRow.className = 'sched-totals';
+  totRow.innerHTML =
+    `<td colspan="3">${T('cln.sched.totals')}</td>` +
+    `<td style="text-align:right">${fmtMoney(totPrincipal)}</td>` +
+    `<td style="text-align:right">${fmtMoney(totInterest)}</td>` +
+    `<td style="text-align:right">${fmtMoney(totPayment)}</td>` +
+    `<td></td>`;
+  tbody.appendChild(totRow);
+}
+
+function toggleSchedule() {
+  const wrapper = document.getElementById('scheduleWrapper');
+  const btn     = document.getElementById('toggleBtn');
+  const hidden  = wrapper.style.display === 'none';
+  wrapper.style.display = hidden ? '' : 'none';
+  btn.setAttribute('data-i18n', hidden ? 'schedule.hide' : 'schedule.show');
+  btn.textContent = T(hidden ? 'schedule.hide' : 'schedule.show');
+  if (hidden && lastSchedule.length > 0) renderScheduleTable(lastSchedule);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init() {
+  // Set default start date to today
+  const today = new Date();
+  document.getElementById('startDate').value = toISO(today);
+
+  // Set default first payment date to 1 month from today
+  const firstRaw = addOneMonth(today);
+  document.getElementById('firstPaymentDate').value = toISO(firstRaw);
+
+  // Trigger auto-payment calculation
+  const auto = getAutoPayment();
+  const pmtEl = document.getElementById('monthlyPayment');
+  pmtEl.value = auto.toFixed(2);
+
+  calculate();
+})();
+
+// i18n.js automatically calls window.calculate() on language change,
+// which re-draws the chart and schedule with translated labels.
+</script>
+
+</body>
+</html>
