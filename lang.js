@@ -1,7 +1,7 @@
 window.WFC_STRINGS = {
   "en": {
     "site.name": "Wise Financial Cambodia",
-    "site.tagline": "Financial Education Tool",
+    "site.tagline": "Financial Education Tools",
     "site.footer.main": "Wise Financial Cambodia — Financial Education for the Kingdom of Cambodia",
     "site.footer.edu": "Calculators are for educational purposes. Consult a financial advisor for personal advice.",
     "site.footer.edu_short": "Calculators are for educational purposes only.",
