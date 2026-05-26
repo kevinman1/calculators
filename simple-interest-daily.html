@@ -68,7 +68,7 @@
           <div class="input-wrapper">
             <select id="currency">
               <option value="USD">USD ($)</option>
-              <option value="KHR">KHR (&#x17DB;)</option>
+              <option value="KHR" selected>KHR (&#x17DB;)</option>
             </select>
           </div>
         </div>
@@ -76,7 +76,7 @@
         <div class="input-group">
           <label data-i18n="simple_daily.input.loan">Loan Amount (Principal)</label>
           <div class="input-wrapper">
-            <span class="input-prefix currency-sym">$</span>
+            <span class="input-prefix currency-sym">&#x17DB;</span>
             <input type="number" id="loanAmount" value="400000" min="0" step="1000">
           </div>
         </div>
@@ -84,7 +84,7 @@
         <div class="input-group">
           <label data-i18n="simple_daily.input.payback">Payback Amount (Total to Repay)</label>
           <div class="input-wrapper">
-            <span class="input-prefix currency-sym">$</span>
+            <span class="input-prefix currency-sym">&#x17DB;</span>
             <input type="number" id="paybackAmount" value="600000" min="0" step="1000">
           </div>
         </div>
@@ -151,40 +151,45 @@
             </div>
           </div>
 
-          <div class="section-label" style="margin-top:.1rem" data-i18n="simple_daily.result.comparison">Option Comparison</div>
-          <table class="cmp-table">
-            <thead>
-              <tr>
-                <th data-i18n="simple_daily.result.option_col">Option</th>
-                <th data-i18n="simple_daily.result.days_col">Days</th>
-                <th data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</th>
-                <th data-i18n="simple_daily.result.annual_rate_col">Annual Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="current">
-                <td>1</td>
-                <td id="cmp-days1">—</td>
-                <td id="cmp-pmt1">—</td>
-                <td id="cmp-rate1">—</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td id="cmp-days2">—</td>
-                <td id="cmp-pmt2">—</td>
-                <td id="cmp-rate2">—</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td id="cmp-days3">—</td>
-                <td id="cmp-pmt3">—</td>
-                <td id="cmp-rate3">—</td>
-              </tr>
-            </tbody>
-          </table>
-
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- OPTION COMPARISON TABLE (full-width) -->
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-header" data-i18n="simple_daily.result.comparison">Option Comparison</div>
+    <div class="card-body" style="padding-top:.6rem;padding-bottom:.6rem">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th data-i18n="simple_daily.result.option_col">Option</th>
+            <th data-i18n="simple_daily.result.days_col">Days</th>
+            <th data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</th>
+            <th data-i18n="simple_daily.result.annual_rate_col">Annual Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="current">
+            <td>1</td>
+            <td id="cmp-days1">—</td>
+            <td id="cmp-pmt1">—</td>
+            <td id="cmp-rate1">—</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td id="cmp-days2">—</td>
+            <td id="cmp-pmt2">—</td>
+            <td id="cmp-rate2">—</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td id="cmp-days3">—</td>
+            <td id="cmp-pmt3">—</td>
+            <td id="cmp-rate3">—</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -235,7 +240,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=2"></script>
+<script src="lang.js?v=3"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 let balanceChart = null;
