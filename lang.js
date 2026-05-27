@@ -456,8 +456,6 @@ window.WFC_STRINGS = {
     "cmr.late.remaining_loan": "Remaining Loan Balance",
     "cmr.late.total_penalty":  "Total Penalty Added",
     "cmr.late.grand_total":    "Grand Total Owing",
-
-    // ── Cambodia Inflation Calculator ──
     "cinf.page_title":          "Cambodian Inflation Calculator",
     "cinf.desc":                "See how the purchasing power of money has changed over time in Cambodia using official CPI data from the National Institute of Statistics.",
     "cinf.section.inputs":      "Inputs",
@@ -487,8 +485,6 @@ window.WFC_STRINGS = {
     "cinf.table.source_note":   "Source: NIS Cambodia. CPI base Oct–Dec 2006 = 100. YoY = December vs. previous December.",
     "cinf.print.note":          "All calculations use official NIS Cambodia CPI data. For educational purposes only.",
     "cinf.print.btn":           "Print / Save PDF",
-
-    // ── NSSF Pension Calculator ──
     "nssf.page_title":           "NSSF Pension Calculator",
     "nssf.page_desc":            "Estimate your monthly pension from Cambodia's National Social Security Fund based on your salary and years of contribution.",
     "nssf.bread":                "NSSF Pension",
@@ -978,8 +974,6 @@ window.WFC_STRINGS = {
     "cmr.late.remaining_loan": "សមតុល្យប្រាក់កម្ចីដែលនៅសល់",
     "cmr.late.total_penalty":  "ពិន័យសរុបបន្ថែម",
     "cmr.late.grand_total":    "សរុបទឹកប្រាក់ដែលជំពាក់",
-
-    // ── Cambodia Inflation Calculator ──
     "cinf.page_title":          "ម័ស៊ឹនគណនាអតិផរណាកម្ពុជា",
     "cinf.desc":                "មើលពីរបៀបដែលថាមពលទិញទំនិញប្ដូរប្រែតាមពេលវេលានៅកម្ពុជា ដោយប្រើទិន្នន័យ CPI ផ្លូវការពីវិទ្យាស្ថានជាតិស្ថិតិ។",
     "cinf.section.inputs":      "ទិន្នន័យបញ្ចូល",
@@ -1009,8 +1003,6 @@ window.WFC_STRINGS = {
     "cinf.table.source_note":   "ប្រភព: NIS កម្ពុជា។ មូលដ្ឋាន CPI តុលា–ធ្នូ ២០០៦ = ១០០។ YoY = ធ្នូ vs. ធ្នូមុន។",
     "cinf.print.note":          "គណនាទាំងអស់ប្រើទិន្នន័យ CPI ផ្លូវការរបស់ NIS កម្ពុជា។ សម្រាប់គោលបំណងអប់រំតែប៉ុណ្ណោះ។",
     "cinf.print.btn":           "បោះពុម្ព / រក្សាទុក PDF",
-
-    // ── NSSF Pension Calculator ──
     "nssf.page_title":           "ម័ស៊ឹនគណនាប្រាក់សោធននិវត្តន៍ NSSF",
     "nssf.page_desc":            "ប័ន្ទប់ប្រាក់សោធននិវត្តន៍ប្រចាំខែរបស់អ្នកពីមូលនិធិសន្តិសុខសង្គមជាតិ ដោយផ្អែកលើប្រាក់ខែ និងឆ្នាំរួមចំណែក។",
     "nssf.bread":                "សោធននិវត្តន៍ NSSF",
