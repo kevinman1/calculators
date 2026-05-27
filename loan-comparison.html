@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="lcp.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Comparison – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .savings-banner {
+      background:var(--green-50); border:1.5px solid var(--green-300);
+      border-radius:var(--radius); padding:.9rem 1.25rem;
+      margin-bottom:1.25rem;
+      display:flex; align-items:baseline; gap:.45rem; flex-wrap:wrap;
+    }
+    .savings-winner { font-size:.95rem; font-weight:700; color:var(--green-800); }
+    .savings-amount { font-size:1.35rem; font-weight:700; color:var(--green-700); }
+    .savings-note   { font-size:.85rem; color:var(--green-700); }
+    .sched-tab-bar  { display:flex; gap:.5rem; margin-bottom:.75rem; }
+    .sched-tab {
+      padding:.3rem .85rem; font-size:.8rem; font-weight:600;
+      border:1.5px solid var(--green-300); border-radius:4px;
+      cursor:pointer; background:white; color:var(--green-700);
+    }
+    .sched-tab.active { background:var(--green-700); color:white; border-color:var(--green-700); }
+    .sched-totals td { font-weight:700; background:var(--green-50); border-top:2px solid var(--green-300); }
+    input[type="date"] { font-family:inherit; }
+    .input-hint { font-size:.72rem; color:var(--green-600); margin-top:.2rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" class="active" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="lcp.bread">Loan Comparison</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="lcp.print_title">Loan Comparison Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="lcp.page_title">Loan Comparison Calculator</h2>
+    <p data-i18n="lcp.page_desc">Compare equal payment (standard amortisation) with equal principal repayment side by side. See which method costs less in total interest.</p>
+  </div>
+
+  <!-- 3-col grid: Inputs | Equal Payment | Equal Principal -->
+  <div style="display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:1.25rem; align-items:start; margin-bottom:1.25rem">
+
+    <!-- INPUTS -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-body">
+
+        <div class="section-label" data-i18n="loan.section.currency">Currency</div>
+        <div class="currency-toggle" style="margin-bottom:.6rem">
+          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+        </div>
+        <div class="input-group" id="exrateGroup" style="display:none;margin-bottom:.6rem">
+          <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
+          <div class="input-wrapper">
+            <input type="number" id="exchangeRate" value="4100" min="1" step="100" oninput="calculate()">
+            <span class="input-suffix">KHR</span>
+          </div>
+        </div>
+
+        <hr class="section-divider" style="margin-top:0">
+
+        <div class="input-group">
+          <label data-i18n="cln.input.loan_amount">Loan Amount</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx-loan">$</span>
+            <input type="number" id="loanAmount" value="10000" min="0" step="100" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="annualRate" value="12" min="0" max="200" step="0.1" oninput="calculate()">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="cln.input.term">Loan Term</label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <input type="number" id="termValue" value="2" min="1" step="1" oninput="calculate()">
+            </div>
+            <div class="input-wrapper">
+              <select id="termUnit" onchange="calculate()">
+                <option value="years" selected data-i18n="input.years">Years</option>
+                <option value="months" data-i18n="input.months">Months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="input-group">
+          <label data-i18n="cln.input.start_date">Loan Start Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate" oninput="onStartDateChange()">
+          </div>
+          <div class="input-hint" data-i18n="cln.hint.start_date">Optional — defaults to today</div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="cln.input.first_payment">First Payment Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="firstPaymentDate" oninput="calculate()">
+          </div>
+          <div class="input-hint" data-i18n="cln.hint.first_payment">Optional — auto-set to 1 month after start</div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="input-group">
+          <label data-i18n="cln.input.day_count">Day Count Method</label>
+          <div class="input-wrapper">
+            <select id="dayCount" onchange="calculate()">
+              <option value="30_360" selected data-i18n="cln.day_count.30_360">30/360 (rate ÷ 12 per period)</option>
+              <option value="actual_360" data-i18n="cln.day_count.actual_360">Actual/360 (rate ÷ 360 × actual days)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+
+      </div>
+    </div>
+
+    <!-- EQUAL PAYMENT RESULTS -->
+    <div class="card">
+      <div class="card-header dark">
+        <span data-i18n="lcp.col.ep">Equal Payment</span>
+        <span style="display:block;font-size:.72rem;font-weight:400;opacity:.85;margin-top:.1rem" data-i18n="lcp.col.ep_desc">Fixed amount every month</span>
+      </div>
+      <div class="card-body">
+        <div class="result-hero">
+          <div class="r-label" data-i18n="lcp.result.monthly_payment">Monthly Payment</div>
+          <div class="r-value" id="ep-payment">—</div>
+          <div class="r-sub"  id="ep-date-range">—</div>
+        </div>
+        <div class="results-grid">
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.total_paid">Total Amount Paid</div>
+            <div class="r-value" id="ep-total-paid">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.total_interest">Total Interest Paid</div>
+            <div class="r-value" id="ep-total-interest">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.num_payments">Number of Payments</div>
+            <div class="r-value" id="ep-num-payments">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.final_date">Final Payment Date</div>
+            <div class="r-value" id="ep-final-date">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUAL PRINCIPAL RESULTS -->
+    <div class="card">
+      <div class="card-header dark" style="background:#92400e">
+        <span data-i18n="lcp.col.epr">Equal Principal</span>
+        <span style="display:block;font-size:.72rem;font-weight:400;opacity:.85;margin-top:.1rem" data-i18n="lcp.col.epr_desc">Same principal every month; payments decrease</span>
+      </div>
+      <div class="card-body">
+        <div class="result-hero">
+          <div class="r-label" data-i18n="lcp.result.first_payment">First Payment</div>
+          <div class="r-value" id="epr-first-payment">—</div>
+          <div class="r-sub"  id="epr-last-sub">—</div>
+        </div>
+        <div class="results-grid">
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.total_paid">Total Amount Paid</div>
+            <div class="r-value" id="epr-total-paid">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.total_interest">Total Interest Paid</div>
+            <div class="r-value" id="epr-total-interest">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.num_payments">Number of Payments</div>
+            <div class="r-value" id="epr-num-payments">—</div>
+          </div>
+          <div class="result-item">
+            <div class="r-label" data-i18n="lcp.result.final_date">Final Payment Date</div>
+            <div class="r-value" id="epr-final-date">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end 3-col grid -->
+
+  <!-- SAVINGS BANNER -->
+  <div class="savings-banner" id="savingsBanner" style="display:none">
+    <span class="savings-winner" id="savingsWinner"></span>
+    <span data-i18n="lcp.savings.saves">saves</span>
+    <span class="savings-amount" id="savingsAmount"></span>
+    <span class="savings-note"   id="savingsNote"></span>
+  </div>
+
+  <!-- CHART -->
+  <div class="card chart-card">
+    <div class="card-header" data-i18n="lcp.chart.title">Loan Balance Over Time</div>
+    <div class="chart-container">
+      <canvas id="lcpChart"></canvas>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem" data-i18n="cln.sched.title">Amortisation Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+      <span class="schedule-count" id="scheduleCount"></span>
+    </div>
+    <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
+      <div class="sched-tab-bar">
+        <button class="sched-tab active" id="tabEP"  onclick="switchTab('ep')"  data-i18n="lcp.col.ep">Equal Payment</button>
+        <button class="sched-tab"        id="tabEPR" onclick="switchTab('epr')" data-i18n="lcp.col.epr">Equal Principal</button>
+      </div>
+      <table class="schedule-table">
+        <thead>
+          <tr>
+            <th data-i18n="cln.sched.num">Payment #</th>
+            <th data-i18n="cln.sched.date">Date</th>
+            <th id="schedDaysHdr" data-i18n="cln.sched.days">Days</th>
+            <th data-i18n="cln.sched.principal">Principal</th>
+            <th data-i18n="cln.sched.interest">Interest</th>
+            <th data-i18n="cln.sched.payment">Payment</th>
+            <th data-i18n="cln.sched.balance">Balance</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">Click <strong>Print / Save as PDF</strong> to export results.</div>
+    <button class="btn-print" onclick="window.print()">&#128424; <span data-i18n="print.btn">Print / Save as PDF</span></button>
+  </div>
+
+</div>
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=10"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+let lcpChart     = null;
+let lastEpSched  = [];
+let lastEprSched = [];
+let currency     = 'USD';
+let activeTab    = 'ep';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+function fmtMoney(v) {
+  if (currency === 'KHR') return '៛ ' + Math.round(v).toLocaleString('en-US');
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function currSym() { return currency === 'KHR' ? '៛' : '$'; }
+function getXR()   { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+function fmtDate(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function toISO(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function parseISO(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+function addOneMonth(date) {
+  const orig = date.getDate();
+  const d    = new Date(date.getFullYear(), date.getMonth() + 1, orig);
+  if (d.getDate() !== orig) d.setDate(0);
+  return d;
+}
+function daysBetween(a, b) {
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
+
+// ── Currency ──────────────────────────────────────────────────────────────
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr   = getXR();
+  const loan = document.getElementById('loanAmount');
+  if (loan) {
+    const v = parseFloat(loan.value) || 0;
+    loan.value = newCur === 'KHR' ? Math.round(v * xr) : (v / xr).toFixed(2);
+  }
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b => b.classList.toggle('active', b.dataset.currency === newCur));
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? '' : 'none';
+  document.getElementById('pfx-loan').textContent = currSym();
+  calculate();
+}
+
+function onStartDateChange() {
+  const s = document.getElementById('startDate').value;
+  if (s) document.getElementById('firstPaymentDate').value = toISO(addOneMonth(parseISO(s)));
+  calculate();
+}
+
+// ── Schedule builders ─────────────────────────────────────────────────────
+function buildEP(loan, annualRate, nMonths, startDate, firstPmtDate, dayCount) {
+  const r   = annualRate / 12;
+  const pmt = (annualRate === 0) ? loan / nMonths : loan * r / (1 - Math.pow(1 + r, -nMonths));
+  const rows = [];
+  let balance = loan, prevDate = startDate, curDate = new Date(firstPmtDate);
+  for (let i = 1; i <= nMonths; i++) {
+    const days     = daysBetween(prevDate, curDate);
+    let interest   = (dayCount === '30_360') ? balance * annualRate / 12 : balance * annualRate / 360 * days;
+    interest       = Math.round(interest * 100) / 100;
+    let thisPmt;
+    if (i === nMonths || balance + interest <= Math.round(pmt * 100) / 100 + 0.005) {
+      thisPmt = Math.round((balance + interest) * 100) / 100;
+    } else {
+      thisPmt = Math.round(pmt * 100) / 100;
+    }
+    const principal = Math.round((thisPmt - interest) * 100) / 100;
+    balance         = Math.max(0, Math.round((balance - principal) * 100) / 100);
+    rows.push({ num: i, date: new Date(curDate), days, principal, interest, payment: thisPmt, balance });
+    prevDate = new Date(curDate);
+    curDate  = addOneMonth(curDate);
+    if (balance < 0.005) break;
+  }
+  return { rows, regularPayment: pmt };
+}
+
+function buildEPR(loan, annualRate, nMonths, startDate, firstPmtDate, dayCount) {
+  const fixedPrincipal = Math.round(loan / nMonths * 100) / 100;
+  const rows = [];
+  let balance = loan, prevDate = startDate, curDate = new Date(firstPmtDate);
+  for (let i = 1; i <= nMonths; i++) {
+    const days   = daysBetween(prevDate, curDate);
+    let interest = (dayCount === '30_360') ? balance * annualRate / 12 : balance * annualRate / 360 * days;
+    interest     = Math.round(interest * 100) / 100;
+    const principal = (i === nMonths) ? balance : fixedPrincipal;
+    const thisPmt   = Math.round((principal + interest) * 100) / 100;
+    balance         = Math.max(0, Math.round((balance - principal) * 100) / 100);
+    rows.push({ num: i, date: new Date(curDate), days, principal, interest, payment: thisPmt, balance });
+    prevDate = new Date(curDate);
+    curDate  = addOneMonth(curDate);
+    if (balance < 0.005) break;
+  }
+  return { rows };
+}
+
+// ── Calculate ─────────────────────────────────────────────────────────────
+function calculate() {
+  const loan       = parseFloat(document.getElementById('loanAmount').value)  || 0;
+  const annualRate = (parseFloat(document.getElementById('annualRate').value) || 0) / 100;
+  const termVal    = parseInt(document.getElementById('termValue').value, 10)  || 1;
+  const nMonths    = document.getElementById('termUnit').value === 'years' ? termVal * 12 : termVal;
+  const startStr   = document.getElementById('startDate').value;
+  const firstStr   = document.getElementById('firstPaymentDate').value;
+  const dayCount   = document.getElementById('dayCount').value;
+
+  if (loan <= 0 || nMonths <= 0) { clearResults(); return; }
+
+  const today        = new Date(); today.setHours(0, 0, 0, 0);
+  const startDate    = startStr ? parseISO(startStr)  : today;
+  const firstPmtDate = firstStr ? parseISO(firstStr)  : addOneMonth(startDate);
+  if (!startDate || !firstPmtDate || firstPmtDate <= startDate) { clearResults(); return; }
+
+  const { rows: epRows,  regularPayment } = buildEP(loan, annualRate, nMonths, startDate, firstPmtDate, dayCount);
+  const { rows: eprRows }                 = buildEPR(loan, annualRate, nMonths, startDate, firstPmtDate, dayCount);
+
+  if (!epRows.length || !eprRows.length) { clearResults(); return; }
+
+  lastEpSched  = epRows;
+  lastEprSched = eprRows;
+
+  const epTotalPaid     = epRows.reduce((s, r) => s + r.payment,  0);
+  const epTotalInterest = epRows.reduce((s, r) => s + r.interest, 0);
+  const epFinalDate     = epRows[epRows.length - 1].date;
+
+  const eprTotalPaid     = eprRows.reduce((s, r) => s + r.payment,  0);
+  const eprTotalInterest = eprRows.reduce((s, r) => s + r.interest, 0);
+  const eprFinalDate     = eprRows[eprRows.length - 1].date;
+  const eprFirstPmt      = eprRows[0].payment;
+  const eprLastPmt       = eprRows[eprRows.length - 1].payment;
+
+  // EP results
+  document.getElementById('ep-payment').textContent        = fmtMoney(regularPayment);
+  document.getElementById('ep-date-range').textContent     = fmtDate(firstPmtDate) + ' – ' + fmtDate(epFinalDate);
+  document.getElementById('ep-total-paid').textContent     = fmtMoney(epTotalPaid);
+  document.getElementById('ep-total-interest').textContent = fmtMoney(epTotalInterest);
+  document.getElementById('ep-num-payments').textContent   = epRows.length;
+  document.getElementById('ep-final-date').textContent     = fmtDate(epFinalDate);
+
+  // EPR results
+  document.getElementById('epr-first-payment').textContent = fmtMoney(eprFirstPmt);
+  document.getElementById('epr-last-sub').textContent      = T('lcp.result.last_payment') + ': ' + fmtMoney(eprLastPmt);
+  document.getElementById('epr-total-paid').textContent    = fmtMoney(eprTotalPaid);
+  document.getElementById('epr-total-interest').textContent= fmtMoney(eprTotalInterest);
+  document.getElementById('epr-num-payments').textContent  = eprRows.length;
+  document.getElementById('epr-final-date').textContent    = fmtDate(eprFinalDate);
+
+  // Savings banner
+  const diff   = Math.abs(epTotalInterest - eprTotalInterest);
+  const banner = document.getElementById('savingsBanner');
+  if (diff > 0.005) {
+    banner.style.display = '';
+    const eprWins = eprTotalInterest < epTotalInterest;
+    document.getElementById('savingsWinner').textContent = T(eprWins ? 'lcp.col.epr' : 'lcp.col.ep');
+    document.getElementById('savingsAmount').textContent = fmtMoney(diff);
+    document.getElementById('savingsNote').textContent   = T(eprWins ? 'lcp.savings.note_epr' : 'lcp.savings.note_ep');
+  } else {
+    banner.style.display = 'none';
+  }
+
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  document.getElementById('scheduleCount').textContent = nMonths + ' ' + T('input.months');
+
+  drawChart(epRows, eprRows);
+
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    renderTable(activeTab === 'ep' ? epRows : eprRows);
+  }
+}
+
+function clearResults() {
+  ['ep-payment','ep-date-range','ep-total-paid','ep-total-interest','ep-num-payments','ep-final-date',
+   'epr-first-payment','epr-last-sub','epr-total-paid','epr-total-interest','epr-num-payments','epr-final-date']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
+  document.getElementById('savingsBanner').style.display = 'none';
+  document.getElementById('scheduleCount').textContent = '';
+  if (lcpChart) { lcpChart.destroy(); lcpChart = null; }
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────
+function drawChart(epRows, eprRows) {
+  const ctx = document.getElementById('lcpChart').getContext('2d');
+  if (lcpChart) lcpChart.destroy();
+
+  const step    = Math.max(1, Math.floor(epRows.length / 120));
+  const indices = [];
+  for (let i = 0; i < epRows.length; i++) {
+    if (i % step === 0 || i === epRows.length - 1) indices.push(i);
+  }
+
+  const labels      = indices.map(i => fmtDate(epRows[i].date));
+  const epBal       = indices.map(i => Math.round(epRows[i].balance * 100) / 100);
+  const eprBal      = indices.map(i => Math.round(eprRows[Math.min(i, eprRows.length - 1)].balance * 100) / 100);
+
+  const green700 = getComputedStyle(document.documentElement).getPropertyValue('--green-700').trim() || '#3b6e2f';
+
+  lcpChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: T('lcp.chart.ep_balance'),
+          data: epBal,
+          borderColor: green700,
+          backgroundColor: green700 + '22',
+          fill: true,
+          tension: 0.3,
+          pointRadius: epRows.length > 60 ? 0 : 3,
+          borderWidth: 2,
+        },
+        {
+          label: T('lcp.chart.epr_balance'),
+          data: eprBal,
+          borderColor: '#b45309',
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0,
+          pointRadius: eprRows.length > 60 ? 0 : 3,
+          borderWidth: 2,
+          borderDash: [6, 4],
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmtMoney(ctx.raw) } }
+      },
+      scales: {
+        x: { ticks: { maxTicksLimit: 10, maxRotation: 30 } },
+        y: {
+          min: 0,
+          ticks: {
+            callback: v => currency === 'KHR'
+              ? '៛' + (v / 1000).toFixed(0) + 'K'
+              : '$' + (v / 1000).toFixed(1) + 'K'
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── Schedule ──────────────────────────────────────────────────────────────
+function toggleSchedule() {
+  const wrapper = document.getElementById('scheduleWrapper');
+  const btn     = document.getElementById('toggleBtn');
+  const hidden  = wrapper.style.display === 'none';
+  wrapper.style.display = hidden ? '' : 'none';
+  btn.setAttribute('data-i18n', hidden ? 'schedule.hide' : 'schedule.show');
+  btn.textContent = T(hidden ? 'schedule.hide' : 'schedule.show');
+  if (hidden) renderTable(activeTab === 'ep' ? lastEpSched : lastEprSched);
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tabEP').classList.toggle('active',  tab === 'ep');
+  document.getElementById('tabEPR').classList.toggle('active', tab === 'epr');
+  renderTable(tab === 'ep' ? lastEpSched : lastEprSched);
+}
+
+function renderTable(rows) {
+  const showDays = document.getElementById('dayCount').value === 'actual_360';
+  document.getElementById('schedDaysHdr').style.display = showDays ? '' : 'none';
+
+  const tbody = document.getElementById('scheduleBody');
+  tbody.innerHTML = '';
+  let totPrincipal = 0, totInterest = 0, totPayment = 0;
+
+  rows.forEach(r => {
+    totPrincipal += r.principal;
+    totInterest  += r.interest;
+    totPayment   += r.payment;
+    const tr = document.createElement('tr');
+    if (r.num % 12 === 0) tr.classList.add('yr');
+    tr.innerHTML =
+      `<td>${r.num}</td>` +
+      `<td>${fmtDate(r.date)}</td>` +
+      (showDays ? `<td style="text-align:right">${r.days}</td>` : '') +
+      `<td style="text-align:right">${fmtMoney(r.principal)}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.interest)}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.payment)}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.balance)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const totRow = document.createElement('tr');
+  totRow.className = 'sched-totals';
+  totRow.innerHTML =
+    `<td colspan="${showDays ? 3 : 2}">${T('cln.sched.totals')}</td>` +
+    `<td style="text-align:right">${fmtMoney(totPrincipal)}</td>` +
+    `<td style="text-align:right">${fmtMoney(totInterest)}</td>` +
+    `<td style="text-align:right">${fmtMoney(totPayment)}</td>` +
+    `<td></td>`;
+  tbody.appendChild(totRow);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+(function init() {
+  const today = new Date();
+  document.getElementById('startDate').value        = toISO(today);
+  document.getElementById('firstPaymentDate').value = toISO(addOneMonth(today));
+  calculate();
+})();
+</script>
+
+</body>
+</html>
