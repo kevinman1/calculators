@@ -18,6 +18,8 @@
     .sched-totals td { font-weight:700; background:var(--green-50); border-top:2px solid var(--green-300); }
     /* Date inputs */
     input[type="date"] { font-family:inherit; }
+    /* Optional hints */
+    .input-hint { font-size:.72rem; color:var(--green-600); margin-top:.2rem; }
   </style>
 </head>
 <body>
@@ -123,6 +125,19 @@
           </div>
         </div>
 
+        <!-- Monthly Payment (auto/override) -->
+        <div class="input-group">
+          <div class="payment-label-row">
+            <label data-i18n="cln.input.payment">Monthly Payment</label>
+            <span class="auto-badge" id="autoBadge" data-i18n="cln.input.payment_auto">auto</span>
+            <button class="reset-link" id="resetBtn" onclick="resetPayment()" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+          </div>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx-payment">$</span>
+            <input type="number" id="monthlyPayment" value="" min="0" step="10" oninput="onPaymentInput()">
+          </div>
+        </div>
+
         <hr class="section-divider">
 
         <!-- Start Date -->
@@ -131,6 +146,7 @@
           <div class="input-wrapper">
             <input type="date" id="startDate" oninput="onStartDateChange()">
           </div>
+          <div class="input-hint" data-i18n="cln.hint.start_date">Optional — defaults to today</div>
         </div>
 
         <!-- First Payment Date -->
@@ -139,6 +155,7 @@
           <div class="input-wrapper">
             <input type="date" id="firstPaymentDate" oninput="calculate()">
           </div>
+          <div class="input-hint" data-i18n="cln.hint.first_payment">Optional — auto-set to 1 month after start</div>
         </div>
 
         <hr class="section-divider">
@@ -163,21 +180,6 @@
               <option value="skip_sun" data-i18n="cln.delay.skip_sun">Skip Sunday → Monday</option>
               <option value="skip_sun_hol" data-i18n="cln.delay.skip_sun_hol">Skip Sunday &amp; Cambodian Holidays</option>
             </select>
-          </div>
-        </div>
-
-        <hr class="section-divider">
-
-        <!-- Monthly Payment (auto/override) -->
-        <div class="input-group">
-          <div class="payment-label-row">
-            <label data-i18n="cln.input.payment">Monthly Payment</label>
-            <span class="auto-badge" id="autoBadge" data-i18n="cln.input.payment_auto">auto</span>
-            <button class="reset-link" id="resetBtn" onclick="resetPayment()" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
-          </div>
-          <div class="input-wrapper">
-            <span class="input-prefix" id="pfx-payment">$</span>
-            <input type="number" id="monthlyPayment" value="" min="0" step="10" oninput="onPaymentInput()">
           </div>
         </div>
 
@@ -214,10 +216,6 @@
             <div class="result-item">
               <div class="r-label" data-i18n="cln.result.total_interest">Total Interest Paid</div>
               <div class="r-value" id="r-totalInterest">—</div>
-            </div>
-            <div class="result-item">
-              <div class="r-label" data-i18n="cln.result.interest_pct">Interest as % of Principal</div>
-              <div class="r-value" id="r-interestPct">—</div>
             </div>
             <div class="result-item">
               <div class="r-label" data-i18n="cln.result.final_date">Final Payment Date</div>
@@ -280,7 +278,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=7"></script>
+<script src="lang.js?v=8"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
@@ -399,7 +397,7 @@ function buildSchedule(loanAmt, annualRate, nMonths, startDate, firstPmtDate, da
   let prevDate = startDate;
   let curDate  = new Date(firstPmtDate);
 
-  for (let i = 1; i <= 600 && balance > 0.005; i++) {
+  for (let i = 1; i <= nMonths; i++) {
     const days = daysBetween(prevDate, curDate);
     let interest;
     if (dayCount === '30_360') {
@@ -409,10 +407,13 @@ function buildSchedule(loanAmt, annualRate, nMonths, startDate, firstPmtDate, da
     }
     interest = Math.round(interest * 100) / 100;
 
-    // Last payment: clear balance
-    let thisPmt = Math.round(paymentAmt * 100) / 100;
-    if (balance + interest <= thisPmt + 0.005) {
+    // Final payment: always clears whatever remains (balloon or small rounding difference)
+    // Also clears early if balance + interest fits within the regular payment
+    let thisPmt;
+    if (i === nMonths || balance + interest <= Math.round(paymentAmt * 100) / 100 + 0.005) {
       thisPmt = Math.round((balance + interest) * 100) / 100;
+    } else {
+      thisPmt = Math.round(paymentAmt * 100) / 100;
     }
 
     const principalPaid = Math.round((thisPmt - interest) * 100) / 100;
@@ -494,13 +495,15 @@ function calculate() {
   const delayRule  = document.getElementById('delayRule').value;
 
   // Validation
-  if (loanAmt <= 0 || nMonths <= 0 || !startStr || !firstStr) {
+  if (loanAmt <= 0 || nMonths <= 0) {
     clearResults();
     return;
   }
 
-  const startDate    = parseISO(startStr);
-  const firstPmtDate = parseISO(firstStr);
+  // Dates are optional — fall back to today / today+1 month
+  const todayFallback = new Date(); todayFallback.setHours(0, 0, 0, 0);
+  const startDate    = startStr ? parseISO(startStr) : todayFallback;
+  const firstPmtDate = firstStr ? parseISO(firstStr) : addOneMonth(startDate);
 
   if (!startDate || !firstPmtDate || firstPmtDate <= startDate) {
     clearResults();
@@ -543,7 +546,6 @@ function calculate() {
   document.getElementById('r-numPayments').textContent = schedule.length;
   document.getElementById('r-totalPaid').textContent   = fmtMoney(totalPaid);
   document.getElementById('r-totalInterest').textContent = fmtMoney(totalInterest);
-  document.getElementById('r-interestPct').textContent   = (totalInterest / loanAmt * 100).toFixed(1) + '%';
   document.getElementById('r-finalDate').textContent     = fmtDate(finalDate);
 
   // Print date
@@ -562,7 +564,7 @@ function calculate() {
 }
 
 function clearResults() {
-  ['r-payment','r-dateRange','r-principal','r-numPayments','r-totalPaid','r-totalInterest','r-interestPct','r-finalDate']
+  ['r-payment','r-dateRange','r-principal','r-numPayments','r-totalPaid','r-totalInterest','r-finalDate']
     .forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
   document.getElementById('scheduleCount').textContent = '';
   if (clnChart) { clnChart.destroy(); clnChart = null; }
