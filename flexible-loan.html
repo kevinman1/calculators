@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="fl.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flexible Loan — Periodic Principal – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .payment-label-row { display:flex; align-items:baseline; gap:.4rem; }
+    .payment-label-row label { flex:1; }
+    .reset-link  { font-size:.72rem; color:var(--green-700); cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
+    .reset-link:hover { color:var(--green-900); }
+    .auto-badge  { font-size:.68rem; font-weight:600; color:var(--green-700); background:var(--green-50); border:1px solid var(--green-200); border-radius:3px; padding:0 4px; }
+    .hint-text   { font-size:.72rem; color:#888; margin-top:.15rem; line-height:1.35; }
+    .sched-principal td { font-weight:600; background:#f0f7ff; }
+    .sched-deferred  td { color:#aaa; font-style:italic; }
+    .sched-totals    td { font-weight:700; background:var(--green-50); border-top:2px solid var(--green-300); }
+    input[type="date"] { font-family:inherit; }
+    .freq-row { display:flex; gap:.4rem; align-items:center; }
+    .freq-row .input-wrapper { flex:1; }
+    .freq-unit { font-size:.82rem; color:#555; white-space:nowrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" class="active" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="fl.bread">Flexible Loan</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="fl.print_title">Flexible Loan Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="fl.page_title">Flexible Loan — Periodic Principal</h2>
+    <p data-i18n="fl.page_desc">Interest charged monthly; principal repaid in periodic lump sums.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── INPUTS ─────────────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-body">
+
+        <!-- Currency -->
+        <div class="currency-toggle" style="margin-bottom:.65rem">
+          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+        </div>
+        <div class="input-group" id="exrateGroup" style="display:none;margin-bottom:.5rem">
+          <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
+          <div class="input-wrapper">
+            <input type="number" id="exchangeRate" value="4100" min="1" step="100" oninput="onMainInput()">
+            <span class="input-suffix">KHR</span>
+          </div>
+        </div>
+
+        <hr class="section-divider" style="margin-top:0">
+        <div class="section-label" data-i18n="fl.section.loan">Loan Details</div>
+
+        <div class="input-group">
+          <label data-i18n="fl.input.loan_amount">Loan Amount</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx-loan">$</span>
+            <input type="number" id="loanAmount" value="15000" min="0" step="100" oninput="onMainInput()">
+          </div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="fl.input.rate">Annual Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="annualRate" value="12.6" min="0" max="200" step="0.1" oninput="onMainInput()">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="fl.input.term">Loan Term</label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <input type="number" id="termValue" value="3" min="1" step="1" oninput="onMainInput()">
+            </div>
+            <div class="input-wrapper">
+              <select id="termUnit" onchange="onMainInput()">
+                <option value="years" selected data-i18n="input.years">Years</option>
+                <option value="months" data-i18n="input.months">Months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label" data-i18n="fl.section.dates">Dates</div>
+
+        <div class="input-group">
+          <label data-i18n="fl.input.start_date">Loan Start Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate" oninput="onStartDateChange()">
+          </div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="fl.input.override_date">Override Start Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="overrideDate" oninput="calculate()" placeholder="optional">
+          </div>
+          <div class="hint-text" data-i18n="fl.input.override_hint">Optional – overrides the reference date for the first period's day count only</div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="fl.input.first_payment">First Payment Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="firstPaymentDate" oninput="calculate()">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label" data-i18n="fl.section.settings">Settings</div>
+
+        <div class="input-group">
+          <label data-i18n="fl.input.day_count">Day Count Method</label>
+          <div class="input-wrapper">
+            <select id="dayCount" onchange="calculate()">
+              <option value="standard" selected data-i18n="fl.day_count.standard">Standard – Actual days / 360</option>
+              <option value="actual"            data-i18n="fl.day_count.actual">Actual – Actual days / 365</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="fl.input.delay_rule">Payment Date Rule</label>
+          <div class="input-wrapper">
+            <select id="delayRule" onchange="calculate()">
+              <option value="none"        selected data-i18n="fl.delay.none">No adjustment</option>
+              <option value="skip_sun"            data-i18n="fl.delay.skip_sun">Skip Sunday</option>
+              <option value="skip_sat_sun"        data-i18n="fl.delay.skip_sat_sun">Skip Saturday &amp; Sunday</option>
+              <option value="skip_sun_hol"        data-i18n="fl.delay.skip_sun_hol">Skip Sunday &amp; Holidays</option>
+              <option value="skip_all"            data-i18n="fl.delay.skip_all">Skip Sat, Sun &amp; Holidays</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label" data-i18n="fl.section.structure">Payment Structure</div>
+
+        <div class="input-group">
+          <label data-i18n="fl.input.frequency">Principal Payment Frequency</label>
+          <div class="freq-row">
+            <div class="input-wrapper" style="max-width:80px">
+              <input type="number" id="frequency" value="4" min="1" max="120" step="1" oninput="onMainInput()">
+            </div>
+            <span class="freq-unit" data-i18n="fl.input.frequency_unit">months</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="fl.input.freq_start">Frequency Start Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="freqStartDate" oninput="calculate()">
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="payment-label-row">
+            <label data-i18n="fl.input.fixed_principal">Fixed Principal / Payment</label>
+            <span class="auto-badge" id="principalAutoBadge" data-i18n="fl.principal.auto">auto</span>
+            <button class="reset-link" id="principalResetBtn" onclick="resetPrincipal()" style="display:none" data-i18n="fl.principal.reset">reset to auto</button>
+          </div>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx-principal">$</span>
+            <input type="number" id="fixedPrincipal" value="" min="0" step="100" oninput="onPrincipalInput()">
+          </div>
+        </div>
+        <div class="input-group">
+          <label data-i18n="fl.input.defer">Defer Interest to Payment</label>
+          <div class="input-wrapper">
+            <select id="deferInterest" onchange="calculate()">
+              <option value="no"  selected data-i18n="fl.defer.no">No – pay interest monthly</option>
+              <option value="yes"          data-i18n="fl.defer.yes">Yes – accumulate, pay with principal</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+      </div>
+    </div>
+
+    <!-- ── RESULTS ─────────────────────────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
+        <div class="card-body">
+
+          <div class="result-hero">
+            <div class="r-label" data-i18n="fl.result.monthly_interest">Typical Monthly Interest</div>
+            <div class="r-value" id="r-monthlyInterest">—</div>
+            <div class="r-sub"  id="r-dateRange">—</div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label" data-i18n="fl.result.lump_sum">Principal Lump Sum</div>
+              <div class="r-value" id="r-lumpSum">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="fl.result.total_paid">Total Amount Paid</div>
+              <div class="r-value" id="r-totalPaid">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="fl.result.total_principal">Total Principal</div>
+              <div class="r-value" id="r-totalPrincipal">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="fl.result.total_interest">Total Interest</div>
+              <div class="r-value" id="r-totalInterest">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="loan.result.interest_pct">Interest as % of Principal</div>
+              <div class="r-value" id="r-interestPct">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="fl.result.maturity">Maturity Date</div>
+              <div class="r-value" id="r-maturity">—</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── CHART ──────────────────────────────────────────────────────────── -->
+  <div class="card chart-card">
+    <div class="card-header" data-i18n="fl.chart.title">Loan Balance Over Time</div>
+    <div class="chart-container">
+      <canvas id="flChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ── SCHEDULE ────────────────────────────────────────────────────────── -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem" data-i18n="fl.sched.title">Amortisation Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+      <span class="schedule-count" id="scheduleCount"></span>
+    </div>
+    <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th data-i18n="fl.sched.num">No.</th>
+            <th data-i18n="fl.sched.date">Payment Date</th>
+            <th data-i18n="fl.sched.days">Days</th>
+            <th data-i18n="fl.sched.principal">Principal</th>
+            <th data-i18n="fl.sched.interest">Interest</th>
+            <th data-i18n="fl.sched.total">Total</th>
+            <th data-i18n="fl.sched.balance">Balance</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">Click <strong>Print / Save as PDF</strong> to export.</div>
+    <button class="btn-print" onclick="window.print()">&#128424; <span data-i18n="print.btn">Print / Save as PDF</span></button>
+  </div>
+
+</div>
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=14"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+// ── Cambodia public holidays (2021-2035 from official sources) ──────────────
+const HOLIDAYS = new Set('2021-01-01,2021-01-07,2021-03-08,2021-04-13,2021-04-14,2021-04-15,2021-05-01,2021-05-14,2021-05-15,2021-05-20,2021-05-26,2021-06-01,2021-06-13,2021-09-20,2021-09-21,2021-09-22,2021-10-15,2021-10-16,2021-10-17,2021-10-21,2021-10-29,2021-11-09,2021-12-05,2022-01-01,2022-01-07,2022-03-08,2022-04-13,2022-04-14,2022-04-15,2022-05-01,2022-05-14,2022-05-15,2022-05-16,2022-05-20,2022-06-01,2022-06-13,2022-10-15,2022-10-24,2022-10-25,2022-10-26,2022-10-29,2022-11-07,2022-11-08,2022-11-09,2022-12-05,2023-01-01,2023-01-07,2023-03-08,2023-04-13,2023-04-14,2023-04-15,2023-05-01,2023-05-05,2023-05-14,2023-05-15,2023-05-20,2023-06-01,2023-06-13,2023-10-13,2023-10-14,2023-10-15,2023-10-24,2023-10-27,2023-10-28,2023-10-29,2023-11-09,2023-12-05,2024-01-01,2024-01-07,2024-03-07,2024-04-12,2024-04-13,2024-04-14,2024-05-01,2024-05-13,2024-05-14,2024-05-19,2024-05-23,2024-05-31,2024-06-12,2024-10-01,2024-10-02,2024-10-03,2024-10-15,2024-10-24,2024-10-29,2024-11-09,2024-11-14,2024-11-15,2024-11-16,2024-12-10,2025-01-01,2025-01-07,2025-03-08,2025-04-13,2025-04-14,2025-04-15,2025-05-01,2025-05-12,2025-05-14,2025-05-15,2025-05-19,2025-05-31,2025-06-12,2025-10-15,2025-10-20,2025-10-21,2025-10-22,2025-10-24,2025-10-29,2025-11-04,2025-11-05,2025-11-06,2025-11-08,2025-12-10,2026-01-01,2026-01-07,2026-03-08,2026-04-13,2026-04-14,2026-04-15,2026-05-01,2026-05-05,2026-05-14,2026-05-15,2026-05-19,2026-05-31,2026-06-12,2026-09-17,2026-09-18,2026-09-19,2026-10-15,2026-10-24,2026-10-29,2026-11-01,2026-11-02,2026-11-03,2026-11-09,2026-12-10,2027-01-01,2027-01-07,2027-03-08,2027-04-13,2027-04-14,2027-04-15,2027-05-01,2027-05-04,2027-05-14,2027-05-15,2027-05-19,2027-05-31,2027-06-12,2027-09-11,2027-09-12,2027-09-13,2027-10-15,2027-10-24,2027-10-29,2027-10-30,2027-10-31,2027-11-01,2027-11-09,2027-12-10,2028-01-01,2028-01-07,2028-03-07,2028-04-13,2028-04-14,2028-04-15,2028-04-30,2028-05-08,2028-05-14,2028-05-15,2028-05-19,2028-05-30,2028-06-11,2028-09-07,2028-09-08,2028-09-09,2028-10-14,2028-10-28,2028-10-29,2028-10-30,2028-11-08,2028-12-09,2028-12-31,2029-01-06,2029-03-07,2029-04-12,2029-04-13,2029-04-14,2029-04-30,2029-05-01,2029-05-13,2029-05-14,2029-05-19,2029-05-30,2029-06-11,2029-08-28,2029-08-29,2029-08-30,2029-10-13,2029-10-14,2029-10-25,2029-10-26,2029-10-27,2029-11-08,2029-12-09,2030-01-01,2030-01-07,2030-03-08,2030-04-13,2030-04-14,2030-04-15,2030-05-01,2030-05-05,2030-05-14,2030-05-15,2030-05-19,2030-05-30,2030-06-11,2030-08-21,2030-08-22,2030-08-23,2030-10-13,2030-10-14,2030-10-25,2030-10-26,2030-10-27,2030-11-08,2030-12-09,2031-01-01,2031-01-07,2031-03-08,2031-04-13,2031-04-14,2031-04-15,2031-05-01,2031-05-09,2031-05-14,2031-05-15,2031-05-19,2031-05-30,2031-06-11,2031-08-10,2031-08-11,2031-08-12,2031-10-13,2031-10-14,2031-10-25,2031-10-26,2031-10-27,2031-11-08,2031-12-09,2032-01-01,2032-01-07,2032-03-07,2032-04-13,2032-04-14,2032-04-15,2032-05-01,2032-05-02,2032-05-14,2032-05-15,2032-05-19,2032-05-30,2032-06-11,2032-08-02,2032-08-03,2032-08-04,2032-10-12,2032-10-14,2032-10-25,2032-10-26,2032-10-27,2032-11-07,2032-12-09,2032-12-31,2033-01-06,2033-03-07,2033-04-12,2033-04-13,2033-04-14,2033-04-25,2033-05-01,2033-05-14,2033-05-15,2033-05-19,2033-05-30,2033-06-11,2033-10-10,2033-10-11,2033-10-12,2033-10-14,2033-10-25,2033-10-26,2033-10-27,2033-11-07,2033-12-09,2034-01-01,2034-01-07,2034-03-08,2034-04-13,2034-04-14,2034-04-15,2034-04-29,2034-05-01,2034-05-14,2034-05-15,2034-05-19,2034-05-30,2034-06-11,2034-10-05,2034-10-06,2034-10-07,2034-10-12,2034-10-14,2034-10-20,2034-10-21,2034-10-22,2034-10-26,2034-11-06,2034-12-09,2035-01-01,2035-01-07,2035-03-08,2035-04-13,2035-04-14,2035-04-15,2035-05-01,2035-05-03,2035-05-14,2035-05-15,2035-05-19,2035-05-30,2035-06-11,2035-09-29,2035-09-30,2035-10-01,2035-10-06,2035-10-12,2035-10-26,2035-11-06,2035-11-13,2035-11-14,2035-11-15,2035-12-10'.split(','));
+
+// ── State ───────────────────────────────────────────────────────────────────
+let flChart          = null;
+let lastSchedule     = [];
+let currency         = 'USD';
+let principalTouched = false;
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+function fmtMoney(v) {
+  if (currency === 'KHR') return '&#6107;&nbsp;' + Math.round(v).toLocaleString('en-US');
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function currSym() { return currency === 'KHR' ? '&#6107;' : '$'; }
+function getXR()   { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+
+function toISO(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function parseISO(s) {
+  if (!s) return null;
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function fmtDisp(d) {
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+
+function addNMonths(date, n) {
+  const orig = date.getDate();
+  const d    = new Date(date.getFullYear(), date.getMonth() + n, orig);
+  if (d.getDate() !== orig) d.setDate(0);
+  return d;
+}
+
+function adjustDate(date, rule) {
+  if (rule === 'none') return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  let d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  for (let i = 0; i < 14; i++) {
+    let moved = false;
+    const dow = d.getDay(); // 0=Sun, 6=Sat
+    if ((rule === 'skip_sun' || rule === 'skip_sun_hol') && dow === 0) {
+      d.setDate(d.getDate() + 1); moved = true; continue;
+    }
+    if ((rule === 'skip_sat_sun' || rule === 'skip_all') && (dow === 0 || dow === 6)) {
+      d.setDate(d.getDate() + 1); moved = true; continue;
+    }
+    if ((rule === 'skip_sun_hol' || rule === 'skip_all') && HOLIDAYS.has(toISO(d))) {
+      d.setDate(d.getDate() + 1); moved = true; continue;
+    }
+    if (!moved) break;
+  }
+  return d;
+}
+
+// ── Auto-principal ─────────────────────────────────────────────────────────
+function calcAutoFixed(loanAmount, termMonths, frequency) {
+  const numPrincipalPayments = Math.floor(termMonths / frequency);
+  if (numPrincipalPayments <= 0) return loanAmount;
+  return Math.round((loanAmount / numPrincipalPayments) * 100) / 100;
+}
+
+function getTermMonths() {
+  const v    = parseInt(document.getElementById('termValue').value, 10) || 1;
+  const unit = document.getElementById('termUnit').value;
+  return unit === 'years' ? v * 12 : v;
+}
+
+// ── Currency ────────────────────────────────────────────────────────────────
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr = getXR();
+  ['loanAmount', 'fixedPrincipal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) {
+      const v = parseFloat(el.value) || 0;
+      el.value = newCur === 'KHR' ? Math.round(v * xr) : (v / xr).toFixed(2);
+    }
+  });
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === newCur)
+  );
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? '' : 'none';
+  const sym = currSym();
+  document.getElementById('pfx-loan').innerHTML      = sym;
+  document.getElementById('pfx-principal').innerHTML = sym;
+  onMainInput();
+}
+
+// ── Input handlers ───────────────────────────────────────────────────────────
+function onMainInput() {
+  principalTouched = false;
+  const auto = calcAutoFixed(
+    parseFloat(document.getElementById('loanAmount').value) || 0,
+    getTermMonths(),
+    parseInt(document.getElementById('frequency').value, 10) || 1
+  );
+  const el = document.getElementById('fixedPrincipal');
+  el.value = currency === 'KHR' ? Math.round(auto) : auto.toFixed(2);
+  document.getElementById('principalAutoBadge').style.display = '';
+  document.getElementById('principalResetBtn').style.display  = 'none';
+  calculate();
+}
+
+function onPrincipalInput() {
+  principalTouched = true;
+  document.getElementById('principalAutoBadge').style.display = 'none';
+  document.getElementById('principalResetBtn').style.display  = '';
+  calculate();
+}
+
+function resetPrincipal() {
+  principalTouched = false;
+  const auto = calcAutoFixed(
+    parseFloat(document.getElementById('loanAmount').value) || 0,
+    getTermMonths(),
+    parseInt(document.getElementById('frequency').value, 10) || 1
+  );
+  document.getElementById('fixedPrincipal').value = currency === 'KHR' ? Math.round(auto) : auto.toFixed(2);
+  document.getElementById('principalAutoBadge').style.display = '';
+  document.getElementById('principalResetBtn').style.display  = 'none';
+  calculate();
+}
+
+function onStartDateChange() {
+  const startStr = document.getElementById('startDate').value;
+  if (!startStr) { calculate(); return; }
+  const start      = parseISO(startStr);
+  const rule       = document.getElementById('delayRule').value;
+  const firstRaw   = addNMonths(start, 1);
+  const firstAdj   = adjustDate(firstRaw, rule);
+  document.getElementById('firstPaymentDate').value = toISO(firstAdj);
+  // freq start defaults to one month before first payment (matches Excel default C15)
+  const freqRaw    = addNMonths(start, 0); // same as start
+  document.getElementById('freqStartDate').value = toISO(freqRaw);
+  calculate();
+}
+
+// ── Schedule builder ─────────────────────────────────────────────────────────
+function buildSchedule(inputs) {
+  const {
+    loanAmount, annualRate, termMonths,
+    effectiveStart, firstPmtDate,
+    dayCount, delayRule, frequency, freqStartDate,
+    fixedPrincipal, deferInterest
+  } = inputs;
+
+  const divisor = dayCount === 'standard' ? 360 : 365;
+
+  // Frequency offset: how many payment periods before the first principal payment cycle starts
+  // offset = (freqStart year - firstPmt year)*12 + (freqStart month - firstPmt month) + 1
+  const freqOffset = (freqStartDate.getFullYear() - firstPmtDate.getFullYear()) * 12
+                   + (freqStartDate.getMonth()    - firstPmtDate.getMonth())
+                   + 1;
+
+  const rows    = [];
+  let balance   = loanAmount;
+  let prevDate  = new Date(effectiveStart);
+
+  for (let n = 1; n <= termMonths && balance > 0.005; n++) {
+    const baseDate = addNMonths(firstPmtDate, n - 1);
+    const payDate  = adjustDate(baseDate, delayRule);
+
+    const days     = daysBetween(prevDate, payDate);
+    const interest = Math.round(balance * annualRate / divisor * days * 100) / 100;
+
+    // Principal logic
+    let principalPaid = 0;
+    const isLast           = (n === termMonths);
+    const isBeforeFreqStart = payDate < freqStartDate;
+    const isPrincipalPeriod = !isBeforeFreqStart &&
+      ((n - freqOffset) % frequency === 0);
+
+    if (isLast) {
+      principalPaid = balance;
+    } else if (isPrincipalPeriod) {
+      principalPaid = Math.min(fixedPrincipal, balance);
+    }
+
+    // Total payment
+    let totalPayment;
+    if (deferInterest) {
+      if (principalPaid > 0) {
+        // Sum interest from last `frequency` rows (including this one)
+        let cumInt = interest;
+        const lookback = Math.min(n - 1, frequency - 1);
+        for (let i = 1; i <= lookback; i++) {
+          cumInt += rows[rows.length - i].interest;
+        }
+        totalPayment = Math.round((principalPaid + cumInt) * 100) / 100;
+      } else {
+        totalPayment = 0; // no payment on interest-only months in deferred mode
+      }
+    } else {
+      totalPayment = Math.round((principalPaid + interest) * 100) / 100;
+    }
+
+    balance = Math.round((balance - principalPaid) * 100) / 100;
+
+    rows.push({
+      n, date: payDate, days,
+      principal: principalPaid, interest, total: totalPayment, balance,
+      isPrincipal: principalPaid > 0,
+      isDeferred:  deferInterest && principalPaid === 0
+    });
+
+    prevDate = payDate;
+    if (balance < 0.005) break;
+  }
+  return rows;
+}
+
+// ── Main calculate ────────────────────────────────────────────────────────────
+function calculate() {
+  const loanAmount   = parseFloat(document.getElementById('loanAmount').value)   || 0;
+  const annualRate   = (parseFloat(document.getElementById('annualRate').value)  || 0) / 100;
+  const termMonths   = getTermMonths();
+  const startStr     = document.getElementById('startDate').value;
+  const overrideStr  = document.getElementById('overrideDate').value;
+  const firstPmtStr  = document.getElementById('firstPaymentDate').value;
+  const freqStartStr = document.getElementById('freqStartDate').value;
+  const dayCount     = document.getElementById('dayCount').value;
+  const delayRule    = document.getElementById('delayRule').value;
+  const frequency    = Math.max(1, parseInt(document.getElementById('frequency').value, 10) || 1);
+  const deferInterest= document.getElementById('deferInterest').value === 'yes';
+
+  let fixedPrincipal = parseFloat(document.getElementById('fixedPrincipal').value);
+  if (!fixedPrincipal || fixedPrincipal <= 0) {
+    fixedPrincipal = calcAutoFixed(loanAmount, termMonths, frequency);
+  }
+
+  if (loanAmount <= 0 || termMonths <= 0 || !startStr || !firstPmtStr || !freqStartStr) {
+    clearResults(); return;
+  }
+
+  const startDate    = parseISO(startStr);
+  const firstPmtDate = parseISO(firstPmtStr);
+  const freqStartDate= parseISO(freqStartStr);
+  const effectiveStart = overrideStr ? parseISO(overrideStr) : startDate;
+
+  if (!startDate || !firstPmtDate || !freqStartDate || firstPmtDate <= startDate) {
+    clearResults(); return;
+  }
+
+  const schedule = buildSchedule({
+    loanAmount, annualRate, termMonths,
+    effectiveStart, firstPmtDate,
+    dayCount, delayRule, frequency, freqStartDate,
+    fixedPrincipal, deferInterest
+  });
+
+  lastSchedule = schedule;
+  if (schedule.length === 0) { clearResults(); return; }
+
+  // Summary stats
+  const totalPaid     = schedule.reduce((s,r) => s + r.total,     0);
+  const totalInterest = schedule.reduce((s,r) => s + r.interest,  0);
+  const totalPrincipal= schedule.reduce((s,r) => s + r.principal, 0);
+  const maturityDate  = schedule[schedule.length - 1].date;
+
+  // First interest-only row as "typical monthly interest"
+  const firstInterestRow = schedule.find(r => r.principal === 0);
+  const typicalInterest  = firstInterestRow ? firstInterestRow.interest : schedule[0].interest;
+
+  document.getElementById('r-monthlyInterest').innerHTML = fmtMoney(typicalInterest);
+  document.getElementById('r-dateRange').textContent     = fmtDisp(firstPmtDate) + ' – ' + fmtDisp(maturityDate);
+  document.getElementById('r-lumpSum').innerHTML         = fmtMoney(fixedPrincipal);
+  document.getElementById('r-totalPaid').innerHTML       = fmtMoney(totalPaid);
+  document.getElementById('r-totalPrincipal').innerHTML  = fmtMoney(totalPrincipal);
+  document.getElementById('r-totalInterest').innerHTML   = fmtMoney(totalInterest);
+  document.getElementById('r-interestPct').textContent   = (totalInterest / loanAmount * 100).toFixed(1) + '%';
+  document.getElementById('r-maturity').textContent      = fmtDisp(maturityDate);
+  document.getElementById('printDate').textContent       = fmtDisp(new Date());
+
+  drawChart(schedule, loanAmount);
+
+  document.getElementById('scheduleCount').textContent = schedule.length + ' rows';
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    renderScheduleTable(schedule);
+  }
+}
+
+function clearResults() {
+  ['r-monthlyInterest','r-dateRange','r-lumpSum','r-totalPaid','r-totalPrincipal',
+   'r-totalInterest','r-interestPct','r-maturity']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = '—'; });
+  document.getElementById('scheduleCount').textContent = '';
+  if (flChart) { flChart.destroy(); flChart = null; }
+}
+
+// ── Chart (stepped line showing balance drops) ────────────────────────────────
+function drawChart(schedule, loanAmount) {
+  const ctx = document.getElementById('flChart').getContext('2d');
+  if (flChart) flChart.destroy();
+
+  const step  = Math.max(1, Math.floor(schedule.length / 120));
+  const idxs  = [];
+  for (let i = 0; i < schedule.length; i++) {
+    if (i % step === 0 || i === schedule.length - 1) idxs.push(i);
+  }
+
+  let cumInt = 0;
+  const cumByIdx = schedule.map(r => { cumInt += r.interest; return cumInt; });
+
+  const labels   = idxs.map(i => fmtDisp(schedule[i].date));
+  const balances = idxs.map(i => schedule[i].balance);
+  const cumInts  = idxs.map(i => Math.round(cumByIdx[i] * 100) / 100);
+
+  const g7 = getComputedStyle(document.documentElement).getPropertyValue('--green-700').trim() || '#3b6e2f';
+  const g3 = getComputedStyle(document.documentElement).getPropertyValue('--green-300').trim() || '#a3c880';
+
+  flChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: T('fl.chart.balance'),
+          data: balances,
+          borderColor: g7,
+          backgroundColor: g7 + '22',
+          fill: true,
+          stepped: true,       // ← stepped line shows the lump-sum drops clearly
+          pointRadius: 0,
+          borderWidth: 2.5,
+          yAxisID: 'y'
+        },
+        {
+          label: T('fl.chart.cum_interest'),
+          data: cumInts,
+          borderColor: g3,
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+          borderDash: [5, 4],
+          yAxisID: 'y'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmtMoney(ctx.raw) } }
+      },
+      scales: {
+        x: { ticks: { maxTicksLimit: 10, maxRotation: 30 } },
+        y: {
+          ticks: {
+            callback: v => {
+              if (currency === 'KHR') return '&#6107;' + (v/1000).toFixed(0) + 'K';
+              return '$' + (v/1000).toFixed(1) + 'K';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── Schedule table ────────────────────────────────────────────────────────────
+function renderScheduleTable(schedule) {
+  const tbody = document.getElementById('scheduleBody');
+  tbody.innerHTML = '';
+  let tDays=0, tPrincipal=0, tInterest=0, tTotal=0;
+
+  schedule.forEach(r => {
+    tDays      += r.days;
+    tPrincipal += r.principal;
+    tInterest  += r.interest;
+    tTotal     += r.total;
+
+    const tr = document.createElement('tr');
+    if (r.isPrincipal) tr.className = 'sched-principal';
+    else if (r.isDeferred) tr.className = 'sched-deferred';
+    tr.innerHTML =
+      `<td>${r.n}</td>` +
+      `<td>${fmtDisp(r.date)}</td>` +
+      `<td style="text-align:right">${r.days}</td>` +
+      `<td style="text-align:right">${r.principal > 0 ? fmtMoney(r.principal) : '—'}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.interest)}</td>` +
+      `<td style="text-align:right">${r.total > 0 ? fmtMoney(r.total) : '—'}</td>` +
+      `<td style="text-align:right">${fmtMoney(r.balance)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const tot = document.createElement('tr');
+  tot.className = 'sched-totals';
+  tot.innerHTML =
+    `<td colspan="2" data-i18n="fl.sched.totals">${T('fl.sched.totals')}</td>` +
+    `<td style="text-align:right">${tDays}</td>` +
+    `<td style="text-align:right">${fmtMoney(tPrincipal)}</td>` +
+    `<td style="text-align:right">${fmtMoney(tInterest)}</td>` +
+    `<td style="text-align:right">${fmtMoney(tTotal)}</td>` +
+    `<td></td>`;
+  tbody.appendChild(tot);
+}
+
+function toggleSchedule() {
+  const wrapper = document.getElementById('scheduleWrapper');
+  const btn     = document.getElementById('toggleBtn');
+  const hidden  = wrapper.style.display === 'none';
+  wrapper.style.display = hidden ? '' : 'none';
+  btn.setAttribute('data-i18n', hidden ? 'schedule.hide' : 'schedule.show');
+  btn.textContent = T(hidden ? 'schedule.hide' : 'schedule.show');
+  if (hidden && lastSchedule.length > 0) renderScheduleTable(lastSchedule);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init() {
+  const today    = new Date();
+  document.getElementById('startDate').value = toISO(today);
+
+  const firstRaw = addNMonths(today, 1);
+  document.getElementById('firstPaymentDate').value = toISO(firstRaw);
+  document.getElementById('freqStartDate').value    = toISO(today);   // same as start
+
+  // Set auto fixed principal
+  const auto = calcAutoFixed(
+    parseFloat(document.getElementById('loanAmount').value) || 0,
+    getTermMonths(),
+    parseInt(document.getElementById('frequency').value, 10) || 1
+  );
+  document.getElementById('fixedPrincipal').value = auto.toFixed(2);
+
+  calculate();
+})();
+</script>
+
+</body>
+</html>
