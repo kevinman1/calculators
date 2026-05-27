@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="cinf.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cambodian CPI &amp; Inflation Calculator – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Page-level overrides ── */
+    .cinf-hero {
+      background: linear-gradient(135deg, var(--green-800), var(--green-600));
+      color: white; padding: 1.25rem 1rem; border-radius: 6px;
+      text-align: center; margin-bottom: .9rem;
+    }
+    .cinf-hero .r-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
+    .cinf-hero .r-value { font-size: 2.1rem; font-weight: 700; letter-spacing: -.02em; margin: .15rem 0; }
+    .cinf-hero .r-sub   { font-size: .82rem; opacity: .85; }
+
+    .results-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; margin-bottom: .75rem; }
+    @media (max-width: 520px) { .results-grid-3 { grid-template-columns: 1fr 1fr; } }
+
+    .result-item { background: var(--green-50); border: 1px solid var(--green-200); border-radius: 5px; padding: .55rem .7rem; }
+    .result-item .r-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-light); margin-bottom: .1rem; }
+    .result-item .r-value { font-size: .95rem; font-weight: 700; color: var(--green-800); }
+    .result-item.highlight .r-value { color: #059669; }
+    .result-item.warn .r-value { color: #d97706; }
+
+    .cpi-note {
+      font-size: .75rem; color: var(--text-light); background: var(--green-50);
+      border: 1px solid var(--green-100); border-radius: 5px;
+      padding: .55rem .75rem; margin-top: .5rem; line-height: 1.5;
+    }
+    .cpi-note strong { color: var(--text-medium); }
+
+    /* Two charts side by side on wide screens */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
+
+    .chart-container-tall { position: relative; height: 280px; padding: .75rem 1rem 1rem; }
+    .chart-container-sq   { position: relative; height: 280px; padding: .75rem 1rem 1rem; }
+
+    /* Annual table */
+    .annual-card { margin-top: 1.25rem; }
+    .annual-wrapper { max-height: 360px; overflow-y: auto; }
+    .annual-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .annual-table thead th {
+      background: var(--green-800); color: white;
+      padding: .42rem .75rem; text-align: right;
+      font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      position: sticky; top: 0; z-index: 2;
+    }
+    .annual-table thead th:first-child { text-align: left; }
+    .annual-table tbody td { padding: .38rem .75rem; border-bottom: 1px solid var(--green-50); text-align: right; }
+    .annual-table tbody td:first-child { text-align: left; font-weight: 600; }
+    .annual-table tbody tr:nth-child(even) td { background: var(--green-50); }
+    .annual-table tbody tr:hover td { background: var(--green-100); }
+    .annual-table .inf-high td { color: #b45309; font-weight: 700; }
+    .annual-table .inf-low  td { color: #059669; }
+    .annual-table .inf-neg  td { color: #6b6b60; }
+
+    .badge-inf {
+      display: inline-block; font-size: .68rem; padding: .1rem .4rem;
+      border-radius: 3px; font-weight: 700; margin-left: .35rem; vertical-align: middle;
+    }
+    .badge-inf.up   { background: #fef3c7; color: #b45309; }
+    .badge-inf.down { background: #d1fae5; color: #065f46; }
+    .badge-inf.neg  { background: #f3f4f6; color: #6b7280; }
+
+    /* Placeholder state */
+    .placeholder-msg {
+      text-align: center; padding: 2rem 1rem;
+      color: var(--text-light); font-size: .88rem;
+    }
+
+    /* Direction arrow on hero */
+    .cinf-arrow { font-size: 1.3rem; vertical-align: middle; margin: 0 .3rem; opacity: .7; }
+
+    /* Source label */
+    .source-tag { font-size: .7rem; color: var(--text-light); font-style: italic; }
+
+    .lang-switch { margin-left: .5rem; display:flex; gap:.2rem; }
+    .lang-btn { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:white; padding:.3rem .6rem; font-size:.75rem; border-radius:3px; cursor:pointer; }
+    .lang-btn.active { background:rgba(255,255,255,.35); font-weight:700; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a> ›
+    <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a> ›
+    <span data-i18n="cinf.page_title">Cambodian Inflation Calculator</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="page-title">
+    <h2 data-i18n="cinf.page_title">Cambodian Inflation Calculator</h2>
+    <p data-i18n="cinf.desc">See how the purchasing power of money has changed over time in Cambodia using official CPI data from the National Institute of Statistics.</p>
+  </div>
+
+  <!-- ── Inputs + Results ── -->
+  <div class="calc-grid">
+
+    <!-- LEFT: Inputs -->
+    <div class="card">
+      <div class="card-header" data-i18n="cinf.section.inputs">Inputs</div>
+      <div class="card-body">
+
+        <div class="input-group">
+          <label data-i18n="cinf.input.amount">Amount</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="amount" value="100" min="0" step="any" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="cinf.input.from_date">From Month</label>
+          <div class="input-wrapper">
+            <input type="month" id="fromDate" value="2010-01" min="2004-12" max="2026-03" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="cinf.input.to_date">To Month</label>
+          <div class="input-wrapper">
+            <input type="month" id="toDate" value="2026-03" min="2004-12" max="2026-03" oninput="calculate()">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="cpi-note">
+          <strong data-i18n="cinf.note.source_label">Data source:</strong>
+          <span data-i18n="cinf.note.source">National Institute of Statistics (NIS), Cambodia. CPI base: Oct–Dec 2006 = 100.</span>
+          <br>
+          <span data-i18n="cinf.note.latest_label">Latest data:</span>
+          <span id="latestLabel">March 2026</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="card">
+      <div class="card-header dark" data-i18n="cinf.section.results">Results</div>
+      <div class="card-body" id="resultsBody">
+        <div class="placeholder-msg" data-i18n="cinf.placeholder">Enter an amount and date range above.</div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── Charts Row ── -->
+  <div class="charts-row">
+    <div class="card chart-card">
+      <div class="card-header" id="powerChartHdr" data-i18n="cinf.chart.power_title">Purchasing Power Over Time</div>
+      <div class="chart-container-tall">
+        <canvas id="powerChart"></canvas>
+      </div>
+    </div>
+    <div class="card chart-card">
+      <div class="card-header" data-i18n="cinf.chart.yoy_title">Annual Inflation (Dec YoY %)</div>
+      <div class="chart-container-sq">
+        <canvas id="yoyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Annual Table ── -->
+  <div class="card annual-card">
+    <div class="card-header" data-i18n="cinf.table.title">Annual CPI Data (December)</div>
+    <div class="annual-wrapper">
+      <table class="annual-table">
+        <thead>
+          <tr>
+            <th data-i18n="cinf.table.year">Year</th>
+            <th data-i18n="cinf.table.cpi_index">CPI Index (Dec)</th>
+            <th data-i18n="cinf.table.yoy">Dec YoY %</th>
+            <th data-i18n="cinf.table.cum">Cumulative from 2004</th>
+          </tr>
+        </thead>
+        <tbody id="annualBody"></tbody>
+      </table>
+    </div>
+    <div style="padding:.5rem 1rem .75rem; border-top:1px solid var(--green-100);">
+      <span class="source-tag" data-i18n="cinf.table.source_note">Source: NIS Cambodia. CPI base Oct–Dec 2006 = 100. YoY = December vs. previous December.</span>
+    </div>
+  </div>
+
+  <!-- Print bar -->
+  <div class="print-bar">
+    <span class="print-note" data-i18n="cinf.print.note">All calculations use official NIS Cambodia CPI data. For educational purposes only.</span>
+    <button class="btn-print" onclick="window.print()">🖨 <span data-i18n="cinf.print.btn">Print / Save PDF</span></button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.main">Wise Financial Cambodia — Financial Education for the Kingdom of Cambodia</p>
+  <p style="margin-top:.3rem" data-i18n="site.footer.edu">Calculators are for educational purposes. Consult a financial advisor for personal advice.</p>
+</footer>
+
+<script src="lang.js?v=13"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+// ── CPI Data: 256 months Dec 2004 – Mar 2026 ──
+// Source: National Institute of Statistics (NIS), Cambodia. Base: Oct-Dec 2006 = 100.
+const CPI_DATA = [
+  [{y:2004,m:12},87.858],
+  [{y:2005,m:1},87.981],
+  [{y:2005,m:2},88.392],
+  [{y:2005,m:3},88.631],
+  [{y:2005,m:4},90.257],
+  [{y:2005,m:5},91.014],
+  [{y:2005,m:6},92.852],
+  [{y:2005,m:7},93.154],
+  [{y:2005,m:8},94.327],
+  [{y:2005,m:9},95.736],
+  [{y:2005,m:10},95.724],
+  [{y:2005,m:11},95.526],
+  [{y:2005,m:12},95.248],
+  [{y:2006,m:1},95.324],
+  [{y:2006,m:2},95.606],
+  [{y:2006,m:3},95.573],
+  [{y:2006,m:4},95.972],
+  [{y:2006,m:5},96.859],
+  [{y:2006,m:6},97.288],
+  [{y:2006,m:7},98.969],
+  [{y:2006,m:8},100.359],
+  [{y:2006,m:9},101.011],
+  [{y:2006,m:10},100.712],
+  [{y:2006,m:11},100.039],
+  [{y:2006,m:12},99.249],
+  [{y:2007,m:1},99.406],
+  [{y:2007,m:2},99.791],
+  [{y:2007,m:3},100.724],
+  [{y:2007,m:4},100.933],
+  [{y:2007,m:5},101.206],
+  [{y:2007,m:6},104.635],
+  [{y:2007,m:7},106.575],
+  [{y:2007,m:8},107.356],
+  [{y:2007,m:9},109.604],
+  [{y:2007,m:10},111.983],
+  [{y:2007,m:11},111.906],
+  [{y:2007,m:12},113.096],
+  [{y:2008,m:1},116.089],
+  [{y:2008,m:2},117.925],
+  [{y:2008,m:3},127.682],
+  [{y:2008,m:4},133.335],
+  [{y:2008,m:5},137.207],
+  [{y:2008,m:6},138.489],
+  [{y:2008,m:7},139.148],
+  [{y:2008,m:8},138.706],
+  [{y:2008,m:9},138.584],
+  [{y:2008,m:10},137.1],
+  [{y:2008,m:11},132.462],
+  [{y:2008,m:12},127.256],
+  [{y:2009,m:1},125.383],
+  [{y:2009,m:2},125.22],
+  [{y:2009,m:3},126.825],
+  [{y:2009,m:4},128.072],
+  [{y:2009,m:5},129.415],
+  [{y:2009,m:6},131.753],
+  [{y:2009,m:7},133.669],
+  [{y:2009,m:8},134.657],
+  [{y:2009,m:9},135.373],
+  [{y:2009,m:10},134.95],
+  [{y:2009,m:11},134.15],
+  [{y:2009,m:12},134.032],
+  [{y:2010,m:1},134.059],
+  [{y:2010,m:2},134.372],
+  [{y:2010,m:3},135.26],
+  [{y:2010,m:4},134.865],
+  [{y:2010,m:5},135.188],
+  [{y:2010,m:6},135.146],
+  [{y:2010,m:7},135.84],
+  [{y:2010,m:8},137.017],
+  [{y:2010,m:9},137.992],
+  [{y:2010,m:10},139.93],
+  [{y:2010,m:11},138.462],
+  [{y:2010,m:12},138.245],
+  [{y:2011,m:1},138.503],
+  [{y:2011,m:2},139.464],
+  [{y:2011,m:3},140.405],
+  [{y:2011,m:4},141.933],
+  [{y:2011,m:5},143.968],
+  [{y:2011,m:6},144.685],
+  [{y:2011,m:7},145.486],
+  [{y:2011,m:8},145.749],
+  [{y:2011,m:9},147.211],
+  [{y:2011,m:10},147.275],
+  [{y:2011,m:11},146.315],
+  [{y:2011,m:12},145.03],
+  [{y:2012,m:1},146.5],
+  [{y:2012,m:2},147.023],
+  [{y:2012,m:3},147.918],
+  [{y:2012,m:4},148.722],
+  [{y:2012,m:5},147.123],
+  [{y:2012,m:6},147.334],
+  [{y:2012,m:7},147.354],
+  [{y:2012,m:8},148.928],
+  [{y:2012,m:9},149.333],
+  [{y:2012,m:10},149.04],
+  [{y:2012,m:11},148.681],
+  [{y:2012,m:12},148.715],
+  [{y:2013,m:1},149.188],
+  [{y:2013,m:2},149.567],
+  [{y:2013,m:3},149.374],
+  [{y:2013,m:4},150.236],
+  [{y:2013,m:5},151.272],
+  [{y:2013,m:6},151.643],
+  [{y:2013,m:7},153.19],
+  [{y:2013,m:8},153.848],
+  [{y:2013,m:9},154.917],
+  [{y:2013,m:10},155.271],
+  [{y:2013,m:11},154.8],
+  [{y:2013,m:12},155.628],
+  [{y:2014,m:1},155.972],
+  [{y:2014,m:2},155.991],
+  [{y:2014,m:3},156.82],
+  [{y:2014,m:4},157.653],
+  [{y:2014,m:5},158.159],
+  [{y:2014,m:6},159.001],
+  [{y:2014,m:7},159.712],
+  [{y:2014,m:8},160.17],
+  [{y:2014,m:9},160.456],
+  [{y:2014,m:10},159.778],
+  [{y:2014,m:11},158.453],
+  [{y:2014,m:12},157.287],
+  [{y:2015,m:1},156.611],
+  [{y:2015,m:2},158.437],
+  [{y:2015,m:3},158.581],
+  [{y:2015,m:4},159.651],
+  [{y:2015,m:5},159.772],
+  [{y:2015,m:6},160.112],
+  [{y:2015,m:7},160.984],
+  [{y:2015,m:8},161.445],
+  [{y:2015,m:9},161.957],
+  [{y:2015,m:10},161.829],
+  [{y:2015,m:11},161.499],
+  [{y:2015,m:12},161.766],
+  [{y:2016,m:1},161.385],
+  [{y:2016,m:2},162.1],
+  [{y:2016,m:3},161.798],
+  [{y:2016,m:4},164.127],
+  [{y:2016,m:5},164.712],
+  [{y:2016,m:6},165.317],
+  [{y:2016,m:7},165.881],
+  [{y:2016,m:8},166.176],
+  [{y:2016,m:9},166.643],
+  [{y:2016,m:10},167.253],
+  [{y:2016,m:11},167.323],
+  [{y:2016,m:12},168.034],
+  [{y:2017,m:1},168.523],
+  [{y:2017,m:2},168.644],
+  [{y:2017,m:3},168.652],
+  [{y:2017,m:4},169.401],
+  [{y:2017,m:5},169.073],
+  [{y:2017,m:6},169.191],
+  [{y:2017,m:7},169.737],
+  [{y:2017,m:8},170.496],
+  [{y:2017,m:9},171.079],
+  [{y:2017,m:10},170.769],
+  [{y:2017,m:11},171.094],
+  [{y:2017,m:12},171.782],
+  [{y:2018,m:1},171.892],
+  [{y:2018,m:2},172.516],
+  [{y:2018,m:3},172.578],
+  [{y:2018,m:4},173.436],
+  [{y:2018,m:5},173.909],
+  [{y:2018,m:6},174.158],
+  [{y:2018,m:7},173.694],
+  [{y:2018,m:8},174.891],
+  [{y:2018,m:9},175.475],
+  [{y:2018,m:10},176.019],
+  [{y:2018,m:11},175.414],
+  [{y:2018,m:12},174.586],
+  [{y:2019,m:1},174.544],
+  [{y:2019,m:2},175.99],
+  [{y:2019,m:3},176.446],
+  [{y:2019,m:4},177.022],
+  [{y:2019,m:5},177.356],
+  [{y:2019,m:6},176.667],
+  [{y:2019,m:7},177.466],
+  [{y:2019,m:8},178.502],
+  [{y:2019,m:9},178.448],
+  [{y:2019,m:10},178.254],
+  [{y:2019,m:11},178.495],
+  [{y:2019,m:12},179.95],
+  [{y:2020,m:1},180.799],
+  [{y:2020,m:2},180.654],
+  [{y:2020,m:3},181.464],
+  [{y:2020,m:4},180.41],
+  [{y:2020,m:5},181.563],
+  [{y:2020,m:6},182.356],
+  [{y:2020,m:7},183.014],
+  [{y:2020,m:8},182.788],
+  [{y:2020,m:9},183.559],
+  [{y:2020,m:10},184.91],
+  [{y:2020,m:11},185.101],
+  [{y:2020,m:12},185.125],
+  [{y:2021,m:1},185.493],
+  [{y:2021,m:2},183.781],
+  [{y:2021,m:3},185.233],
+  [{y:2021,m:4},185.361],
+  [{y:2021,m:5},186.983],
+  [{y:2021,m:6},187.36],
+  [{y:2021,m:7},189.108],
+  [{y:2021,m:8},189.004],
+  [{y:2021,m:9},188.995],
+  [{y:2021,m:10},190.357],
+  [{y:2021,m:11},192.116],
+  [{y:2021,m:12},191.979],
+  [{y:2022,m:1},193.064],
+  [{y:2022,m:2},195.414],
+  [{y:2022,m:3},198.56],
+  [{y:2022,m:4},198.802],
+  [{y:2022,m:5},200.388],
+  [{y:2022,m:6},202.064],
+  [{y:2022,m:7},199.281],
+  [{y:2022,m:8},198.346],
+  [{y:2022,m:9},197.391],
+  [{y:2022,m:10},197.282],
+  [{y:2022,m:11},198.282],
+  [{y:2022,m:12},197.476],
+  [{y:2023,m:1},198.778],
+  [{y:2023,m:2},199.71],
+  [{y:2023,m:3},199.956],
+  [{y:2023,m:4},200.932],
+  [{y:2023,m:5},201.34],
+  [{y:2023,m:6},202.138],
+  [{y:2023,m:7},203.023],
+  [{y:2023,m:8},204.763],
+  [{y:2023,m:9},204.803],
+  [{y:2023,m:10},204.949],
+  [{y:2023,m:11},203.618],
+  [{y:2023,m:12},202.844],
+  [{y:2024,m:1},197.819],
+  [{y:2024,m:2},199.123],
+  [{y:2024,m:3},200.025],
+  [{y:2024,m:4},201.932],
+  [{y:2024,m:5},203.546],
+  [{y:2024,m:6},203.56],
+  [{y:2024,m:7},204.323],
+  [{y:2024,m:8},205.332],
+  [{y:2024,m:9},206.026],
+  [{y:2024,m:10},207.743],
+  [{y:2024,m:11},207.664],
+  [{y:2024,m:12},209.03],
+  [{y:2025,m:1},209.695],
+  [{y:2025,m:2},208.538],
+  [{y:2025,m:3},207.423],
+  [{y:2025,m:4},208.288],
+  [{y:2025,m:5},207.026],
+  [{y:2025,m:6},206.796],
+  [{y:2025,m:7},207.716],
+  [{y:2025,m:8},209.003],
+  [{y:2025,m:9},210.26],
+  [{y:2025,m:10},211.295],
+  [{y:2025,m:11},210.313],
+  [{y:2025,m:12},211.527],
+  [{y:2026,m:1},212.33],
+  [{y:2026,m:2},213.937],
+  [{y:2026,m:3},219.007],
+];
+
+// ── Helpers ──
+function cpiKey(y, m) { return y * 100 + m; }
+const CPI_MAP = new Map(CPI_DATA.map(([{y,m}, v]) => [cpiKey(y,m), v]));
+const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_KM = ['មករា','កុម្ភៈ','មីនា','មេសា','ឧសភា','មិថុនា','កក្កដា','សីហា','កញ្ញា','តុលា','វិច្ឆិកា','ធ្នូ'];
+
+function fmtMonth(y, m) {
+  const lang = (typeof WFC !== 'undefined') ? WFC.currentLang() : 'en';
+  const names = lang === 'km' ? MONTHS_KM : MONTHS_EN;
+  return names[m - 1] + ' ' + y;
+}
+
+function fmtAmt(v) {
+  return '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function parseMonthInput(val) {
+  // val = "YYYY-MM"
+  const [y, m] = val.split('-').map(Number);
+  return {y, m};
+}
+
+// ── Charts ──
+let powerChartInst = null;
+let yoyChartInst   = null;
+
+function buildYoyChart() {
+  // Build annual Dec YoY chart (static — doesn't change with inputs)
+  const labels = [], vals = [], colors = [];
+  let prevDec = null;
+  for (const [{y, m}, cpi] of CPI_DATA) {
+    if (m === 12) {
+      if (prevDec !== null) {
+        const pct = (cpi / prevDec - 1) * 100;
+        labels.push(String(y));
+        vals.push(+pct.toFixed(2));
+        colors.push(pct >= 5 ? '#d97706' : pct < 0 ? '#6b7280' : '#5a6943');
+      }
+      prevDec = cpi;
+    }
+  }
+
+  const ctx = document.getElementById('yoyChart').getContext('2d');
+  if (yoyChartInst) yoyChartInst.destroy();
+  yoyChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Dec YoY %',
+        data: vals,
+        backgroundColor: colors,
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.parsed.y.toFixed(2) + '%'
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { font: { size: 10 }, maxRotation: 45 } },
+        y: {
+          ticks: { callback: v => v + '%', font: { size: 10 } },
+          grid: { color: 'rgba(0,0,0,.06)' }
+        }
+      }
+    }
+  });
+}
+
+function buildPowerChart(fromY, fromM, toY, toM, amount) {
+  // Show how $amount in fromY/fromM changed purchasing power month by month
+  const fromKey = cpiKey(fromY, fromM);
+  const toKey   = cpiKey(toY, toM);
+  const cpiFrom = CPI_MAP.get(fromKey);
+
+  const labels = [], vals = [], pointColors = [];
+  for (const [{y, m}, cpi] of CPI_DATA) {
+    const k = cpiKey(y, m);
+    if (k < fromKey) continue;
+    if (k > toKey) break;
+    const equiv = amount * (cpi / cpiFrom);
+    labels.push(MONTHS_EN[m-1].substring(0,1) + " '" + String(y).slice(2));
+    vals.push(+equiv.toFixed(2));
+    pointColors.push(k === toKey ? '#5a6943' : k === fromKey ? '#8aaa7a' : 'rgba(90,105,67,0)');
+  }
+
+  const ctx = document.getElementById('powerChart').getContext('2d');
+  if (powerChartInst) powerChartInst.destroy();
+  powerChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Equivalent Value ($)',
+        data: vals,
+        borderColor: '#5a6943',
+        backgroundColor: 'rgba(90,105,67,.10)',
+        borderWidth: 2,
+        pointRadius: vals.map((_, i) => (i === 0 || i === vals.length - 1) ? 5 : 0),
+        pointBackgroundColor: pointColors,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => '$' + ctx.parsed.y.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxTicksLimit: 12,
+            font: { size: 10 },
+            maxRotation: 35
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: { callback: v => '$' + v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0}), font: { size: 10 } },
+          grid: { color: 'rgba(0,0,0,.06)' }
+        }
+      }
+    }
+  });
+}
+
+// ── Annual Table ──
+function buildAnnualTable() {
+  const tbody = document.getElementById('annualBody');
+  const first = CPI_DATA[0][1]; // Dec 2004 CPI
+  let prevDec = null, prevYear = null;
+  const rows = [];
+
+  for (const [{y, m}, cpi] of CPI_DATA) {
+    if (m === 12) {
+      const yoy = prevDec !== null ? (cpi / prevDec - 1) * 100 : null;
+      const cum = (cpi / first - 1) * 100;
+      rows.push({y, cpi, yoy, cum});
+      prevDec = cpi;
+    }
+  }
+
+  let html = '';
+  for (const r of rows) {
+    const yoyStr = r.yoy !== null ? r.yoy.toFixed(2) + '%' : '—';
+    const cumStr = r.cum.toFixed(1) + '%';
+    let cls = '';
+    let badge = '';
+    if (r.yoy !== null) {
+      if (r.yoy >= 5) { cls = 'inf-high'; badge = `<span class="badge-inf up">▲ High</span>`; }
+      else if (r.yoy < 0) { cls = 'inf-neg'; badge = `<span class="badge-inf neg">▼ Deflation</span>`; }
+      else if (r.yoy < 2) { cls = 'inf-low'; badge = ''; }
+    }
+    html += `<tr class="${cls}">
+      <td>${r.y}</td>
+      <td>${r.cpi.toFixed(3)}</td>
+      <td>${yoyStr}${badge}</td>
+      <td>${cumStr}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+// ── Main Calculate ──
+function calculate() {
+  const amountStr = document.getElementById('amount').value;
+  const fromStr   = document.getElementById('fromDate').value;
+  const toStr     = document.getElementById('toDate').value;
+  const amount    = parseFloat(amountStr);
+
+  if (!fromStr || !toStr || isNaN(amount) || amount <= 0) {
+    document.getElementById('resultsBody').innerHTML =
+      `<div class="placeholder-msg" data-i18n="cinf.placeholder">Enter an amount and date range above.</div>`;
+    if (typeof WFC !== 'undefined') WFC.applyLang();
+    if (powerChartInst) { powerChartInst.destroy(); powerChartInst = null; }
+    return;
+  }
+
+  const {y: fy, m: fm} = parseMonthInput(fromStr);
+  const {y: ty, m: tm} = parseMonthInput(toStr);
+  const fromKey = cpiKey(fy, fm);
+  const toKey   = cpiKey(ty, tm);
+
+  if (fromKey >= toKey) {
+    document.getElementById('resultsBody').innerHTML =
+      `<div class="placeholder-msg" style="color:#b45309" data-i18n="cinf.error.date_order">"From" month must be before "To" month.</div>`;
+    if (typeof WFC !== 'undefined') WFC.applyLang();
+    return;
+  }
+
+  const cpiFrom = CPI_MAP.get(fromKey);
+  const cpiTo   = CPI_MAP.get(toKey);
+
+  if (!cpiFrom || !cpiTo) {
+    document.getElementById('resultsBody').innerHTML =
+      `<div class="placeholder-msg" style="color:#b45309">Selected date is outside available data range (Dec 2004 – Mar 2026).</div>`;
+    return;
+  }
+
+  const equivValue  = amount * (cpiTo / cpiFrom);
+  const totalChange = (cpiTo / cpiFrom - 1) * 100;
+
+  // Years between (fractional)
+  const fromDate = new Date(fy, fm - 1, 1);
+  const toDate   = new Date(ty, tm - 1, 1);
+  const yearsF   = (toDate - fromDate) / (365.25 * 24 * 3600 * 1000);
+  const annualAvg = (Math.pow(cpiTo / cpiFrom, 1 / yearsF) - 1) * 100;
+
+  const fromLabel = fmtMonth(fy, fm);
+  const toLabel   = fmtMonth(ty, tm);
+  const direction = equivValue > amount ? '▲' : equivValue < amount ? '▼' : '=';
+  const changeClass = totalChange >= 0 ? 'warn' : 'highlight';
+
+  document.getElementById('resultsBody').innerHTML = `
+    <div class="cinf-hero">
+      <div class="r-label" data-i18n="cinf.result.hero_label">Equivalent Purchasing Power</div>
+      <div class="r-value">${fmtAmt(equivValue)}</div>
+      <div class="r-sub">
+        ${fmtAmt(amount)} in ${fromLabel}
+        <span class="cinf-arrow">${direction}</span>
+        ${fmtAmt(equivValue)} in ${toLabel}
+      </div>
+    </div>
+
+    <div class="results-grid-3">
+      <div class="result-item ${changeClass}">
+        <div class="r-label" data-i18n="cinf.result.total_change">Total Inflation</div>
+        <div class="r-value">${totalChange >= 0 ? '+' : ''}${totalChange.toFixed(2)}%</div>
+      </div>
+      <div class="result-item">
+        <div class="r-label" data-i18n="cinf.result.avg_annual">Avg. Annual Rate</div>
+        <div class="r-value">${annualAvg.toFixed(2)}%/yr</div>
+      </div>
+      <div class="result-item">
+        <div class="r-label" data-i18n="cinf.result.years">Period</div>
+        <div class="r-value">${yearsF.toFixed(1)} yrs</div>
+      </div>
+    </div>
+
+    <div class="results-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="result-item">
+        <div class="r-label" data-i18n="cinf.result.cpi_from">CPI (${fromLabel})</div>
+        <div class="r-value">${cpiFrom.toFixed(3)}</div>
+      </div>
+      <div class="result-item">
+        <div class="r-label" data-i18n="cinf.result.cpi_to">CPI (${toLabel})</div>
+        <div class="r-value">${cpiTo.toFixed(3)}</div>
+      </div>
+    </div>
+
+    <div class="cpi-note">
+      <strong data-i18n="cinf.result.interp_label">Interpretation:</strong>
+      <span>${fmtAmt(amount)} in ${fromLabel} had the same buying power as ${fmtAmt(equivValue)} in ${toLabel}.
+      Prices rose by ${totalChange.toFixed(1)}% over ${yearsF.toFixed(1)} years
+      (${annualAvg.toFixed(2)}% per year on average).</span>
+    </div>
+  `;
+
+  // Reinitialise i18n on newly injected elements
+  if (typeof WFC !== 'undefined') WFC.applyLang();
+
+  buildPowerChart(fy, fm, ty, tm, amount);
+}
+
+// ── Initialise ──
+document.addEventListener('DOMContentLoaded', () => {
+  buildYoyChart();
+  buildAnnualTable();
+  calculate();
+});
+</script>
+</body>
+</html>
