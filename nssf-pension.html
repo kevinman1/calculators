@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="nssf.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NSSF Pension Calculator – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .nssf-hero { text-align:center; padding:1.2rem 1rem 1rem; }
+    .nssf-hero .r-label { font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:#666; margin-bottom:.25rem; }
+    .nssf-hero .r-value { font-size:2.1rem; font-weight:700; color:var(--green-800,#2d5a1b); letter-spacing:-.02em; line-height:1.1; }
+    .nssf-hero .rate-badge { display:inline-block; margin-top:.4rem; background:var(--green-800,#2d5a1b); color:#fff; border-radius:20px; padding:.2rem .8rem; font-size:.84rem; font-weight:700; }
+    .nssf-hero .r-sub { font-size:.76rem; color:#888; margin-top:.3rem; }
+    .formula-box { background:#f4f8f2; border:1px solid #c8ddc0; border-radius:6px; padding:.6rem .9rem; font-size:.83rem; color:#3a5c30; margin-top:.75rem; }
+    .formula-box strong { color:var(--green-800,#2d5a1b); }
+    .warn-box { background:#fff8e1; border:1.5px solid #f59e0b; border-radius:6px; padding:.55rem .85rem; font-size:.82rem; color:#7a5800; margin-top:.7rem; display:none; }
+    .warn-box.visible { display:block; }
+    .warn-box strong { color:#b45309; }
+    .nssf-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .nssf-table thead th { background:var(--green-800,#2d5a1b); color:#fff; padding:.4rem .6rem; text-align:right; font-weight:600; font-size:.76rem; letter-spacing:.03em; text-transform:uppercase; }
+    .nssf-table thead th:first-child { text-align:center; }
+    .nssf-table thead th:nth-child(2) { text-align:left; }
+    .nssf-table tbody tr:nth-child(odd)  td { background:#f7f7f7; }
+    .nssf-table tbody tr:nth-child(even) td { background:#fff; }
+    .nssf-table tbody tr.highlight td { background:#e8f5e2 !important; font-weight:700; color:#2d5a1b; }
+    .nssf-table tbody tr.milestone td { border-top:2px solid #c8ddc0; }
+    .nssf-table tbody td { padding:.28rem .6rem; text-align:right; color:#333; }
+    .nssf-table tbody td:first-child { text-align:center; color:#888; font-size:.75rem; }
+    .nssf-table tbody td:nth-child(2) { text-align:left; color:#555; font-size:.78rem; font-family:monospace; }
+    .source-note { font-size:.72rem; color:#999; margin-top:.5rem; line-height:1.5; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" class="active" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.savings">Savings</span>
+    &rsaquo; <span data-i18n="nssf.bread">NSSF Pension</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Print-only header -->
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="nssf.print_title">NSSF Pension Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="nssf.page_title">NSSF Pension Calculator</h2>
+    <p data-i18n="nssf.page_desc">Estimate your monthly pension from Cambodia's National Social Security Fund based on your salary and years of contribution.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── INPUTS ─────────────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-body">
+
+        <!-- Currency toggle -->
+        <div class="currency-toggle" style="margin-bottom:.85rem">
+          <button class="currency-btn active" data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+          <button class="currency-btn" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+        </div>
+        <div class="input-group" id="exrateGroup" style="margin-bottom:.6rem">
+          <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
+          <div class="input-wrapper">
+            <input type="number" id="exchangeRate" value="4100" min="1" step="100">
+            <span class="input-suffix">KHR</span>
+          </div>
+        </div>
+
+        <div class="section-label" data-i18n="nssf.section.personal">Personal Details</div>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label data-i18n="nssf.input.current_age">Current Age</label>
+            <div class="input-wrapper">
+              <input type="number" id="currentAge" value="35" min="18" max="70" step="1">
+              <span class="input-suffix" data-i18n="input.years">yrs</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="nssf.input.retirement_age">Retirement Age</label>
+            <div class="input-wrapper">
+              <input type="number" id="retirementAge" value="60" min="50" max="80" step="1">
+              <span class="input-suffix" data-i18n="input.years">yrs</span>
+            </div>
+          </div>
+        </div>
+        <div class="input-hint" data-i18n="nssf.hint.retirement_age">Cambodia NSSF: 60 (women) or 65 (men)</div>
+
+        <div class="input-group" style="margin-top:.65rem">
+          <label data-i18n="nssf.input.salary">Average Monthly Salary</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="salaryPrefix">&#6107;</span>
+            <input type="number" id="avgSalary" value="800000" min="0" step="5000">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label" data-i18n="nssf.section.contribution">NSSF Contribution</div>
+
+        <div class="input-group">
+          <label data-i18n="nssf.input.start_date">Contribution Start Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate" value="2021-01-01">
+          </div>
+        </div>
+        <div class="input-hint" data-i18n="nssf.hint.start_date">Date you first enrolled in NSSF</div>
+
+        <button class="btn-primary" style="margin-top:1rem" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+      </div>
+    </div>
+
+    <!-- ── RESULTS ─────────────────────────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
+        <div class="card-body">
+
+          <div class="nssf-hero">
+            <div class="r-label" data-i18n="nssf.result.monthly_pension">Monthly Pension</div>
+            <div class="r-value" id="r-monthlyPension">—</div>
+            <div class="rate-badge" id="r-rateBadge">— %</div>
+            <div class="r-sub" id="r-retirementYear">—</div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label" data-i18n="nssf.result.annual_pension">Annual Pension</div>
+              <div class="r-value" id="r-annualPension">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="nssf.result.total_years">Total Contribution Years</div>
+              <div class="r-value" id="r-totalYears">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="nssf.result.as_pct_salary">Pension as % of Salary</div>
+              <div class="r-value" id="r-asPctSalary">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="nssf.result.pension_rate">Pension Rate</div>
+              <div class="r-value" id="r-pensionRate">—</div>
+            </div>
+          </div>
+
+          <!-- Formula box -->
+          <div class="formula-box">
+            <strong data-i18n="nssf.result.formula">Rate Formula:</strong>
+            <span id="r-formula">—</span>
+          </div>
+
+          <!-- Warning: under 20 years -->
+          <div class="warn-box" id="warnUnder20">
+            <strong>&#9888; </strong><span data-i18n="nssf.warn.under20">Less than 20 years of contribution — you will receive a lump sum instead of a monthly pension.</span>
+          </div>
+          <!-- Warning: zero years -->
+          <div class="warn-box" id="warnZero">
+            <strong>&#9888; </strong><span data-i18n="nssf.warn.zero_years">Contribution start date is at or after retirement — no pension accrued.</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── CHART ──────────────────────────────────────────────────────────────── -->
+  <div class="card chart-card">
+    <div class="card-header" data-i18n="nssf.chart.title">Monthly Pension by Years of Contribution</div>
+    <div class="chart-container">
+      <canvas id="nssfChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ── CALCULATION TABLE ─────────────────────────────────────────────────── -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem" data-i18n="nssf.table.title">Full Calculation Table (Years 1–50)</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleTable()" data-i18n="schedule.show">Show Schedule</button>
+    </div>
+    <div class="schedule-wrapper" id="tableWrapper" style="display:none">
+      <table class="nssf-table" id="nssfTable">
+        <thead>
+          <tr>
+            <th data-i18n="nssf.table.year">Year</th>
+            <th data-i18n="nssf.table.formula">Formula</th>
+            <th data-i18n="nssf.table.rate">Rate</th>
+            <th data-i18n="nssf.table.monthly">Monthly Pension</th>
+            <th data-i18n="nssf.table.annual">Annual Pension</th>
+            <th data-i18n="nssf.table.age">Age at Retirement</th>
+          </tr>
+        </thead>
+        <tbody id="nssfTableBody"></tbody>
+      </table>
+      <div class="source-note" data-i18n="nssf.source">Source: Cambodia NSSF (National Social Security Fund). Rate: 1.75%/year for first 15 years; 1.25%/year after; max 70% at 50 years. Minimum 20 years required for monthly pension.</div>
+    </div>
+  </div>
+
+  <!-- ── PRINT BAR ─────────────────────────────────────────────────────────── -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#128424; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=15"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let nssfChart = null;
+let currency  = 'KHR';
+
+// ── i18n ───────────────────────────────────────────────────────────────────────
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr  = getXR();
+  const sal = document.getElementById('avgSalary');
+  const v   = parseFloat(sal.value) || 0;
+  if (newCur === 'KHR') {
+    sal.value = Math.round(v * xr);
+    sal.step  = '5000';
+  } else {
+    sal.value = Math.round(v / xr);
+    sal.step  = '10';
+  }
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === newCur)
+  );
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? '' : 'none';
+  document.getElementById('salaryPrefix').innerHTML    = newCur === 'KHR' ? '&#6107;' : '$';
+  calculate();
+}
+
+// Convert any KHR amount to display string in current currency
+function fmtKHR(khr) {
+  if (currency === 'KHR') {
+    return '&#6107;&nbsp;' + Math.round(khr).toLocaleString('en-US');
+  }
+  return '$' + Math.round(khr / getXR()).toLocaleString('en-US');
+}
+
+// ── NSSF core ──────────────────────────────────────────────────────────────────
+function pensionRate(years) {
+  const y = Math.min(Math.max(Math.floor(years), 0), 50);
+  if (y <= 0)  return 0;
+  if (y <= 15) return y * 0.0175;
+  return Math.min(15 * 0.0175 + (y - 15) * 0.0125, 0.70);
+}
+
+function rateFormula(y) {
+  if (y <= 0)  return '0 × 1.75%';
+  if (y <= 15) return y + ' × 1.75%';
+  return '15 × 1.75% + ' + (y - 15) + ' × 1.25%';
+}
+
+// ── Date helpers ───────────────────────────────────────────────────────────────
+function addYears(d, y) {
+  const r = new Date(d);
+  r.setFullYear(r.getFullYear() + y);
+  return r;
+}
+function daysBetween(a, b) { return (b - a) / 86400000; }
+
+// ── Main calculate ──────────────────────────────────────────────────────────────
+function calculate() {
+  const currentAge    = Math.max(18, Math.min(75, parseInt(document.getElementById('currentAge').value)    || 35));
+  const retirementAge = Math.max(18, Math.min(80, parseInt(document.getElementById('retirementAge').value) || 60));
+  const salaryInput   = Math.max(0,  parseFloat(document.getElementById('avgSalary').value) || 0);
+  const startDateStr  = document.getElementById('startDate').value;
+
+  const salaryKHR = currency === 'KHR' ? salaryInput : salaryInput * getXR();
+
+  const today          = new Date();
+  const yearsToRetire  = Math.max(0, retirementAge - currentAge);
+  const retirementDate = addYears(today, yearsToRetire);
+
+  let startDate = startDateStr ? new Date(startDateStr + 'T00:00:00') : new Date(today);
+  if (isNaN(startDate.getTime())) startDate = new Date(today);
+
+  // Years already contributed (may be 0 if start date is in the future)
+  const daysSinceStart = daysBetween(startDate, today);
+  const yearsSoFar     = Math.max(0, daysSinceStart / 365.25);
+
+  // Total years from start date to retirement date
+  const daysTotal  = daysBetween(startDate, retirementDate);
+  const totalYears = Math.max(0, Math.floor(daysTotal / 365.25));
+
+  const rate       = pensionRate(totalYears);
+  const monthlyKHR = rate * salaryKHR;
+  const annualKHR  = monthlyKHR * 12;
+  const asPct      = salaryKHR > 0 ? rate * 100 : 0;
+  const retireYear = retirementDate.getFullYear();
+
+  // Start age (how old the person was when they started NSSF)
+  const startAge = currentAge - yearsSoFar;
+
+  const isZero    = totalYears <= 0;
+  const isUnder20 = totalYears > 0 && totalYears < 20;
+
+  document.getElementById('r-monthlyPension').innerHTML = isZero ? '—' : fmtKHR(monthlyKHR);
+  document.getElementById('r-annualPension').innerHTML  = isZero ? '—' : fmtKHR(annualKHR);
+  document.getElementById('r-totalYears').textContent   = totalYears + ' ' + T('input.years');
+  document.getElementById('r-retirementYear').textContent = T('nssf.result.retirement_year') + ': ' + retireYear;
+  document.getElementById('r-pensionRate').textContent  = (rate * 100).toFixed(2) + '%';
+  document.getElementById('r-rateBadge').textContent    = (rate * 100).toFixed(2) + '%';
+  document.getElementById('r-asPctSalary').textContent  = asPct.toFixed(2) + '%';
+  document.getElementById('r-formula').textContent      = rateFormula(totalYears);
+
+  document.getElementById('warnUnder20').classList.toggle('visible', isUnder20);
+  document.getElementById('warnZero').classList.toggle('visible', isZero);
+  document.getElementById('printDate').textContent = today.toLocaleDateString('en-GB',
+    { day: '2-digit', month: 'short', year: 'numeric' });
+
+  renderChart(totalYears, salaryKHR);
+  if (document.getElementById('tableWrapper').style.display !== 'none') {
+    renderTable(totalYears, salaryKHR, startAge);
+  }
+}
+
+// ── Chart ───────────────────────────────────────────────────────────────────────
+function renderChart(userYears, salaryKHR) {
+  const xr    = getXR();
+  const toDisp = v => currency === 'KHR' ? Math.round(v) : Math.round(v / xr);
+  const sym   = currency === 'KHR' ? '&#6107;' : '$';
+
+  const labels = [], values = [], colors = [];
+  for (let y = 1; y <= 50; y++) {
+    labels.push(y);
+    values.push(toDisp(pensionRate(y) * salaryKHR));
+    colors.push(y === userYears ? 'rgba(45,90,27,0.92)' : 'rgba(115,150,105,0.72)');
+  }
+
+  const ctx = document.getElementById('nssfChart').getContext('2d');
+  if (nssfChart) nssfChart.destroy();
+  nssfChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: T('nssf.chart.pension'),
+        data: values,
+        backgroundColor: colors,
+        borderRadius: 2,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => T('nssf.table.year') + ' ' + ctx[0].label +
+              (parseInt(ctx[0].label) === userYears ? ' ★ ' + T('nssf.chart.you') : ''),
+            label: ctx => '  ' + (currency === 'KHR' ? '៛' : '$') +
+              ctx.parsed.y.toLocaleString('en-US') + ' / ' + T('input.months')
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: T('nssf.table.year'), font: { size: 10 } },
+          ticks: { font: { size: 9 }, maxTicksLimit: 26 },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            callback: v => {
+              if (currency === 'KHR') return '៛' + (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'K' : v);
+              return '$' + (v >= 1000 ? (v/1000).toFixed(0)+'K' : v);
+            },
+            font: { size: 10 }
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        }
+      }
+    }
+  });
+}
+
+// ── Table ───────────────────────────────────────────────────────────────────────
+function renderTable(userYears, salaryKHR, startAge) {
+  const tbody = document.getElementById('nssfTableBody');
+  tbody.innerHTML = '';
+  for (let y = 1; y <= 50; y++) {
+    const r       = pensionRate(y);
+    const monthly = r * salaryKHR;
+    const age     = Math.round(startAge + y);
+    const tr      = document.createElement('tr');
+    if (y === userYears) tr.classList.add('highlight');
+    if (y === 16)        tr.classList.add('milestone');
+    tr.innerHTML =
+      '<td>' + y + '</td>' +
+      '<td>' + rateFormula(y) + '</td>' +
+      '<td>' + (r * 100).toFixed(2) + '%</td>' +
+      '<td>' + fmtKHR(monthly) + '</td>' +
+      '<td>' + fmtKHR(monthly * 12) + '</td>' +
+      '<td>' + (age > 0 ? age : '—') + '</td>';
+    tbody.appendChild(tr);
+  }
+}
+
+// ── Toggle table ───────────────────────────────────────────────────────────────
+function toggleTable() {
+  const wrapper = document.getElementById('tableWrapper');
+  const btn     = document.getElementById('toggleBtn');
+  const hidden  = wrapper.style.display === 'none';
+  wrapper.style.display = hidden ? 'block' : 'none';
+  btn.textContent = hidden ? T('schedule.hide') : T('schedule.show');
+  if (hidden) {
+    const currentAge   = parseInt(document.getElementById('currentAge').value)    || 35;
+    const retireAge    = parseInt(document.getElementById('retirementAge').value)  || 60;
+    const salaryInput  = parseFloat(document.getElementById('avgSalary').value)    || 0;
+    const salaryKHR    = currency === 'KHR' ? salaryInput : salaryInput * getXR();
+    const startDateStr = document.getElementById('startDate').value;
+    const today        = new Date();
+    let   startDate    = startDateStr ? new Date(startDateStr + 'T00:00:00') : new Date(today);
+    if (isNaN(startDate.getTime())) startDate = new Date(today);
+    const yearsSoFar = Math.max(0, daysBetween(startDate, today) / 365.25);
+    const retireDate = addYears(today, Math.max(0, retireAge - currentAge));
+    const totalYears = Math.max(0, Math.floor(daysBetween(startDate, retireDate) / 365.25));
+    renderTable(totalYears, salaryKHR, currentAge - yearsSoFar);
+  }
+}
+
+// ── Init ────────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Exchange rate shown by default (KHR mode)
+  document.getElementById('exrateGroup').style.display = '';
+  calculate();
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input',  calculate);
+    el.addEventListener('change', calculate);
+  });
+});
+</script>
+
+</body>
+</html>
