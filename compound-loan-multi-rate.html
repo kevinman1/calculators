@@ -15,13 +15,39 @@
     .reset-link  { font-size:.72rem; color:var(--green-700); cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
     .reset-link:hover { color:var(--green-900); }
 
-    /* Period blocks */
-    .period-block { padding-top:.6rem; }
-    .period-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:.3rem; }
-    .period-hdr .section-label { margin:0; }
-    .period-remove { font-size:.72rem; color:#92400e; cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
-    .period-remove:hover { color:#7c2d12; }
-    #addPeriodBtn { margin-top:.5rem; width:100%; }
+    /* Period cards row */
+    .period-cards-row { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:1rem; align-items:start; }
+    .period-card { border-radius:var(--radius); overflow:hidden; border:1.5px solid; }
+    .period-card-hdr { padding:.45rem .9rem; font-weight:700; font-size:.82rem; color:white; display:flex; align-items:center; justify-content:space-between; }
+    .period-card-body { padding:.8rem .9rem; }
+    .period-card-body .input-group:last-child { margin-bottom:0; }
+    /* Colours: green / amber / blue / purple */
+    .pc0 { border-color:var(--green-300); }
+    .pc0 .period-card-hdr { background:var(--green-700); }
+    .pc0 .period-card-body { background:var(--green-50); }
+    .pc1 { border-color:#fcd34d; }
+    .pc1 .period-card-hdr { background:#b45309; }
+    .pc1 .period-card-body { background:#fffbeb; }
+    .pc1 .auto-badge  { color:#b45309; background:#fef9c3; border-color:#fcd34d; }
+    .pc1 .reset-link  { color:#b45309; }
+    .pc1 .input-hint  { color:#b45309; }
+    .pc2 { border-color:#93c5fd; }
+    .pc2 .period-card-hdr { background:#1d4ed8; }
+    .pc2 .period-card-body { background:#eff6ff; }
+    .pc2 .auto-badge  { color:#1d4ed8; background:#dbeafe; border-color:#93c5fd; }
+    .pc2 .reset-link  { color:#1d4ed8; }
+    .pc2 .input-hint  { color:#1d4ed8; }
+    .pc3 { border-color:#c4b5fd; }
+    .pc3 .period-card-hdr { background:#7c3aed; }
+    .pc3 .period-card-body { background:#f5f3ff; }
+    .pc3 .auto-badge  { color:#7c3aed; background:#ede9fe; border-color:#c4b5fd; }
+    .pc3 .reset-link  { color:#7c3aed; }
+    .pc3 .input-hint  { color:#7c3aed; }
+    .pcard-remove { background:none; border:1px solid rgba(255,255,255,.55); color:white; border-radius:3px; cursor:pointer; font-size:.75rem; padding:1px 7px; line-height:1.6; }
+    .pcard-remove:hover { background:rgba(255,255,255,.2); }
+    .period-add-card { border:2px dashed var(--green-300); border-radius:var(--radius); min-height:110px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; color:var(--green-600); font-weight:600; font-size:.85rem; gap:.25rem; transition:background .15s; }
+    .period-add-card:hover { background:var(--green-50); }
+    .period-add-card .pcard-plus { font-size:2rem; font-weight:300; line-height:1; color:var(--green-400); }
 
     /* Period results in summary card */
     .period-result-row { display:flex; justify-content:space-between; align-items:center; padding:.45rem 0; border-bottom:1px solid var(--green-100); }
@@ -183,150 +209,6 @@
           <div class="input-hint" data-i18n="cmr.hint.penalty_rate">Applied to unpaid amounts in the overdue calculator below</div>
         </div>
 
-        <hr class="section-divider">
-
-        <!-- Rate Periods -->
-        <div class="section-label" data-i18n="cmr.section.periods">Rate Periods</div>
-
-        <div id="periodsContainer">
-
-          <!-- ── Period 1 ── -->
-          <div class="period-block" id="pb-0">
-            <div class="input-group">
-              <label data-i18n="cln.input.rate">Annual Interest Rate — Period 1</label>
-              <div class="input-wrapper">
-                <input type="number" id="p0-rate" value="0" min="0" max="200" step="0.1" oninput="onMainInput()">
-                <span class="input-suffix">%</span>
-              </div>
-            </div>
-            <div class="input-group">
-              <label data-i18n="cln.input.first_payment">First Payment Date</label>
-              <div class="input-wrapper">
-                <input type="date" id="p0-date" oninput="calculate()">
-              </div>
-              <div class="input-hint" data-i18n="cln.hint.first_payment">Optional — auto-set to 1 month after start</div>
-            </div>
-            <div class="input-group">
-              <div class="payment-label-row">
-                <label data-i18n="cln.input.payment">Monthly Payment</label>
-                <span class="auto-badge" id="p0-auto" data-i18n="cln.input.payment_auto">auto</span>
-                <button class="reset-link" id="p0-reset" onclick="resetPmt(0)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
-              </div>
-              <div class="input-wrapper">
-                <span class="input-prefix" id="p0-pfx">$</span>
-                <input type="number" id="p0-pmt" min="0" step="10" oninput="onPmtInput(0)">
-              </div>
-            </div>
-          </div>
-
-          <!-- ── Period 2 (hidden) ── -->
-          <div class="period-block" id="pb-1" style="display:none">
-            <hr class="section-divider">
-            <div class="period-hdr">
-              <div class="section-label" data-i18n-tpl="cmr.period_label" data-i18n-n="2">Period 2</div>
-              <button class="period-remove" onclick="removePeriod(1)" data-i18n="cmr.btn.remove_period">Remove</button>
-            </div>
-            <div class="input-group">
-              <label data-i18n="cln.input.rate">Annual Interest Rate</label>
-              <div class="input-wrapper">
-                <input type="number" id="p1-rate" value="9" min="0" max="200" step="0.1" oninput="calculate()">
-                <span class="input-suffix">%</span>
-              </div>
-            </div>
-            <div class="input-group">
-              <label data-i18n="cmr.input.period_start">Period Start Date</label>
-              <div class="input-wrapper">
-                <input type="date" id="p1-date" oninput="calculate()">
-              </div>
-              <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
-            </div>
-            <div class="input-group">
-              <div class="payment-label-row">
-                <label data-i18n="cln.input.payment">Monthly Payment</label>
-                <span class="auto-badge" id="p1-auto" data-i18n="cln.input.payment_auto">auto</span>
-                <button class="reset-link" id="p1-reset" onclick="resetPmt(1)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
-              </div>
-              <div class="input-wrapper">
-                <span class="input-prefix" id="p1-pfx">$</span>
-                <input type="number" id="p1-pmt" min="0" step="10" oninput="onPmtInput(1)">
-              </div>
-            </div>
-          </div>
-
-          <!-- ── Period 3 (hidden) ── -->
-          <div class="period-block" id="pb-2" style="display:none">
-            <hr class="section-divider">
-            <div class="period-hdr">
-              <div class="section-label" data-i18n-tpl="cmr.period_label" data-i18n-n="3">Period 3</div>
-              <button class="period-remove" onclick="removePeriod(2)" data-i18n="cmr.btn.remove_period">Remove</button>
-            </div>
-            <div class="input-group">
-              <label data-i18n="cln.input.rate">Annual Interest Rate</label>
-              <div class="input-wrapper">
-                <input type="number" id="p2-rate" value="12" min="0" max="200" step="0.1" oninput="calculate()">
-                <span class="input-suffix">%</span>
-              </div>
-            </div>
-            <div class="input-group">
-              <label data-i18n="cmr.input.period_start">Period Start Date</label>
-              <div class="input-wrapper">
-                <input type="date" id="p2-date" oninput="calculate()">
-              </div>
-              <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
-            </div>
-            <div class="input-group">
-              <div class="payment-label-row">
-                <label data-i18n="cln.input.payment">Monthly Payment</label>
-                <span class="auto-badge" id="p2-auto" data-i18n="cln.input.payment_auto">auto</span>
-                <button class="reset-link" id="p2-reset" onclick="resetPmt(2)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
-              </div>
-              <div class="input-wrapper">
-                <span class="input-prefix" id="p2-pfx">$</span>
-                <input type="number" id="p2-pmt" min="0" step="10" oninput="onPmtInput(2)">
-              </div>
-            </div>
-          </div>
-
-          <!-- ── Period 4 (hidden) ── -->
-          <div class="period-block" id="pb-3" style="display:none">
-            <hr class="section-divider">
-            <div class="period-hdr">
-              <div class="section-label" data-i18n-tpl="cmr.period_label" data-i18n-n="4">Period 4</div>
-              <button class="period-remove" onclick="removePeriod(3)" data-i18n="cmr.btn.remove_period">Remove</button>
-            </div>
-            <div class="input-group">
-              <label data-i18n="cln.input.rate">Annual Interest Rate</label>
-              <div class="input-wrapper">
-                <input type="number" id="p3-rate" value="15" min="0" max="200" step="0.1" oninput="calculate()">
-                <span class="input-suffix">%</span>
-              </div>
-            </div>
-            <div class="input-group">
-              <label data-i18n="cmr.input.period_start">Period Start Date</label>
-              <div class="input-wrapper">
-                <input type="date" id="p3-date" oninput="calculate()">
-              </div>
-              <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
-            </div>
-            <div class="input-group">
-              <div class="payment-label-row">
-                <label data-i18n="cln.input.payment">Monthly Payment</label>
-                <span class="auto-badge" id="p3-auto" data-i18n="cln.input.payment_auto">auto</span>
-                <button class="reset-link" id="p3-reset" onclick="resetPmt(3)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
-              </div>
-              <div class="input-wrapper">
-                <span class="input-prefix" id="p3-pfx">$</span>
-                <input type="number" id="p3-pmt" min="0" step="10" oninput="onPmtInput(3)">
-              </div>
-            </div>
-          </div>
-
-        </div><!-- end periodsContainer -->
-
-        <button class="btn-secondary" id="addPeriodBtn" onclick="addPeriod()" data-i18n="cmr.btn.add_period">+ Add Rate Period</button>
-
-        <hr class="section-divider">
-
         <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
 
       </div>
@@ -367,6 +249,149 @@
     </div>
 
   </div><!-- end calc-grid -->
+
+  <!-- ── RATE PERIODS ──────────────────────────────────────────────────── -->
+  <div style="margin-bottom:1.25rem">
+    <div class="section-label" style="margin-bottom:.6rem;font-size:.8rem;font-weight:700;color:var(--green-800);text-transform:uppercase;letter-spacing:.04em" data-i18n="cmr.section.periods">Rate Periods</div>
+    <div class="period-cards-row" id="periodsRow">
+
+      <!-- Period 1 — Green -->
+      <div class="period-card pc0" id="pcard-0">
+        <div class="period-card-hdr"><span>Period 1</span></div>
+        <div class="period-card-body">
+          <div class="input-group">
+            <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+            <div class="input-wrapper">
+              <input type="number" id="p0-rate" value="0" min="0" max="200" step="0.1" oninput="onMainInput()">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="cln.input.first_payment">First Payment Date</label>
+            <div class="input-wrapper"><input type="date" id="p0-date" oninput="calculate()"></div>
+            <div class="input-hint" data-i18n="cln.hint.first_payment">Optional — auto-set to 1 month after start</div>
+          </div>
+          <div class="input-group">
+            <div class="payment-label-row">
+              <label data-i18n="cln.input.payment">Monthly Payment</label>
+              <span class="auto-badge" id="p0-auto" data-i18n="cln.input.payment_auto">auto</span>
+              <button class="reset-link" id="p0-reset" onclick="resetPmt(0)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="p0-pfx">$</span>
+              <input type="number" id="p0-pmt" min="0" step="10" oninput="onPmtInput(0)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Period 2 — Amber (hidden) -->
+      <div class="period-card pc1" id="pcard-1" style="display:none">
+        <div class="period-card-hdr">
+          <span>Period 2</span>
+          <button class="pcard-remove" onclick="removePeriod(1)" data-i18n="cmr.btn.remove_period">✕ Remove</button>
+        </div>
+        <div class="period-card-body">
+          <div class="input-group">
+            <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+            <div class="input-wrapper">
+              <input type="number" id="p1-rate" value="9" min="0" max="200" step="0.1" oninput="calculate()">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="cmr.input.period_start">Period Start Date</label>
+            <div class="input-wrapper"><input type="date" id="p1-date" oninput="calculate()"></div>
+            <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
+          </div>
+          <div class="input-group">
+            <div class="payment-label-row">
+              <label data-i18n="cln.input.payment">Monthly Payment</label>
+              <span class="auto-badge" id="p1-auto" data-i18n="cln.input.payment_auto">auto</span>
+              <button class="reset-link" id="p1-reset" onclick="resetPmt(1)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="p1-pfx">$</span>
+              <input type="number" id="p1-pmt" min="0" step="10" oninput="onPmtInput(1)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Period 3 — Blue (hidden) -->
+      <div class="period-card pc2" id="pcard-2" style="display:none">
+        <div class="period-card-hdr">
+          <span>Period 3</span>
+          <button class="pcard-remove" onclick="removePeriod(2)" data-i18n="cmr.btn.remove_period">✕ Remove</button>
+        </div>
+        <div class="period-card-body">
+          <div class="input-group">
+            <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+            <div class="input-wrapper">
+              <input type="number" id="p2-rate" value="12" min="0" max="200" step="0.1" oninput="calculate()">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="cmr.input.period_start">Period Start Date</label>
+            <div class="input-wrapper"><input type="date" id="p2-date" oninput="calculate()"></div>
+            <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
+          </div>
+          <div class="input-group">
+            <div class="payment-label-row">
+              <label data-i18n="cln.input.payment">Monthly Payment</label>
+              <span class="auto-badge" id="p2-auto" data-i18n="cln.input.payment_auto">auto</span>
+              <button class="reset-link" id="p2-reset" onclick="resetPmt(2)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="p2-pfx">$</span>
+              <input type="number" id="p2-pmt" min="0" step="10" oninput="onPmtInput(2)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Period 4 — Purple (hidden) -->
+      <div class="period-card pc3" id="pcard-3" style="display:none">
+        <div class="period-card-hdr">
+          <span>Period 4</span>
+          <button class="pcard-remove" onclick="removePeriod(3)" data-i18n="cmr.btn.remove_period">✕ Remove</button>
+        </div>
+        <div class="period-card-body">
+          <div class="input-group">
+            <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+            <div class="input-wrapper">
+              <input type="number" id="p3-rate" value="15" min="0" max="200" step="0.1" oninput="calculate()">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="cmr.input.period_start">Period Start Date</label>
+            <div class="input-wrapper"><input type="date" id="p3-date" oninput="calculate()"></div>
+            <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
+          </div>
+          <div class="input-group">
+            <div class="payment-label-row">
+              <label data-i18n="cln.input.payment">Monthly Payment</label>
+              <span class="auto-badge" id="p3-auto" data-i18n="cln.input.payment_auto">auto</span>
+              <button class="reset-link" id="p3-reset" onclick="resetPmt(3)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="p3-pfx">$</span>
+              <input type="number" id="p3-pmt" min="0" step="10" oninput="onPmtInput(3)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Period placeholder card -->
+      <div class="period-add-card" id="addPeriodCard" onclick="addPeriod()">
+        <span class="pcard-plus">+</span>
+        <span data-i18n="cmr.btn.add_period">Add Rate Period</span>
+      </div>
+
+    </div>
+  </div>
 
   <!-- ── CHART ─────────────────────────────────────────────────────────── -->
   <div class="card chart-card">
@@ -563,23 +588,23 @@ function calcPMT(balance, annualRate, nMonths) {
 // ── Period management ──────────────────────────────────────────────────────────
 function addPeriod() {
   if (numPeriods >= MAX_PERIODS) return;
-  document.getElementById(`pb-${numPeriods}`).style.display = '';
+  document.getElementById(`pcard-${numPeriods}`).style.display = '';
   numPeriods++;
-  document.getElementById('addPeriodBtn').style.display = numPeriods >= MAX_PERIODS ? 'none' : '';
+  document.getElementById('addPeriodCard').style.display = numPeriods >= MAX_PERIODS ? 'none' : '';
   calculate();
 }
 
 function removePeriod(idx) {
-  // Remove the last visible period (always remove the last, button is only on last-shown)
+  // Always removes the last visible period
   numPeriods--;
-  document.getElementById(`pb-${numPeriods}`).style.display = 'none';
+  document.getElementById(`pcard-${numPeriods}`).style.display = 'none';
   // Clear hidden period's fields
   const dateEl = document.getElementById(`p${numPeriods}-date`);
   if (dateEl) dateEl.value = '';
   pTouched[numPeriods] = false;
   document.getElementById(`p${numPeriods}-auto`).style.display = '';
   document.getElementById(`p${numPeriods}-reset`).style.display = 'none';
-  document.getElementById('addPeriodBtn').style.display = '';
+  document.getElementById('addPeriodCard').style.display = '';
   calculate();
 }
 
