@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="cmr.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compound Loan — Multiple Rates – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* Payment label row */
+    .payment-label-row { display:flex; align-items:baseline; gap:.4rem; }
+    .payment-label-row label { flex:1; }
+    .auto-badge  { font-size:.68rem; font-weight:600; color:var(--green-700); background:var(--green-50); border:1px solid var(--green-200); border-radius:3px; padding:0 4px; }
+    .reset-link  { font-size:.72rem; color:var(--green-700); cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
+    .reset-link:hover { color:var(--green-900); }
+
+    /* Period blocks */
+    .period-block { padding-top:.6rem; }
+    .period-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:.3rem; }
+    .period-hdr .section-label { margin:0; }
+    .period-remove { font-size:.72rem; color:#92400e; cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
+    .period-remove:hover { color:#7c2d12; }
+    #addPeriodBtn { margin-top:.5rem; width:100%; }
+
+    /* Period results in summary card */
+    .period-result-row { display:flex; justify-content:space-between; align-items:center; padding:.45rem 0; border-bottom:1px solid var(--green-100); }
+    .period-result-row:last-of-type { border-bottom:none; }
+    .period-result-info { }
+    .period-result-label { font-weight:600; font-size:.88rem; color:var(--green-900); }
+    .period-result-dates { font-size:.72rem; color:var(--green-600); margin-top:.1rem; }
+    .period-result-pmt { font-size:1.05rem; font-weight:700; color:var(--green-700); white-space:nowrap; }
+    .period-result-pmt span { font-size:.72rem; font-weight:400; }
+
+    /* Schedule extras */
+    .sched-totals td { font-weight:700; background:var(--green-50); border-top:2px solid var(--green-300); }
+    tr.period-start td { border-top:2.5px solid #92400e; }
+    input[type="date"] { font-family:inherit; }
+    .input-hint { font-size:.72rem; color:var(--green-600); margin-top:.2rem; }
+    .sched-sel  { font-size:.78rem; padding:2px 4px; border:1px solid #ccc; border-radius:3px; background:white; }
+    .sched-num  { font-size:.78rem; width:6rem; padding:2px 4px; border:1px solid #ccc; border-radius:3px; text-align:right; }
+    .sched-txt  { font-size:.78rem; width:8rem; padding:2px 4px; border:1px solid #ccc; border-radius:3px; }
+
+    /* Late fees section */
+    .late-summary { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.75rem; margin-top:1rem; }
+    .late-sum-item { background:var(--green-50); border:1px solid var(--green-200); border-radius:var(--radius); padding:.6rem .9rem; }
+    .late-sum-item .r-label { font-size:.72rem; }
+    .late-sum-item .r-value { font-size:1.1rem; font-weight:700; color:var(--green-700); }
+    .late-sum-item.highlight .r-value { color:#92400e; }
+    .no-overdue { color:var(--green-700); font-size:.88rem; padding:.75rem 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" class="active" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="cmr.bread">Compound Loan — Multiple Rates</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="cmr.print_title">Compound Loan — Multiple Rates</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="cmr.page_title">Compound Loan — Multiple Rates</h2>
+    <p data-i18n="cmr.page_desc">Build a full amortisation schedule for a loan with changing interest rate periods. Track actual payments and calculate overdue penalty fees.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── INPUTS ───────────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-body">
+
+        <!-- Currency -->
+        <div class="section-label" data-i18n="loan.section.currency">Currency</div>
+        <div class="currency-toggle" style="margin-bottom:.4rem">
+          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+        </div>
+        <div id="khrNote" class="input-hint" style="display:none;margin-bottom:.4rem" data-i18n="currency.khr_note">Exchange rate: 4,000 KHR = 1 USD (fixed)</div>
+
+        <hr class="section-divider" style="margin-top:0">
+
+        <!-- Loan Amount -->
+        <div class="input-group">
+          <label data-i18n="cln.input.loan_amount">Loan Amount</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx-loan">$</span>
+            <input type="number" id="loanAmount" value="10000" min="0" step="100" oninput="onMainInput()">
+          </div>
+        </div>
+
+        <!-- Term -->
+        <div class="input-group">
+          <label data-i18n="cln.input.term">Loan Term</label>
+          <div class="input-row">
+            <div class="input-wrapper">
+              <input type="number" id="termValue" value="2" min="1" step="1" oninput="onMainInput()">
+            </div>
+            <div class="input-wrapper">
+              <select id="termUnit" onchange="onMainInput()">
+                <option value="years" selected data-i18n="input.years">Years</option>
+                <option value="months" data-i18n="input.months">Months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loan Start Date -->
+        <div class="input-group">
+          <label data-i18n="cln.input.start_date">Loan Start Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate" oninput="onStartDateChange()">
+          </div>
+          <div class="input-hint" data-i18n="cln.hint.start_date">Optional — defaults to today</div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Day Count -->
+        <div class="input-group">
+          <label data-i18n="cln.input.day_count">Day Count Method</label>
+          <div class="input-wrapper">
+            <select id="dayCount" onchange="onMainInput()">
+              <option value="30_360" selected data-i18n="cln.day_count.30_360">30/360 (rate ÷ 12 per period)</option>
+              <option value="actual_360" data-i18n="cln.day_count.actual_360">Actual/360 (rate ÷ 360 × actual days)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Payment Delay Rule -->
+        <div class="input-group">
+          <label data-i18n="cln.input.delay_rule">Payment Date Rule</label>
+          <div class="input-wrapper">
+            <select id="delayRule" onchange="onMainInput()">
+              <option value="none" selected data-i18n="cln.delay.none">No adjustment</option>
+              <option value="skip_sun" data-i18n="cln.delay.skip_sun">Skip Sunday → Monday</option>
+              <option value="skip_sun_hol" data-i18n="cln.delay.skip_sun_hol">Skip Sunday &amp; Cambodian Holidays</option>
+              <option value="skip_sat_sun" data-i18n="cln.delay.skip_sat_sun">Skip Saturday &amp; Sunday → Monday</option>
+              <option value="skip_sat_sun_hol" data-i18n="cln.delay.skip_sat_sun_hol">Skip Sat, Sun &amp; Cambodian Holidays</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Penalty Rate -->
+        <div class="input-group">
+          <label data-i18n="cmr.input.penalty_rate">Penalty Rate (Annual)</label>
+          <div class="input-wrapper">
+            <input type="number" id="penaltyRate" value="27" min="0" max="200" step="0.5" oninput="updateLateFees()">
+            <span class="input-suffix">%</span>
+          </div>
+          <div class="input-hint" data-i18n="cmr.hint.penalty_rate">Applied to unpaid amounts in the overdue calculator below</div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Rate Periods -->
+        <div class="section-label" data-i18n="cmr.section.periods">Rate Periods</div>
+
+        <div id="periodsContainer">
+
+          <!-- ── Period 1 ── -->
+          <div class="period-block" id="pb-0">
+            <div class="input-group">
+              <label data-i18n="cln.input.rate">Annual Interest Rate — Period 1</label>
+              <div class="input-wrapper">
+                <input type="number" id="p0-rate" value="0" min="0" max="200" step="0.1" oninput="onMainInput()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label data-i18n="cln.input.first_payment">First Payment Date</label>
+              <div class="input-wrapper">
+                <input type="date" id="p0-date" oninput="calculate()">
+              </div>
+              <div class="input-hint" data-i18n="cln.hint.first_payment">Optional — auto-set to 1 month after start</div>
+            </div>
+            <div class="input-group">
+              <div class="payment-label-row">
+                <label data-i18n="cln.input.payment">Monthly Payment</label>
+                <span class="auto-badge" id="p0-auto" data-i18n="cln.input.payment_auto">auto</span>
+                <button class="reset-link" id="p0-reset" onclick="resetPmt(0)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+              </div>
+              <div class="input-wrapper">
+                <span class="input-prefix" id="p0-pfx">$</span>
+                <input type="number" id="p0-pmt" min="0" step="10" oninput="onPmtInput(0)">
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Period 2 (hidden) ── -->
+          <div class="period-block" id="pb-1" style="display:none">
+            <hr class="section-divider">
+            <div class="period-hdr">
+              <div class="section-label" data-i18n-tpl="cmr.period_label" data-i18n-n="2">Period 2</div>
+              <button class="period-remove" onclick="removePeriod(1)" data-i18n="cmr.btn.remove_period">Remove</button>
+            </div>
+            <div class="input-group">
+              <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+              <div class="input-wrapper">
+                <input type="number" id="p1-rate" value="9" min="0" max="200" step="0.1" oninput="calculate()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label data-i18n="cmr.input.period_start">Period Start Date</label>
+              <div class="input-wrapper">
+                <input type="date" id="p1-date" oninput="calculate()">
+              </div>
+              <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
+            </div>
+            <div class="input-group">
+              <div class="payment-label-row">
+                <label data-i18n="cln.input.payment">Monthly Payment</label>
+                <span class="auto-badge" id="p1-auto" data-i18n="cln.input.payment_auto">auto</span>
+                <button class="reset-link" id="p1-reset" onclick="resetPmt(1)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+              </div>
+              <div class="input-wrapper">
+                <span class="input-prefix" id="p1-pfx">$</span>
+                <input type="number" id="p1-pmt" min="0" step="10" oninput="onPmtInput(1)">
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Period 3 (hidden) ── -->
+          <div class="period-block" id="pb-2" style="display:none">
+            <hr class="section-divider">
+            <div class="period-hdr">
+              <div class="section-label" data-i18n-tpl="cmr.period_label" data-i18n-n="3">Period 3</div>
+              <button class="period-remove" onclick="removePeriod(2)" data-i18n="cmr.btn.remove_period">Remove</button>
+            </div>
+            <div class="input-group">
+              <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+              <div class="input-wrapper">
+                <input type="number" id="p2-rate" value="12" min="0" max="200" step="0.1" oninput="calculate()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label data-i18n="cmr.input.period_start">Period Start Date</label>
+              <div class="input-wrapper">
+                <input type="date" id="p2-date" oninput="calculate()">
+              </div>
+              <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
+            </div>
+            <div class="input-group">
+              <div class="payment-label-row">
+                <label data-i18n="cln.input.payment">Monthly Payment</label>
+                <span class="auto-badge" id="p2-auto" data-i18n="cln.input.payment_auto">auto</span>
+                <button class="reset-link" id="p2-reset" onclick="resetPmt(2)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+              </div>
+              <div class="input-wrapper">
+                <span class="input-prefix" id="p2-pfx">$</span>
+                <input type="number" id="p2-pmt" min="0" step="10" oninput="onPmtInput(2)">
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Period 4 (hidden) ── -->
+          <div class="period-block" id="pb-3" style="display:none">
+            <hr class="section-divider">
+            <div class="period-hdr">
+              <div class="section-label" data-i18n-tpl="cmr.period_label" data-i18n-n="4">Period 4</div>
+              <button class="period-remove" onclick="removePeriod(3)" data-i18n="cmr.btn.remove_period">Remove</button>
+            </div>
+            <div class="input-group">
+              <label data-i18n="cln.input.rate">Annual Interest Rate</label>
+              <div class="input-wrapper">
+                <input type="number" id="p3-rate" value="15" min="0" max="200" step="0.1" oninput="calculate()">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <label data-i18n="cmr.input.period_start">Period Start Date</label>
+              <div class="input-wrapper">
+                <input type="date" id="p3-date" oninput="calculate()">
+              </div>
+              <div class="input-hint" data-i18n="cmr.hint.period_start">First payment date of this rate period</div>
+            </div>
+            <div class="input-group">
+              <div class="payment-label-row">
+                <label data-i18n="cln.input.payment">Monthly Payment</label>
+                <span class="auto-badge" id="p3-auto" data-i18n="cln.input.payment_auto">auto</span>
+                <button class="reset-link" id="p3-reset" onclick="resetPmt(3)" style="display:none" data-i18n="cln.override_reset">reset to auto</button>
+              </div>
+              <div class="input-wrapper">
+                <span class="input-prefix" id="p3-pfx">$</span>
+                <input type="number" id="p3-pmt" min="0" step="10" oninput="onPmtInput(3)">
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end periodsContainer -->
+
+        <button class="btn-secondary" id="addPeriodBtn" onclick="addPeriod()" data-i18n="cmr.btn.add_period">+ Add Rate Period</button>
+
+        <hr class="section-divider">
+
+        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+
+      </div>
+    </div><!-- end inputs card -->
+
+    <!-- ── RESULTS ──────────────────────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
+        <div class="card-body">
+
+          <!-- Per-period payment summary (dynamic) -->
+          <div id="periodResults" style="margin-bottom:.75rem"></div>
+
+          <hr class="section-divider" style="margin-top:0">
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.total_paid">Total Amount Paid</div>
+              <div class="r-value" id="r-totalPaid">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.total_interest">Total Interest Paid</div>
+              <div class="r-value" id="r-totalInterest">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.num_payments">Number of Payments</div>
+              <div class="r-value" id="r-numPayments">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="cln.result.final_date">Final Payment Date</div>
+              <div class="r-value" id="r-finalDate">—</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── CHART ─────────────────────────────────────────────────────────── -->
+  <div class="card chart-card">
+    <div class="card-header" data-i18n="cln.chart.title">Loan Balance Over Time</div>
+    <div class="chart-container">
+      <canvas id="cmrChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ── SCHEDULE ──────────────────────────────────────────────────────── -->
+  <div class="card schedule-card">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem" data-i18n="cln.sched.title">Amortisation Schedule</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+      <span class="schedule-count" id="scheduleCount"></span>
+    </div>
+    <div class="schedule-wrapper" id="scheduleWrapper" style="display:none">
+      <table class="schedule-table" id="scheduleTable">
+        <thead>
+          <tr>
+            <th data-i18n="cln.sched.num">#</th>
+            <th data-i18n="cln.sched.date">Date</th>
+            <th class="days-col" data-i18n="cln.sched.days">Days</th>
+            <th data-i18n="cln.sched.principal">Principal</th>
+            <th data-i18n="cln.sched.interest">Interest</th>
+            <th data-i18n="cln.sched.payment">Payment</th>
+            <th data-i18n="cln.sched.balance">Balance</th>
+            <th data-i18n="cmr.sched.status">Status</th>
+            <th data-i18n="cmr.sched.paid">Paid</th>
+            <th data-i18n="cmr.sched.notes">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── LATE FEES / OVERDUE CALCULATOR ───────────────────────────────── -->
+  <div class="card" id="lateFeesCard">
+    <div class="card-header" data-i18n="cmr.late.section">Overdue Penalty Calculator</div>
+    <div class="card-body">
+      <p style="font-size:.83rem;color:var(--green-700);margin-bottom:.75rem" data-i18n="cmr.late.desc">Enter a date to see penalty fees on all unpaid or partially paid instalments.</p>
+
+      <div style="display:flex;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div class="input-group" style="margin:0;min-width:180px">
+          <label data-i18n="cmr.late.as_of">Calculate As Of</label>
+          <div class="input-wrapper">
+            <input type="date" id="lateAsOf" oninput="updateLateFees()">
+          </div>
+        </div>
+      </div>
+
+      <div id="lateFeesContent">
+        <!-- populated by updateLateFees() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRINT BAR ─────────────────────────────────────────────────────── -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#128424; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=12"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+// ── State ───────────────────────────────────────────────────────────────────
+let cmrChartInst  = null;
+let lastSchedule  = [];
+let lastPerData   = [];
+let currency      = 'USD';
+let numPeriods    = 1;
+const MAX_PERIODS = 4;
+const pTouched    = [false, false, false, false];
+
+// ── i18n shorthand ──────────────────────────────────────────────────────────
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+// ── Formatting ───────────────────────────────────────────────────────────────
+function fmtMoney(v) {
+  if (currency === 'KHR') return '៛ ' + Math.round(v).toLocaleString('en-US');
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+function currSym() { return currency === 'KHR' ? '៛' : '$'; }
+function getXR()   { return 4000; }
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+function fmtDateShort(d) {
+  return d.toLocaleDateString('en-GB', { month:'short', year:'numeric' });
+}
+function toISO(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function parseISO(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+// ── Currency toggle ───────────────────────────────────────────────────────────
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr = getXR();
+  const loanEl = document.getElementById('loanAmount');
+  if (loanEl) {
+    const v = parseFloat(loanEl.value) || 0;
+    loanEl.value = newCur === 'KHR' ? Math.round(v * xr) : (v / xr).toFixed(2);
+  }
+  for (let p = 0; p < MAX_PERIODS; p++) {
+    const el = document.getElementById(`p${p}-pmt`);
+    if (el && el.value) {
+      const v = parseFloat(el.value) || 0;
+      el.value = newCur === 'KHR' ? Math.round(v * xr) : (v / xr).toFixed(2);
+    }
+  }
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === newCur)
+  );
+  const khrNote = document.getElementById('khrNote');
+  if (khrNote) khrNote.style.display = newCur === 'KHR' ? '' : 'none';
+  const sym = currSym();
+  document.getElementById('pfx-loan').textContent = sym;
+  for (let p = 0; p < MAX_PERIODS; p++) {
+    const pfx = document.getElementById(`p${p}-pfx`);
+    if (pfx) pfx.textContent = sym;
+  }
+  onMainInput();
+}
+
+// ── Date utilities ─────────────────────────────────────────────────────────────
+function addOneMonth(date) {
+  const orig = date.getDate();
+  const d = new Date(date.getFullYear(), date.getMonth()+1, orig);
+  if (d.getDate() !== orig) d.setDate(0);
+  return d;
+}
+function daysBetween(a, b) {
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
+
+const _holCache = {};
+function getHolidays(year) {
+  if (_holCache[year]) return _holCache[year];
+  const h = new Set();
+  const add = (m, d) => h.add(year+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'));
+  [[1,1],[1,7],[4,13],[4,14],[4,15],[5,1],[5,13],[5,14],[5,15],
+   [6,18],[9,24],[10,23],[10,29],[11,9],[12,10]].forEach(([m,d])=>add(m,d));
+  _holCache[year] = h;
+  return h;
+}
+
+function adjustDate(date, rule) {
+  if (rule === 'none') return new Date(date);
+  let d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  for (let i = 0; i < 10; i++) {
+    const dow = d.getDay();
+    if (dow === 0) { d.setDate(d.getDate()+1); continue; }
+    if ((rule === 'skip_sat_sun' || rule === 'skip_sat_sun_hol') && dow === 6) {
+      d.setDate(d.getDate()+2); continue;
+    }
+    if (rule === 'skip_sun_hol' || rule === 'skip_sat_sun_hol') {
+      const hols = getHolidays(d.getFullYear());
+      if (hols.has(toISO(d))) { d.setDate(d.getDate()+1); continue; }
+    }
+    break;
+  }
+  return d;
+}
+
+// ── PMT ────────────────────────────────────────────────────────────────────────
+function calcPMT(balance, annualRate, nMonths) {
+  if (nMonths <= 0) return 0;
+  if (annualRate === 0) return balance / nMonths;
+  const r = annualRate / 12;
+  return balance * r / (1 - Math.pow(1+r, -nMonths));
+}
+
+// ── Period management ──────────────────────────────────────────────────────────
+function addPeriod() {
+  if (numPeriods >= MAX_PERIODS) return;
+  document.getElementById(`pb-${numPeriods}`).style.display = '';
+  numPeriods++;
+  document.getElementById('addPeriodBtn').style.display = numPeriods >= MAX_PERIODS ? 'none' : '';
+  calculate();
+}
+
+function removePeriod(idx) {
+  // Remove the last visible period (always remove the last, button is only on last-shown)
+  numPeriods--;
+  document.getElementById(`pb-${numPeriods}`).style.display = 'none';
+  // Clear hidden period's fields
+  const dateEl = document.getElementById(`p${numPeriods}-date`);
+  if (dateEl) dateEl.value = '';
+  pTouched[numPeriods] = false;
+  document.getElementById(`p${numPeriods}-auto`).style.display = '';
+  document.getElementById(`p${numPeriods}-reset`).style.display = 'none';
+  document.getElementById('addPeriodBtn').style.display = '';
+  calculate();
+}
+
+// ── Payment field management ───────────────────────────────────────────────────
+function onPmtInput(p) {
+  pTouched[p] = true;
+  document.getElementById(`p${p}-auto`).style.display  = 'none';
+  document.getElementById(`p${p}-reset`).style.display = '';
+  calculate();
+}
+
+function resetPmt(p) {
+  pTouched[p] = false;
+  document.getElementById(`p${p}-pmt`).value           = '';
+  document.getElementById(`p${p}-auto`).style.display  = '';
+  document.getElementById(`p${p}-reset`).style.display = 'none';
+  calculate();
+}
+
+function onMainInput() {
+  // Reset all untouched periods (they'll be refilled by calculate)
+  for (let p = 0; p < MAX_PERIODS; p++) {
+    if (!pTouched[p]) {
+      document.getElementById(`p${p}-auto`).style.display  = '';
+      document.getElementById(`p${p}-reset`).style.display = 'none';
+    }
+  }
+  calculate();
+}
+
+function onStartDateChange() {
+  const startStr = document.getElementById('startDate').value;
+  if (!startStr) { calculate(); return; }
+  const start    = parseISO(startStr);
+  const rule     = document.getElementById('delayRule').value;
+  const firstAdj = adjustDate(addOneMonth(start), rule);
+  const p0Date   = document.getElementById('p0-date');
+  if (p0Date) p0Date.value = toISO(firstAdj);
+  calculate();
+}
+
+// ── Multi-rate schedule builder ───────────────────────────────────────────────
+// perData: [{rate, firstDate, pmtOverride}] — mutated to add .autoPmt and .finalPmt
+function buildMultiRateSchedule(loan, nMonths, startDate, perData, dayCount, delayRule) {
+  const rows   = [];
+  let balance  = loan;
+  let prevDate = new Date(startDate);
+  let pmtNum   = 0;
+
+  for (let p = 0; p < perData.length; p++) {
+    if (balance < 0.005 || pmtNum >= nMonths) break;
+
+    const { rate, firstDate, pmtOverride } = perData[p];
+    const monthsRem = nMonths - pmtNum;
+
+    // Auto-PMT for this period based on current balance and remaining months
+    const autoPmt = calcPMT(balance, rate, monthsRem);
+    perData[p].autoPmt = autoPmt;
+
+    const thisPmt = (pmtOverride != null && pmtOverride > 0) ? pmtOverride : autoPmt;
+    perData[p].finalPmt = thisPmt;
+
+    // Next period's first date — determines when this period's payments end
+    const nextDate = (p + 1 < perData.length) ? perData[p+1].firstDate : null;
+
+    let curDate = new Date(firstDate);
+
+    while (pmtNum < nMonths && balance > 0.005) {
+      pmtNum++;
+      const days = daysBetween(prevDate, curDate);
+
+      let interest;
+      if (dayCount === '30_360') {
+        interest = balance * rate / 12;
+      } else {
+        interest = balance * rate / 360 * days;
+      }
+      interest = Math.round(interest * 100) / 100;
+
+      // Final payment for the whole loan, or balance clears early
+      let rowPmt;
+      if (pmtNum === nMonths || balance + interest <= Math.round(thisPmt * 100) / 100 + 0.005) {
+        rowPmt = Math.round((balance + interest) * 100) / 100;
+      } else {
+        rowPmt = Math.round(thisPmt * 100) / 100;
+      }
+
+      const principal = Math.round((rowPmt - interest) * 100) / 100;
+      balance = Math.max(0, Math.round((balance - principal) * 100) / 100);
+
+      rows.push({ num: pmtNum, date: new Date(curDate), days, principal, interest, payment: rowPmt, balance, period: p+1 });
+
+      prevDate = new Date(curDate);
+      if (balance < 0.005) break;
+
+      const nxt = adjustDate(addOneMonth(curDate), delayRule);
+      // Switch to next period if the next payment falls on or after its start date
+      if (nextDate && nxt >= nextDate) break;
+      curDate = nxt;
+    }
+  }
+
+  return rows;
+}
+
+// ── Main calculate ─────────────────────────────────────────────────────────────
+function calculate() {
+  const loan      = parseFloat(document.getElementById('loanAmount').value) || 0;
+  const termVal   = parseInt(document.getElementById('termValue').value, 10) || 1;
+  const termUnit  = document.getElementById('termUnit').value;
+  const nMonths   = termUnit === 'years' ? termVal * 12 : termVal;
+  const dayCount  = document.getElementById('dayCount').value;
+  const delayRule = document.getElementById('delayRule').value;
+  const startStr  = document.getElementById('startDate').value;
+
+  if (loan <= 0 || nMonths <= 0) { clearResults(); return; }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const startDate = startStr ? parseISO(startStr) : today;
+
+  // Collect period data
+  const perData = [];
+  for (let p = 0; p < numPeriods; p++) {
+    const rate     = (parseFloat(document.getElementById(`p${p}-rate`).value) || 0) / 100;
+    const dateStr  = document.getElementById(`p${p}-date`).value;
+    const pmtEl    = document.getElementById(`p${p}-pmt`);
+    const pmtOver  = pTouched[p] ? (parseFloat(pmtEl.value) || null) : null;
+
+    let firstDate;
+    if (p === 0) {
+      firstDate = dateStr ? parseISO(dateStr) : adjustDate(addOneMonth(startDate), delayRule);
+    } else {
+      if (!dateStr) { showError(T('cmr.error.period_date_required').replace('{n}', p+1)); return; }
+      firstDate = parseISO(dateStr);
+      if (firstDate <= startDate) { showError(T('cmr.error.period_date_order')); return; }
+    }
+
+    perData.push({ rate, firstDate, pmtOverride: pmtOver, autoPmt: 0, finalPmt: 0 });
+  }
+
+  // Validate first payment date is after start
+  if (perData[0].firstDate <= startDate) { showError(T('cmr.error.first_date_order')); return; }
+
+  // Build schedule
+  const schedule = buildMultiRateSchedule(loan, nMonths, startDate, perData, dayCount, delayRule);
+  lastSchedule = schedule;
+  lastPerData  = perData;
+
+  if (schedule.length === 0) { clearResults(); return; }
+
+  // Update untouched payment fields with computed auto values
+  for (let p = 0; p < numPeriods; p++) {
+    if (!pTouched[p]) {
+      const el = document.getElementById(`p${p}-pmt`);
+      const v  = perData[p].autoPmt;
+      el.value = (currency === 'KHR') ? Math.round(v).toString() : v.toFixed(2);
+    }
+  }
+
+  // Summary numbers
+  const totalPaid     = schedule.reduce((s,r) => s + r.payment,   0);
+  const totalInterest = schedule.reduce((s,r) => s + r.interest,  0);
+  const finalRow      = schedule[schedule.length - 1];
+
+  document.getElementById('r-totalPaid').textContent     = fmtMoney(totalPaid);
+  document.getElementById('r-totalInterest').textContent = fmtMoney(totalInterest);
+  document.getElementById('r-numPayments').textContent   = schedule.length;
+  document.getElementById('r-finalDate').textContent     = fmtDate(finalRow.date);
+
+  // Per-period payment summary
+  renderPeriodResults(perData, schedule);
+
+  // Print date
+  document.getElementById('printDate').textContent =
+    new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+
+  // Chart
+  drawChart(schedule, loan, perData);
+
+  // Schedule count
+  document.getElementById('scheduleCount').textContent = schedule.length + ' payments';
+
+  // Rebuild visible schedule table
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    renderScheduleTable(schedule, dayCount);
+  }
+
+  // Late fees
+  updateLateFees();
+}
+
+function clearResults() {
+  ['r-totalPaid','r-totalInterest','r-numPayments','r-finalDate'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = '—';
+  });
+  document.getElementById('periodResults').innerHTML = '';
+  document.getElementById('scheduleCount').textContent = '';
+  document.getElementById('lateFeesContent').innerHTML = '';
+  if (cmrChartInst) { cmrChartInst.destroy(); cmrChartInst = null; }
+}
+
+function showError(msg) {
+  clearResults();
+  document.getElementById('r-totalPaid').textContent = msg;
+}
+
+// ── Period results panel ──────────────────────────────────────────────────────
+function renderPeriodResults(perData, schedule) {
+  const container = document.getElementById('periodResults');
+  container.innerHTML = '';
+
+  for (let p = 0; p < perData.length; p++) {
+    const pd   = perData[p];
+    const rows = schedule.filter(r => r.period === p+1);
+    if (!rows.length) continue;
+
+    const firstRow = rows[0];
+    const lastRow  = rows[rows.length - 1];
+    const rateStr  = (pd.rate * 100).toFixed(1) + '%';
+    const pmtStr   = fmtMoney(pd.finalPmt);
+
+    const div = document.createElement('div');
+    div.className = 'period-result-row';
+    div.innerHTML =
+      `<div class="period-result-info">
+         <div class="period-result-label">${T('cmr.period_label').replace('{n}', p+1)} (${rateStr})</div>
+         <div class="period-result-dates">${fmtDate(firstRow.date)} &ndash; ${fmtDate(lastRow.date)} &nbsp;(${rows.length} pmts)</div>
+       </div>
+       <div class="period-result-pmt">${pmtStr}<span> /mo</span></div>`;
+    container.appendChild(div);
+  }
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function drawChart(schedule, loan, perData) {
+  const ctx = document.getElementById('cmrChart').getContext('2d');
+  if (cmrChartInst) cmrChartInst.destroy();
+
+  const step    = Math.max(1, Math.floor(schedule.length / 120));
+  const indices = [];
+  for (let i = 0; i < schedule.length; i++) {
+    if (i % step === 0 || i === schedule.length - 1) indices.push(i);
+  }
+
+  const labels    = indices.map(i => fmtDate(schedule[i].date));
+  const balances  = indices.map(i => Math.round(schedule[i].balance  * 100) / 100);
+
+  // Cumulative interest
+  let running = 0;
+  const cumInt = schedule.map(r => { running += r.interest; return running; });
+  const cumArr = indices.map(i => Math.round(cumInt[i] * 100) / 100);
+
+  const green700 = getComputedStyle(document.documentElement).getPropertyValue('--green-700').trim() || '#3b6e2f';
+  const amber    = '#d97706';
+
+  // Period transition annotations (vertical lines via background segment data)
+  // Simple approach: add null-separated series per period for colouring
+  cmrChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: T('cln.chart.balance'),
+          data: balances,
+          borderColor: green700,
+          backgroundColor: green700 + '22',
+          fill: true,
+          tension: 0.3,
+          pointRadius: schedule.length > 60 ? 0 : 3,
+          borderWidth: 2,
+          yAxisID: 'y'
+        },
+        {
+          label: T('cln.chart.cum_interest'),
+          data: cumArr,
+          borderColor: amber,
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 1.5,
+          borderDash: [5,3],
+          yAxisID: 'y'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode:'index', intersect:false },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: v => currSym() + v.toLocaleString('en-US') }
+        }
+      },
+      plugins: {
+        legend: { position:'bottom' },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': ' + fmtMoney(ctx.parsed.y)
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── Schedule table ─────────────────────────────────────────────────────────────
+function renderScheduleTable(schedule, dayCount) {
+  const tbody  = document.getElementById('scheduleBody');
+  const isAct  = dayCount === 'actual_360';
+  tbody.innerHTML = '';
+
+  let totPrincipal = 0, totInterest = 0, totPayment = 0;
+
+  // Period boundary row numbers (first row of each period > 1)
+  const periodStarts = new Set(
+    schedule.filter((r,i) => i > 0 && r.period !== schedule[i-1].period).map(r => r.num)
+  );
+
+  schedule.forEach(row => {
+    // Read existing status/paid/notes if row was previously rendered
+    const existingStatus = document.getElementById(`sched-s-${row.num}`)?.value || '';
+    const existingPaid   = document.getElementById(`sched-p-${row.num}`)?.value || '';
+    const existingNotes  = document.getElementById(`sched-n-${row.num}`)?.value || '';
+
+    const tr = document.createElement('tr');
+    if (periodStarts.has(row.num)) tr.classList.add('period-start');
+
+    const daysCell = isAct ? `<td>${row.days}</td>` : '<td class="days-col" style="display:none"></td>';
+
+    tr.innerHTML =
+      `<td>${row.num}</td>
+       <td>${fmtDate(row.date)}</td>
+       ${daysCell}
+       <td>${fmtMoney(row.principal)}</td>
+       <td>${fmtMoney(row.interest)}</td>
+       <td>${fmtMoney(row.payment)}</td>
+       <td>${fmtMoney(row.balance)}</td>
+       <td>
+         <select class="sched-sel" id="sched-s-${row.num}" onchange="updateLateFees()">
+           <option value=""   ${existingStatus===''        ?'selected':''}>&mdash;</option>
+           <option value="paid_full"    ${existingStatus==='paid_full'   ?'selected':''}>${T('cmr.status.paid_full')}</option>
+           <option value="partial"      ${existingStatus==='partial'     ?'selected':''}>${T('cmr.status.partial')}</option>
+         </select>
+       </td>
+       <td>
+         <div class="input-wrapper" style="min-width:0">
+           <span class="input-prefix" style="font-size:.75rem">${currSym()}</span>
+           <input type="number" class="sched-num" id="sched-p-${row.num}" value="${existingPaid}" min="0" step="1" oninput="updateLateFees()">
+         </div>
+       </td>
+       <td><input type="text" class="sched-txt" id="sched-n-${row.num}" value="${existingNotes}" maxlength="50"></td>`;
+
+    totPrincipal += row.principal;
+    totInterest  += row.interest;
+    totPayment   += row.payment;
+    tbody.appendChild(tr);
+  });
+
+  // Totals row
+  const tfoot = document.createElement('tr');
+  tfoot.className = 'sched-totals';
+  const daysBlank = isAct ? '<td></td>' : '<td class="days-col" style="display:none"></td>';
+  tfoot.innerHTML =
+    `<td colspan="2">${T('cln.sched.totals')}</td>
+     ${daysBlank}
+     <td>${fmtMoney(totPrincipal)}</td>
+     <td>${fmtMoney(totInterest)}</td>
+     <td>${fmtMoney(totPayment)}</td>
+     <td></td><td colspan="3"></td>`;
+  tbody.appendChild(tfoot);
+
+  // Hide/show days column header
+  const daysHead = document.querySelector('#scheduleTable thead th.days-col');
+  if (daysHead) daysHead.style.display = isAct ? '' : 'none';
+}
+
+// ── Schedule toggle ────────────────────────────────────────────────────────────
+function toggleSchedule() {
+  const wrapper = document.getElementById('scheduleWrapper');
+  const btn     = document.getElementById('toggleBtn');
+  if (wrapper.style.display === 'none') {
+    wrapper.style.display = '';
+    btn.setAttribute('data-i18n', 'schedule.hide');
+    btn.textContent = T('schedule.hide');
+    if (lastSchedule.length) {
+      renderScheduleTable(lastSchedule, document.getElementById('dayCount').value);
+    }
+  } else {
+    wrapper.style.display = 'none';
+    btn.setAttribute('data-i18n', 'schedule.show');
+    btn.textContent = T('schedule.show');
+  }
+}
+
+// ── Late fees / overdue calculator ────────────────────────────────────────────
+function updateLateFees() {
+  const asOfStr     = document.getElementById('lateAsOf').value;
+  const penaltyRate = (parseFloat(document.getElementById('penaltyRate').value) || 0) / 100;
+  const content     = document.getElementById('lateFeesContent');
+
+  if (!asOfStr || lastSchedule.length === 0) {
+    content.innerHTML = `<p class="no-overdue" data-i18n="cmr.late.no_calc">${T('cmr.late.no_calc')}</p>`;
+    return;
+  }
+
+  const asOf   = parseISO(asOfStr);
+  const overdue = [];
+
+  lastSchedule.forEach(row => {
+    if (row.date > asOf) return; // future payment — skip
+
+    const statusEl = document.getElementById(`sched-s-${row.num}`);
+    const paidEl   = document.getElementById(`sched-p-${row.num}`);
+    const status   = statusEl ? statusEl.value : '';
+    const paid     = paidEl   ? (parseFloat(paidEl.value) || 0) : 0;
+
+    if (status === 'paid_full') return; // fully paid
+
+    const unpaid = Math.max(0, Math.round((row.payment - paid) * 100) / 100);
+    if (unpaid < 0.005) return;
+
+    const daysOld = daysBetween(row.date, asOf);
+    const penalty = Math.round(unpaid * penaltyRate / 360 * daysOld * 100) / 100;
+
+    overdue.push({
+      date: row.date, num: row.num, daysOld,
+      scheduled: row.payment, paid,
+      unpaid, penalty,
+      total: Math.round((unpaid + penalty) * 100) / 100
+    });
+  });
+
+  if (overdue.length === 0) {
+    content.innerHTML = `<p class="no-overdue">${T('cmr.late.none')}</p>`;
+    return;
+  }
+
+  const totalUnpaid  = overdue.reduce((s,r) => s + r.unpaid,  0);
+  const totalPenalty = overdue.reduce((s,r) => s + r.penalty, 0);
+  const grandTotal   = Math.round((totalUnpaid + totalPenalty) * 100) / 100;
+
+  // Current remaining balance (last row's balance in schedule up to asOf)
+  const latestRow = [...lastSchedule].filter(r => r.date <= asOf).pop();
+  const remainingBalance = latestRow ? latestRow.balance : 0;
+
+  let html =
+    `<div style="overflow-x:auto">
+     <table class="schedule-table">
+       <thead><tr>
+         <th>${T('cmr.late.num')}</th>
+         <th>${T('cmr.late.date_col')}</th>
+         <th>${T('cmr.late.days_col')}</th>
+         <th>${T('cmr.late.installment')}</th>
+         <th>${T('cmr.late.paid_col')}</th>
+         <th>${T('cmr.late.unpaid_col')}</th>
+         <th>${T('cmr.late.penalty_col')}</th>
+         <th>${T('cmr.late.total_col')}</th>
+       </tr></thead>
+       <tbody>`;
+
+  overdue.forEach(r => {
+    html +=
+      `<tr>
+         <td>${r.num}</td>
+         <td>${fmtDate(r.date)}</td>
+         <td>${r.daysOld}</td>
+         <td>${fmtMoney(r.scheduled)}</td>
+         <td>${fmtMoney(r.paid)}</td>
+         <td>${fmtMoney(r.unpaid)}</td>
+         <td>${fmtMoney(r.penalty)}</td>
+         <td><strong>${fmtMoney(r.total)}</strong></td>
+       </tr>`;
+  });
+
+  html +=
+    `<tr class="sched-totals">
+       <td colspan="5">${T('cmr.late.total_row')}</td>
+       <td>${fmtMoney(totalUnpaid)}</td>
+       <td>${fmtMoney(totalPenalty)}</td>
+       <td><strong>${fmtMoney(grandTotal)}</strong></td>
+     </tr>
+     </tbody></table></div>
+     <div class="late-summary">
+       <div class="late-sum-item">
+         <div class="r-label">${T('cmr.late.remaining_loan')}</div>
+         <div class="r-value">${fmtMoney(remainingBalance)}</div>
+       </div>
+       <div class="late-sum-item highlight">
+         <div class="r-label">${T('cmr.late.total_penalty')}</div>
+         <div class="r-value">${fmtMoney(totalPenalty)}</div>
+       </div>
+       <div class="late-sum-item highlight">
+         <div class="r-label">${T('cmr.late.grand_total')}</div>
+         <div class="r-value">${fmtMoney(grandTotal)}</div>
+       </div>
+     </div>`;
+
+  content.innerHTML = html;
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('printDate').textContent =
+    new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  calculate();
+});
+</script>
+</body>
+</html>
