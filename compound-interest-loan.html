@@ -179,6 +179,8 @@
               <option value="none" selected data-i18n="cln.delay.none">No adjustment</option>
               <option value="skip_sun" data-i18n="cln.delay.skip_sun">Skip Sunday → Monday</option>
               <option value="skip_sun_hol" data-i18n="cln.delay.skip_sun_hol">Skip Sunday &amp; Cambodian Holidays</option>
+              <option value="skip_sat_sun" data-i18n="cln.delay.skip_sat_sun">Skip Saturday &amp; Sunday → Monday</option>
+              <option value="skip_sat_sun_hol" data-i18n="cln.delay.skip_sat_sun_hol">Skip Sat, Sun &amp; Cambodian Holidays</option>
             </select>
           </div>
         </div>
@@ -278,7 +280,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=8"></script>
+<script src="lang.js?v=9"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
@@ -371,13 +373,16 @@ function adjustDate(date, rule) {
   if (rule === 'none') return new Date(date);
   let d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   for (let i = 0; i < 10; i++) {
-    let moved = false;
-    if (d.getDay() === 0) { d.setDate(d.getDate() + 1); moved = true; continue; }
-    if (rule === 'skip_sun_hol') {
-      const hols = getHolidays(d.getFullYear());
-      if (hols.has(toISO(d))) { d.setDate(d.getDate() + 1); moved = true; continue; }
+    const dow = d.getDay();
+    if (dow === 0) { d.setDate(d.getDate() + 1); continue; }           // Sunday → Monday
+    if ((rule === 'skip_sat_sun' || rule === 'skip_sat_sun_hol') && dow === 6) {
+      d.setDate(d.getDate() + 2); continue;                             // Saturday → Monday
     }
-    if (!moved) break;
+    if (rule === 'skip_sun_hol' || rule === 'skip_sat_sun_hol') {
+      const hols = getHolidays(d.getFullYear());
+      if (hols.has(toISO(d))) { d.setDate(d.getDate() + 1); continue; } // Holiday → next day
+    }
+    break;
   }
   return d;
 }
