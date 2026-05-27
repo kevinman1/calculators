@@ -509,7 +509,7 @@ const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','
 const MONTHS_KM = ['មករា','កុម្ភៈ','មីនា','មេសា','ឧសភា','មិថុនា','កក្កដា','សីហា','កញ្ញា','តុលា','វិច្ឆិកា','ធ្នូ'];
 
 function fmtMonth(y, m) {
-  const lang = (typeof WFC !== 'undefined') ? WFC.currentLang() : 'en';
+  const lang = (typeof WFC !== 'undefined') ? WFC.getLang() : 'en';
   const names = lang === 'km' ? MONTHS_KM : MONTHS_EN;
   return names[m - 1] + ' ' + y;
 }

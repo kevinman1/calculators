@@ -275,6 +275,7 @@
 </footer>
 
 <script src="lang.js?v=14"></script>
+<script src="holidays.js?v=1"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
@@ -352,17 +353,8 @@ function daysBetween(a, b) {
   return Math.round((b.getTime() - a.getTime()) / 86400000);
 }
 
-// Cambodia fixed public holidays (returned as Set of ISO strings for a given year)
-const _holCache = {};
-function getHolidays(year) {
-  if (_holCache[year]) return _holCache[year];
-  const h = new Set();
-  const add = (m, d) => h.add(year + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0'));
-  [[1,1],[1,7],[4,13],[4,14],[4,15],[5,1],[5,13],[5,14],[5,15],
-   [6,18],[9,24],[10,23],[10,29],[11,9],[12,10]].forEach(([m,d]) => add(m,d));
-  _holCache[year] = h;
-  return h;
-}
+// Cambodia public holidays — loaded from holidays.js → window.WFC_HOLIDAYS
+const HOLIDAYS = window.WFC_HOLIDAYS || new Set();
 
 function adjustDate(date, rule) {
   if (rule === 'none') return new Date(date);
@@ -374,8 +366,7 @@ function adjustDate(date, rule) {
       d.setDate(d.getDate() + 2); continue;                             // Saturday → Monday
     }
     if (rule === 'skip_sun_hol' || rule === 'skip_sat_sun_hol') {
-      const hols = getHolidays(d.getFullYear());
-      if (hols.has(toISO(d))) { d.setDate(d.getDate() + 1); continue; } // Holiday → next day
+      if (HOLIDAYS.has(toISO(d))) { d.setDate(d.getDate() + 1); continue; } // Holiday → next day
     }
     break;
   }

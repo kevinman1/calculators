@@ -55,6 +55,124 @@
     }
     /* editor */
     #editorSection { display: none; }
+
+    /* ── Admin tab switcher ── */
+    .admin-tabs {
+      display: flex; gap: .4rem; margin-bottom: 1.1rem;
+    }
+    .admin-tab {
+      padding: .45rem 1rem;
+      border: 1.5px solid var(--green-200);
+      border-radius: 5px 5px 0 0;
+      background: var(--green-50);
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text-medium);
+      border-bottom: none;
+      transition: background .15s;
+    }
+    .admin-tab:hover { background: var(--green-100); }
+    .admin-tab.active {
+      background: white;
+      color: var(--green-800);
+      border-color: var(--green-300);
+      border-bottom: 1.5px solid white;
+      margin-bottom: -1px;
+      position: relative; z-index: 1;
+    }
+    .admin-tab-panel { border-top: 1.5px solid var(--green-300); padding-top: 1.1rem; }
+
+    /* ── Holiday calendar editor ── */
+    .hol-year-tabs {
+      display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: 1rem;
+    }
+    .hol-year-btn {
+      padding: .28rem .65rem;
+      border: 1.5px solid var(--green-200);
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-medium);
+    }
+    .hol-year-btn:hover { background: var(--green-50); border-color: var(--green-400); }
+    .hol-year-btn.active { background: var(--green-700); color: white; border-color: var(--green-700); }
+    .hol-year-btn .hol-count { font-size: .68rem; opacity: .8; margin-left: .2rem; }
+
+    .hol-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .75rem;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 900px) { .hol-cal-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 620px) { .hol-cal-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .month-block {
+      background: white;
+      border: 1px solid var(--green-100);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .month-block-hdr {
+      background: var(--green-700);
+      color: white;
+      padding: .28rem .55rem;
+      font-size: .74rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      text-align: center;
+    }
+    .month-day-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      padding: .25rem .2rem .3rem;
+      background: var(--green-50);
+    }
+    .cal-hdr {
+      font-size: .58rem;
+      color: var(--text-light);
+      text-align: center;
+      font-weight: 700;
+      padding: .1rem 0 .2rem;
+      background: white;
+    }
+    .cal-day {
+      font-size: .7rem;
+      text-align: center;
+      padding: .22rem .05rem;
+      border-radius: 3px;
+      cursor: pointer;
+      line-height: 1.3;
+      background: white;
+      transition: background .1s;
+      user-select: none;
+    }
+    .cal-day:hover { background: var(--green-100); }
+    .cal-day.holiday {
+      background: var(--green-600);
+      color: white;
+      font-weight: 700;
+    }
+    .cal-day.holiday:hover { background: var(--green-800); }
+    .cal-day.today { outline: 2px solid var(--green-400); outline-offset: -1px; }
+    .cal-empty { background: white; }
+
+    .hol-note {
+      font-size: .78rem; color: var(--text-light);
+      background: var(--green-50); border: 1px solid var(--green-100);
+      border-radius: 6px; padding: .55rem .9rem; margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .hol-legend { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .hol-legend-item { display: flex; align-items: center; gap: .3rem; font-size: .78rem; color: var(--text-medium); }
+    .leg-swatch { width: 14px; height: 14px; border-radius: 3px; }
+    .leg-green { background: var(--green-600); }
+    .leg-outline { background: white; outline: 2px solid var(--green-400); outline-offset: -1px; }
+
     .admin-toolbar {
       background: white;
       border-radius: 8px;
@@ -201,14 +319,47 @@
 
   <!-- ── Editor ── -->
   <div id="editorSection">
-    <div class="admin-toolbar">
-      <h2>Translation Editor</h2>
-      <div class="toolbar-btns">
-        <span class="save-status" id="saveStatus">Unsaved changes</span>
-        <button class="btn-secondary" onclick="saveTranslations()">💾 Save to GitHub</button>
-      </div>
+
+    <!-- Tab switcher -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="tab-translations" onclick="switchAdminTab('translations')">📝 Translations</button>
+      <button class="admin-tab"        id="tab-holidays"     onclick="switchAdminTab('holidays')">🗓 Holidays</button>
     </div>
-    <div id="editorContent"></div>
+
+    <!-- Translations panel -->
+    <div class="admin-tab-panel" id="panel-translations">
+      <div class="admin-toolbar">
+        <h2>Translation Editor</h2>
+        <div class="toolbar-btns">
+          <span class="save-status" id="saveStatus">Unsaved changes</span>
+          <button class="btn-secondary" onclick="saveTranslations()">💾 Save to GitHub</button>
+        </div>
+      </div>
+      <div id="editorContent"></div>
+    </div>
+
+    <!-- Holidays panel -->
+    <div class="admin-tab-panel" id="panel-holidays" style="display:none">
+      <div class="admin-toolbar">
+        <h2>Cambodia Holiday Editor</h2>
+        <div class="toolbar-btns">
+          <span class="save-status" id="holStatus">Loading…</span>
+          <button class="btn-secondary" onclick="saveHolidays()">💾 Save to GitHub</button>
+        </div>
+      </div>
+      <div class="hol-note">
+        Click any date to mark or unmark it as a public holiday. Green dates are holidays and will cause
+        payment dates to be adjusted forward. Changes take effect after saving to GitHub.
+      </div>
+      <div class="hol-legend">
+        <div class="hol-legend-item"><span class="leg-swatch leg-green"></span> Holiday (click to remove)</div>
+        <div class="hol-legend-item"><span class="leg-swatch" style="background:white;border:1px solid var(--green-200)"></span> Not a holiday (click to add)</div>
+        <div class="hol-legend-item"><span class="leg-swatch leg-outline"></span> Today</div>
+      </div>
+      <div class="hol-year-tabs" id="holYearTabs"></div>
+      <div class="hol-cal-grid" id="holCalGrid"></div>
+    </div>
+
   </div>
 
 </div>
@@ -459,6 +610,9 @@ async function login() {
     document.getElementById('logoutBtn').style.display      = 'inline';
     buildEditor();
 
+    // Also load holidays.js (non-blocking — holiday tab loads lazily)
+    loadHolidaysFromGitHub();
+
   } catch (e) {
     document.getElementById('loginError').style.display = 'block';
     document.getElementById('loginError').textContent   = 'Error: ' + e.message;
@@ -626,16 +780,224 @@ function buildLangJs() {
   return 'window.WFC_STRINGS = ' + JSON.stringify({ en: mergedEn, km: mergedKm }, null, 2) + ';\n';
 }
 
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchAdminTab(tab) {
+  ['translations','holidays'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('panel-' + t).style.display = t === tab ? '' : 'none';
+  });
+  if (tab === 'holidays') buildHolCalendar(holCurrentYear);
+}
+
+// ── Holiday editor state ──────────────────────────────────────────────────
+const HOL_FILEPATH  = 'holidays.js';
+let holSHA          = '';
+let holDates        = new Set();  // live editable copy
+let holCurrentYear  = new Date().getFullYear();
+const HOL_MONTHS    = ['January','February','March','April','May','June',
+                       'July','August','September','October','November','December'];
+const HOL_YEARS     = Array.from({length:15}, (_,i) => 2021+i);
+
+// Named lookup for known fixed holidays (MM-DD → label)
+const HOL_NAMES = {
+  '01-01': "New Year's Day",
+  '01-07': 'Victory Day',
+  '03-08': "International Women's Day",
+  '04-13': 'Khmer New Year (Day 1)',
+  '04-14': 'Khmer New Year (Day 2)',
+  '04-15': 'Khmer New Year (Day 3)',
+  '04-16': 'Khmer New Year (Day 4)',
+  '05-01': 'International Labour Day',
+  '05-13': "King Sihamoni's Birthday (Day 1)",
+  '05-14': "King Sihamoni's Birthday (Day 2)",
+  '05-15': "King Sihamoni's Birthday (Day 3)",
+  '06-18': "Queen Mother's Birthday",
+  '09-24': 'Constitution Day',
+  '10-15': "King Sihanouk Memorial Day",
+  '10-23': 'Paris Peace Agreement Day',
+  '10-29': "King Sihamoni's Coronation Day",
+  '11-09': 'Independence Day',
+  '12-10': 'Human Rights Day',
+};
+
+function holName(dateStr) {
+  const mmdd = dateStr.slice(5);
+  return HOL_NAMES[mmdd] || '';
+}
+
+// ── Load holidays.js from GitHub ─────────────────────────────────────────
+async function loadHolidaysFromGitHub() {
+  setHolStatus('Loading holidays.js…', '');
+  try {
+    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + HOL_FILEPATH, {
+      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    holSHA = data.sha;
+    const bytes = Uint8Array.from(atob(data.content.replace(/\n/g,'')), c => c.charCodeAt(0));
+    const raw   = new TextDecoder('utf-8').decode(bytes);
+    parseHolidaysRaw(raw);
+    buildHolYearTabs();
+    setHolStatus('Loaded from GitHub ✓', 'ok');
+  } catch (e) {
+    setHolStatus('Could not load holidays.js: ' + e.message, 'err');
+  }
+}
+
+function parseHolidaysRaw(raw) {
+  // Format: new Set('2021-01-01,2021-01-07,...'.split(','))
+  const m = raw.match(/new Set\('([^']+)'\.split/);
+  if (m) {
+    holDates = new Set(m[1].split(',').filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)));
+  } else {
+    holDates = new Set();
+  }
+}
+
+// ── Build year tab row ────────────────────────────────────────────────────
+function buildHolYearTabs() {
+  const container = document.getElementById('holYearTabs');
+  container.innerHTML = '';
+  HOL_YEARS.forEach(y => {
+    const cnt = [...holDates].filter(d => d.startsWith(y + '-')).length;
+    const btn = document.createElement('button');
+    btn.className = 'hol-year-btn' + (y === holCurrentYear ? ' active' : '');
+    btn.innerHTML = y + '<span class="hol-count">(' + cnt + ')</span>';
+    btn.onclick = () => { holCurrentYear = y; buildHolYearTabs(); buildHolCalendar(y); };
+    container.appendChild(btn);
+  });
+}
+
+// ── Build 12-month calendar for a year ───────────────────────────────────
+function buildHolCalendar(year) {
+  const grid = document.getElementById('holCalGrid');
+  const todayISO = (new Date()).toISOString().slice(0,10);
+  grid.innerHTML = '';
+
+  for (let mo = 1; mo <= 12; mo++) {
+    const block = document.createElement('div');
+    block.className = 'month-block';
+    block.innerHTML = '<div class="month-block-hdr">' + HOL_MONTHS[mo-1] + '</div>';
+
+    const dayGrid = document.createElement('div');
+    dayGrid.className = 'month-day-grid';
+
+    // Headers: Mon Tue Wed Thu Fri Sat Sun
+    'MTWTFSS'.split('').forEach(l => {
+      const h = document.createElement('span');
+      h.className = 'cal-hdr'; h.textContent = l;
+      dayGrid.appendChild(h);
+    });
+
+    const firstDow = (new Date(year, mo-1, 1).getDay() + 6) % 7; // Mon=0
+    const lastDate = new Date(year, mo, 0).getDate();
+
+    // Empty cells before day 1
+    for (let i = 0; i < firstDow; i++) {
+      const e = document.createElement('span');
+      e.className = 'cal-day cal-empty';
+      dayGrid.appendChild(e);
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+      const iso = year + '-' + String(mo).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      const isHol = holDates.has(iso);
+      const isToday = iso === todayISO;
+      const span = document.createElement('span');
+      let cls = 'cal-day' + (isHol ? ' holiday' : '') + (isToday ? ' today' : '');
+      span.className = cls;
+      span.textContent = d;
+      const name = holName(iso);
+      span.title = iso + (name ? ' — ' + name : '');
+      span.onclick = () => toggleHoliday(iso);
+      dayGrid.appendChild(span);
+    }
+
+    block.appendChild(dayGrid);
+    grid.appendChild(block);
+  }
+}
+
+// ── Toggle a date ─────────────────────────────────────────────────────────
+function toggleHoliday(iso) {
+  if (holDates.has(iso)) {
+    holDates.delete(iso);
+  } else {
+    holDates.add(iso);
+  }
+  setHolStatus('Unsaved changes', '');
+  buildHolYearTabs();
+  buildHolCalendar(holCurrentYear);
+}
+
+// ── Save holidays.js to GitHub ────────────────────────────────────────────
+async function saveHolidays() {
+  setHolStatus('Saving…', '');
+  document.querySelector('[onclick="saveHolidays()"]').disabled = true;
+  try {
+    const sorted = [...holDates].sort();
+    const dateStr = sorted.join(',');
+    const today   = new Date().toISOString().slice(0,10);
+    const content = '// Cambodia Public Holidays 2021-2035\n'
+                  + '// Source: Royal Government of Cambodia\n'
+                  + '// Managed via admin.html — do not edit manually\n'
+                  + '// Last updated: ' + today + '\n'
+                  + '// Total: ' + sorted.length + ' holiday dates\n'
+                  + "window.WFC_HOLIDAYS = new Set('" + dateStr + "'.split(','));\n";
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+
+    // Re-fetch SHA
+    const checkResp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + HOL_FILEPATH, {
+      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (checkResp.ok) holSHA = (await checkResp.json()).sha;
+
+    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + HOL_FILEPATH, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'token ' + authToken,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Update Cambodia holidays via admin editor',
+        content: encoded,
+        sha: holSHA
+      })
+    });
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.message || 'HTTP ' + resp.status); }
+    const result = await resp.json();
+    holSHA = result.content.sha;
+    setHolStatus('Saved ✓ — live in ~1 minute', 'ok');
+  } catch (e) {
+    setHolStatus('Save failed: ' + e.message, 'err');
+  } finally {
+    document.querySelector('[onclick="saveHolidays()"]').disabled = false;
+  }
+}
+
+function setHolStatus(msg, type) {
+  const el = document.getElementById('holStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'save-status' + (type ? ' ' + type : '');
+}
+
 // ── Logout ─────────────────────────────────────────────────────────────────
 function logout() {
   authToken = '';
   fileSHA   = '';
+  holSHA    = '';
   strings   = { en: {}, km: {} };
+  holDates  = new Set();
   sessionStorage.removeItem('wfc-pat');
   document.getElementById('loginSection').style.display  = 'flex';
   document.getElementById('editorSection').style.display = 'none';
   document.getElementById('logoutBtn').style.display     = 'none';
   document.getElementById('patInput').value              = '';
+  // Reset to translations tab
+  switchAdminTab('translations');
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
