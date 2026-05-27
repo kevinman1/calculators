@@ -143,15 +143,25 @@
 
         <div class="input-group">
           <label data-i18n="cinf.input.from_date">From Month</label>
-          <div class="input-wrapper">
-            <input type="month" id="fromDate" value="2010-01" min="2004-12" max="2026-03" oninput="calculate()">
+          <div class="input-row">
+            <div class="input-wrapper">
+              <select id="fromMon" onchange="calculate()"></select>
+            </div>
+            <div class="input-wrapper">
+              <select id="fromYear" onchange="calculate()"></select>
+            </div>
           </div>
         </div>
 
         <div class="input-group">
           <label data-i18n="cinf.input.to_date">To Month</label>
-          <div class="input-wrapper">
-            <input type="month" id="toDate" value="2026-03" min="2004-12" max="2026-03" oninput="calculate()">
+          <div class="input-row">
+            <div class="input-wrapper">
+              <select id="toMon" onchange="calculate()"></select>
+            </div>
+            <div class="input-wrapper">
+              <select id="toYear" onchange="calculate()"></select>
+            </div>
           </div>
         </div>
 
@@ -508,10 +518,26 @@ function fmtAmt(v) {
   return '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-function parseMonthInput(val) {
-  // val = "YYYY-MM"
-  const [y, m] = val.split('-').map(Number);
-  return {y, m};
+// ── Build Year/Month dropdown options ──
+function buildDateSelects() {
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Months: 1–12
+  const monOpts = MONTH_NAMES.map((n, i) => `<option value="${i+1}">${n}</option>`).join('');
+  document.getElementById('fromMon').innerHTML = monOpts;
+  document.getElementById('toMon').innerHTML   = monOpts;
+
+  // Years: 2004–2026
+  let yearOpts = '';
+  for (let y = 2004; y <= 2026; y++) yearOpts += `<option value="${y}">${y}</option>`;
+  document.getElementById('fromYear').innerHTML = yearOpts;
+  document.getElementById('toYear').innerHTML   = yearOpts;
+
+  // Defaults: From = Jan 2010, To = Mar 2026
+  document.getElementById('fromMon').value  = '1';
+  document.getElementById('fromYear').value = '2010';
+  document.getElementById('toMon').value    = '3';
+  document.getElementById('toYear').value   = '2026';
 }
 
 // ── Charts ──
@@ -670,21 +696,19 @@ function buildAnnualTable() {
 
 // ── Main Calculate ──
 function calculate() {
-  const amountStr = document.getElementById('amount').value;
-  const fromStr   = document.getElementById('fromDate').value;
-  const toStr     = document.getElementById('toDate').value;
-  const amount    = parseFloat(amountStr);
+  const amount = parseFloat(document.getElementById('amount').value);
+  const fy = parseInt(document.getElementById('fromYear').value);
+  const fm = parseInt(document.getElementById('fromMon').value);
+  const ty = parseInt(document.getElementById('toYear').value);
+  const tm = parseInt(document.getElementById('toMon').value);
 
-  if (!fromStr || !toStr || isNaN(amount) || amount <= 0) {
+  if (isNaN(amount) || amount <= 0 || isNaN(fy) || isNaN(fm) || isNaN(ty) || isNaN(tm)) {
     document.getElementById('resultsBody').innerHTML =
       `<div class="placeholder-msg" data-i18n="cinf.placeholder">Enter an amount and date range above.</div>`;
     if (typeof WFC !== 'undefined') WFC.applyLang();
     if (powerChartInst) { powerChartInst.destroy(); powerChartInst = null; }
     return;
   }
-
-  const {y: fy, m: fm} = parseMonthInput(fromStr);
-  const {y: ty, m: tm} = parseMonthInput(toStr);
   const fromKey = cpiKey(fy, fm);
   const toKey   = cpiKey(ty, tm);
 
@@ -771,6 +795,7 @@ function calculate() {
 
 // ── Initialise ──
 document.addEventListener('DOMContentLoaded', () => {
+  buildDateSelects();
   buildYoyChart();
   buildAnnualTable();
   calculate();
