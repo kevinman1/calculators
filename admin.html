@@ -185,6 +185,38 @@
       flex-wrap: wrap;
       gap: .5rem;
     }
+    /* ── Inflation editor ── */
+    .inf-form-row {
+      display: flex; gap: .75rem; align-items: flex-end; flex-wrap: wrap;
+      padding: 1rem; background: white;
+    }
+    .inf-form-row .inf-group { display: flex; flex-direction: column; gap: .3rem; }
+    .inf-form-row .inf-group label {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .04em; color: var(--text-medium);
+    }
+    .inf-form-row input[type=number],
+    .inf-form-row select {
+      border: 1.5px solid var(--border); border-radius: 5px;
+      padding: .45rem .6rem; font-size: .88rem; font-family: inherit; outline: none;
+    }
+    .inf-form-row input[type=number]:focus,
+    .inf-form-row select:focus { border-color: var(--green-600); }
+    .inf-table-wrapper { max-height: 460px; overflow-y: auto; }
+    .inf-table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    .inf-table thead th {
+      background: var(--green-800); color: white; padding: .42rem .75rem;
+      text-align: right; font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
+      position: sticky; top: 0; z-index: 2;
+    }
+    .inf-table thead th:first-child { text-align: left; }
+    .inf-table tbody td { padding: .34rem .75rem; border-bottom: 1px solid var(--green-50); text-align: right; }
+    .inf-table tbody td:first-child { text-align: left; font-weight: 600; }
+    .inf-table tbody tr:nth-child(even) td { background: var(--green-50); }
+    .inf-table tbody tr:hover td { background: var(--green-100); }
+    .inf-table tbody tr.inf-last-row td { background: #e8f5e2 !important; font-weight: 700; }
+
     .admin-toolbar h2 {
       font-size: 1.05rem;
       color: var(--green-800);
@@ -324,6 +356,7 @@
     <div class="admin-tabs">
       <button class="admin-tab active" id="tab-translations" onclick="switchAdminTab('translations')">📝 Translations</button>
       <button class="admin-tab"        id="tab-holidays"     onclick="switchAdminTab('holidays')">🗓 Holidays</button>
+      <button class="admin-tab"        id="tab-inflation"    onclick="switchAdminTab('inflation')">📈 Inflation Data</button>
     </div>
 
     <!-- Translations panel -->
@@ -358,6 +391,66 @@
       </div>
       <div class="hol-year-tabs" id="holYearTabs"></div>
       <div class="hol-cal-grid" id="holCalGrid"></div>
+    </div>
+
+    <!-- Inflation panel -->
+    <div class="admin-tab-panel" id="panel-inflation" style="display:none">
+      <div class="admin-toolbar">
+        <div>
+          <h2>Cambodia Inflation (CPI) Data</h2>
+          <div class="save-status" id="infEntryCount" style="margin-top:.2rem"></div>
+        </div>
+        <div class="toolbar-btns">
+          <span class="save-status" id="infStatus">—</span>
+          <button class="btn-secondary" onclick="saveInflation()">💾 Save to GitHub</button>
+        </div>
+      </div>
+
+      <!-- Add entry form -->
+      <div class="section-block">
+        <div class="section-block-header">➕ Add New CPI Entry</div>
+        <div class="inf-form-row">
+          <div class="inf-group">
+            <label>Year</label>
+            <input type="number" id="newCpiYear" style="width:90px" placeholder="2026" min="2004" max="2100">
+          </div>
+          <div class="inf-group">
+            <label>Month</label>
+            <select id="newCpiMonth">
+              <option value="1">January</option><option value="2">February</option>
+              <option value="3">March</option><option value="4">April</option>
+              <option value="5">May</option><option value="6">June</option>
+              <option value="7">July</option><option value="8">August</option>
+              <option value="9">September</option><option value="10">October</option>
+              <option value="11">November</option><option value="12">December</option>
+            </select>
+          </div>
+          <div class="inf-group">
+            <label>CPI Index Value</label>
+            <input type="number" id="newCpiValue" style="width:150px" placeholder="e.g. 215.234" step="0.001" min="0">
+          </div>
+          <button class="btn-primary" onclick="addInflationEntry()">Add Entry</button>
+        </div>
+        <div id="infAddError" style="color:#c0392b;font-size:.82rem;padding:0 1rem .75rem;display:none"></div>
+      </div>
+
+      <!-- Data table -->
+      <div class="section-block">
+        <div class="section-block-header" style="cursor:default">All CPI Data <span style="font-weight:400;opacity:.75;font-size:.8rem">(scroll to bottom for latest — only the last entry can be removed)</span></div>
+        <div class="inf-table-wrapper" id="infTableWrapper">
+          <table class="inf-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th style="text-align:center">Month</th>
+                <th>CPI Index</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="infTableBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -579,6 +672,17 @@ let authToken  = '';
 let fileSHA    = '';
 let strings    = { en: {}, km: {} };  // live editable copy
 
+// ── Inflation state ────────────────────────────────────────────────────────
+const INF_FILEPATH  = 'cambodia-inflation.html';
+const MONTH_NAMES_FULL = ['January','February','March','April','May','June',
+                           'July','August','September','October','November','December'];
+const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
+                            'Jul','Aug','Sep','Oct','Nov','Dec'];
+let infSHA     = '';
+let infData    = [];   // [{y, m, cpi}]
+let infRaw     = '';   // full HTML file content
+let infLoaded  = false;
+
 // ── Login ──────────────────────────────────────────────────────────────────
 async function login() {
   const pat = document.getElementById('patInput').value.trim();
@@ -782,11 +886,205 @@ function buildLangJs() {
 
 // ── Tab switching ─────────────────────────────────────────────────────────
 function switchAdminTab(tab) {
-  ['translations','holidays'].forEach(t => {
+  ['translations','holidays','inflation'].forEach(t => {
     document.getElementById('tab-' + t).classList.toggle('active', t === tab);
     document.getElementById('panel-' + t).style.display = t === tab ? '' : 'none';
   });
   if (tab === 'holidays') buildHolCalendar(holCurrentYear);
+  if (tab === 'inflation' && !infLoaded) {
+    infLoaded = true;
+    loadInflationFromGitHub();
+  }
+}
+
+// ── Inflation editor ───────────────────────────────────────────────────────
+async function loadInflationFromGitHub() {
+  setInfStatus('Loading…', '');
+  try {
+    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + INF_FILEPATH, {
+      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    infSHA = data.sha;
+    const bytes = Uint8Array.from(atob(data.content.replace(/\n/g,'')), c => c.charCodeAt(0));
+    infRaw  = new TextDecoder('utf-8').decode(bytes);
+    infData = parseInflationCPI(infRaw);
+    buildInflationTable();
+    setInfStatus('Loaded from GitHub ✓', 'ok');
+  } catch(e) {
+    setInfStatus('Could not load: ' + e.message, 'err');
+  }
+}
+
+function parseInflationCPI(raw) {
+  const results = [];
+  const re = /\[\{y:(\d+),m:(\d+)\},([0-9.]+)\]/g;
+  let m;
+  while ((m = re.exec(raw)) !== null) {
+    results.push({ y: parseInt(m[1]), m: parseInt(m[2]), cpi: parseFloat(m[3]) });
+  }
+  return results;
+}
+
+function buildInflationTable() {
+  const tbody = document.getElementById('infTableBody');
+  let html = '';
+  for (let i = 0; i < infData.length; i++) {
+    const {y, m, cpi} = infData[i];
+    const isLast = i === infData.length - 1;
+    html += `<tr class="${isLast ? 'inf-last-row' : ''}">
+      <td>${y}</td>
+      <td style="text-align:center">${MONTH_NAMES_SHORT[m-1]}</td>
+      <td style="font-family:monospace">${cpi}</td>
+      <td style="text-align:center">${isLast
+        ? `<button class="btn-secondary" style="font-size:.72rem;padding:.18rem .5rem;color:#c0392b;border-color:#c0392b" onclick="deleteLastInflationEntry()">✕ Remove</button>`
+        : ''}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+
+  // Scroll to bottom so latest entry is visible
+  const wrapper = document.getElementById('infTableWrapper');
+  if (wrapper) setTimeout(() => { wrapper.scrollTop = wrapper.scrollHeight; }, 50);
+
+  // Update count line
+  const countEl = document.getElementById('infEntryCount');
+  if (countEl && infData.length > 0) {
+    const last = infData[infData.length - 1];
+    countEl.textContent = infData.length + ' entries — latest: ' + MONTH_NAMES_FULL[last.m-1] + ' ' + last.y;
+  }
+
+  // Pre-fill the add form with the next expected month
+  if (infData.length > 0) {
+    const last = infData[infData.length - 1];
+    let ny = last.y, nm = last.m + 1;
+    if (nm > 12) { nm = 1; ny++; }
+    document.getElementById('newCpiYear').value  = ny;
+    document.getElementById('newCpiMonth').value = nm;
+  }
+}
+
+function addInflationEntry() {
+  const y   = parseInt(document.getElementById('newCpiYear').value);
+  const m   = parseInt(document.getElementById('newCpiMonth').value);
+  const cpi = parseFloat(document.getElementById('newCpiValue').value);
+  const errEl = document.getElementById('infAddError');
+  errEl.style.display = 'none';
+
+  if (isNaN(y) || y < 2004 || y > 2100)  { showInfError('Enter a valid year (2004–2100).'); return; }
+  if (isNaN(m) || m < 1 || m > 12)        { showInfError('Select a valid month.'); return; }
+  if (isNaN(cpi) || cpi <= 0)             { showInfError('Enter a valid CPI value (e.g. 215.234).'); return; }
+  if (infData.some(d => d.y * 100 + d.m === y * 100 + m)) {
+    showInfError(MONTH_NAMES_FULL[m-1] + ' ' + y + ' already exists in the data.'); return;
+  }
+
+  infData.push({ y, m, cpi });
+  infData.sort((a, b) => (a.y * 100 + a.m) - (b.y * 100 + b.m));
+  document.getElementById('newCpiValue').value = '';
+  setInfStatus('Unsaved changes', '');
+  buildInflationTable();
+}
+
+function deleteLastInflationEntry() {
+  if (!infData.length) return;
+  const last = infData[infData.length - 1];
+  if (!confirm('Remove ' + MONTH_NAMES_FULL[last.m-1] + ' ' + last.y + ' (CPI: ' + last.cpi + ')?')) return;
+  infData.pop();
+  setInfStatus('Unsaved changes', '');
+  buildInflationTable();
+}
+
+function showInfError(msg) {
+  const el = document.getElementById('infAddError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function saveInflation() {
+  if (!infRaw) { setInfStatus('No file loaded.', 'err'); return; }
+  setInfStatus('Saving…', '');
+  document.querySelector('[onclick="saveInflation()"]').disabled = true;
+  try {
+    const sorted = [...infData].sort((a,b) => (a.y*100+a.m) - (b.y*100+b.m));
+    const last   = sorted[sorted.length - 1];
+    const first  = sorted[0];
+
+    // Rebuild CPI_DATA block
+    const dataLines = sorted.map(({y,m,cpi}) => `  [{y:${y},m:${m}},${cpi}]`).join(',\n');
+    const newBlock  = `const CPI_DATA = [\n${dataLines}\n]`;
+
+    // Replace the old block using index-based approach (avoids greedy regex pitfalls)
+    const startMarker = 'const CPI_DATA = [';
+    const startIdx    = infRaw.indexOf(startMarker);
+    if (startIdx === -1) throw new Error('Could not locate CPI_DATA in file.');
+    const endIdx = infRaw.indexOf('\n];', startIdx) + 3;
+    if (endIdx < 3) throw new Error('Could not find end of CPI_DATA.');
+    let newRaw = infRaw.substring(0, startIdx) + newBlock + ';' + infRaw.substring(endIdx);
+
+    // Update "latest" label
+    const latestStr = MONTH_NAMES_FULL[last.m-1] + ' ' + last.y;
+    newRaw = newRaw.replace(
+      /<span id="latestLabel">[^<]*<\/span>/,
+      `<span id="latestLabel">${latestStr}</span>`
+    );
+
+    // Update year range in buildDateSelects dropdown
+    newRaw = newRaw.replace(
+      /(for \(let y = \d+; y <= )\d+(; y\+\+\))/,
+      `$1${last.y}$2`
+    );
+
+    // Update comment line
+    newRaw = newRaw.replace(
+      /\/\/ ── CPI Data: \d+ months[^\n]+──/,
+      `// ── CPI Data: ${sorted.length} months ${MONTH_NAMES_SHORT[first.m-1]} ${first.y} – ${MONTH_NAMES_SHORT[last.m-1]} ${last.y} ──`
+    );
+
+    // Update inline error message range
+    newRaw = newRaw.replace(
+      /\(Dec 2004 – [^)]+\)/,
+      `(Dec 2004 – ${MONTH_NAMES_SHORT[last.m-1]} ${last.y})`
+    );
+
+    const encoded = btoa(unescape(encodeURIComponent(newRaw)));
+
+    // Re-fetch SHA
+    const checkResp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + INF_FILEPATH, {
+      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (checkResp.ok) infSHA = (await checkResp.json()).sha;
+
+    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + INF_FILEPATH, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'token ' + authToken,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Update Cambodia CPI data via admin editor (latest: ' + latestStr + ')',
+        content: encoded,
+        sha: infSHA
+      })
+    });
+    if (!resp.ok) { const e = await resp.json(); throw new Error(e.message || 'HTTP ' + resp.status); }
+    const result = await resp.json();
+    infSHA = result.content.sha;
+    infRaw = newRaw;
+    setInfStatus('Saved ✓ — live in ~1 minute', 'ok');
+  } catch(e) {
+    setInfStatus('Save failed: ' + e.message, 'err');
+  } finally {
+    document.querySelector('[onclick="saveInflation()"]').disabled = false;
+  }
+}
+
+function setInfStatus(msg, type) {
+  const el = document.getElementById('infStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'save-status' + (type ? ' ' + type : '');
 }
 
 // ── Holiday editor state ──────────────────────────────────────────────────

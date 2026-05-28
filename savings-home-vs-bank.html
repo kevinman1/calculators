@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="hvb.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home vs Bank Savings – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Strategy result cards ── */
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: .65rem;
+      margin-bottom: .85rem;
+    }
+    @media (max-width: 580px) { .strategy-grid { grid-template-columns: 1fr; } }
+
+    .strategy-card {
+      border: 2px solid var(--green-200);
+      border-radius: 8px;
+      padding: .7rem .75rem;
+      text-align: center;
+      background: white;
+      transition: border-color .2s, background .2s;
+    }
+    .strategy-card.winner {
+      border-color: var(--green-600);
+      background: var(--green-50);
+    }
+    .strategy-card .s-icon { font-size: 1.1rem; line-height: 1; }
+    .strategy-card .s-name {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--text-medium); margin: .2rem 0 .1rem;
+    }
+    .strategy-card .s-balance {
+      font-size: 1.25rem; font-weight: 700; color: var(--green-800);
+      letter-spacing: -.02em; line-height: 1.15;
+    }
+    .strategy-card.athome .s-balance { color: #7a5800; }
+    .winner-badge {
+      display: inline-block; background: var(--green-700); color: white;
+      border-radius: 12px; padding: .13rem .55rem;
+      font-size: .67rem; font-weight: 700; margin: .25rem 0 .1rem;
+    }
+    .strategy-card .s-detail {
+      display: grid; grid-template-columns: auto 1fr;
+      gap: .15rem .35rem; margin-top: .45rem; font-size: .69rem; text-align: left;
+    }
+    .strategy-card .s-dl { color: var(--text-light); }
+    .strategy-card .s-dv { text-align: right; font-weight: 600; color: var(--text-medium); }
+
+    /* ── Advantage bar ── */
+    .advantage-bar {
+      display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+      background: var(--green-50); border: 1px solid var(--green-200);
+      border-radius: 5px; padding: .5rem .8rem; font-size: .82rem;
+      color: #3a5c30; margin-bottom: .75rem;
+    }
+    .advantage-bar strong { color: var(--green-800); }
+
+    /* ── How it works box ── */
+    .how-box {
+      background: #f8f9f5; border: 1px solid var(--green-100);
+      border-radius: 6px; padding: .65rem .85rem;
+      font-size: .77rem; color: var(--text-medium); line-height: 1.6;
+      margin-top: .85rem;
+    }
+    .how-box strong { color: var(--green-800); }
+
+    /* ── Chart legend ── */
+    .chart-legend {
+      display: flex; gap: 1.2rem; padding: .5rem 1rem 0;
+      font-size: .76rem; color: #555; flex-wrap: wrap;
+    }
+    .chart-legend .leg-line {
+      display: inline-block; width: 18px; height: 2.5px;
+      vertical-align: middle; margin-right: .3rem; border-radius: 2px;
+    }
+    .chart-legend .leg-dash {
+      display: inline-block; width: 18px; border-top: 2.5px dashed #b45309;
+      vertical-align: middle; margin-right: .3rem;
+    }
+
+    /* ── Schedule table ── */
+    .hvb-table { width: 100%; border-collapse: collapse; font-size: .79rem; }
+    .hvb-table thead th {
+      background: var(--green-800); color: white;
+      padding: .38rem .55rem; text-align: right;
+      font-size: .69rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+      position: sticky; top: 0; z-index: 2;
+    }
+    .hvb-table thead th:first-child,
+    .hvb-table thead th:nth-child(2) { text-align: center; }
+    .hvb-table thead .th-early { background: #2d5a1b; }
+    .hvb-table thead .th-late  { background: #1a6b5c; }
+    .hvb-table thead .th-home  { background: #7a5800; }
+    .hvb-table tbody td {
+      padding: .27rem .55rem; border-bottom: 1px solid var(--green-50); text-align: right;
+    }
+    .hvb-table tbody td:first-child,
+    .hvb-table tbody td:nth-child(2) { text-align: center; color: #888; font-size: .74rem; }
+    .hvb-table tbody tr:nth-child(even) td { background: #fafafa; }
+    .hvb-table tbody tr:hover td { background: var(--green-100); }
+    .hvb-table tbody tr.milestone td { border-top: 2px solid #c8ddc0; }
+    .hvb-table .c-early { color: #2d5a1b; }
+    .hvb-table .c-late  { color: #1a6b5c; }
+    .hvb-table .c-home  { color: #7a5800; }
+
+    /* ── Scenario tables ── */
+    .scen-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem;
+    }
+    @media (max-width: 760px) { .scen-grid { grid-template-columns: 1fr; } }
+
+    .scen-title {
+      font-size: .79rem; font-weight: 700; color: var(--green-800); margin-bottom: .5rem;
+    }
+    .scen-title span { font-weight: 400; color: var(--text-light); }
+
+    .scen-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+    .scen-table thead th {
+      background: var(--green-700); color: white;
+      padding: .34rem .55rem; text-align: right;
+      font-size: .69rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+    }
+    .scen-table thead th:first-child { text-align: left; }
+    .scen-table tbody td {
+      padding: .28rem .55rem; border-bottom: 1px solid var(--green-50); text-align: right;
+    }
+    .scen-table tbody td:first-child { text-align: left; color: #555; }
+    .scen-table tbody tr:nth-child(even) td { background: var(--green-50); }
+    .scen-table tbody tr:hover td { background: var(--green-100); }
+    .scen-table tr.current-row td { background: #e8f5e2 !important; font-weight: 700; }
+
+    .lang-switch { margin-left: .5rem; display: flex; gap: .2rem; }
+    .lang-btn {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      color: white; padding: .3rem .6rem; font-size: .75rem; border-radius: 3px; cursor: pointer;
+    }
+    .lang-btn.active { background: rgba(255,255,255,.35); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" class="active" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.savings">Savings</span>
+    &rsaquo; <span>Home vs Bank Savings</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Print header -->
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p>Home vs Bank Savings Calculator &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2>Home vs Bank Savings</h2>
+    <p>Does starting early matter more than saving longer? Compare an Early Saver, a Late Saver, and keeping cash at home — see which strategy wins over time.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── INPUTS ─────────────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.label">Inputs</div>
+      <div class="card-body">
+
+        <!-- Currency toggle -->
+        <div class="currency-toggle" style="margin-bottom:.85rem">
+          <button class="currency-btn active" data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+          <button class="currency-btn" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+        </div>
+        <div class="input-group" id="exrateGroup" style="margin-bottom:.6rem">
+          <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
+          <div class="input-wrapper">
+            <input type="number" id="exchangeRate" value="4100" min="1" step="100">
+            <span class="input-suffix">KHR</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Monthly Contribution</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="currPrefix">&#6107;</span>
+            <input type="number" id="monthlyPMT" value="200000" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="input.annual_rate">Annual Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="annualRate" value="5" min="0" max="50" step="0.1">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label">Age Range</div>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label>Starting Age</label>
+            <div class="input-wrapper">
+              <input type="number" id="startAge" value="18" min="1" max="80" step="1">
+              <span class="input-suffix" data-i18n="input.years">yrs</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>Ending Age</label>
+            <div class="input-wrapper">
+              <input type="number" id="endAge" value="60" min="2" max="100" step="1">
+              <span class="input-suffix" data-i18n="input.years">yrs</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label">Early Saver Settings</div>
+
+        <div class="input-group">
+          <label>Years of Active Saving</label>
+          <div class="input-wrapper">
+            <input type="number" id="activeYears" value="8" min="1" max="60" step="1">
+            <span class="input-suffix" data-i18n="input.years">yrs</span>
+          </div>
+        </div>
+        <div class="input-hint">Early saver saves for this many years, then stops and lets interest grow.</div>
+
+        <button class="btn-primary" style="margin-top:1rem" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+
+        <div class="how-box">
+          <strong>🏦 Early Saver</strong> — contributes monthly for the first X years, then <em>stops</em> and lets compound interest do the rest.<br>
+          <strong>⏳ Late Saver</strong> — waits X years (saves nothing), then contributes monthly until retirement.<br>
+          <strong>🏠 At Home</strong> — saves the same monthly amount as cash with no interest earned.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESULTS ────────────────────────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <div class="card-header dark">Results</div>
+        <div class="card-body">
+
+          <div class="strategy-grid">
+
+            <div class="strategy-card" id="card-early">
+              <div class="s-icon">🏦</div>
+              <div class="s-name">Early Saver</div>
+              <div class="s-balance" id="r-earlyBal">—</div>
+              <div id="r-earlyWinner"></div>
+              <div class="s-detail">
+                <span class="s-dl">Contributed</span><span class="s-dv" id="r-earlyContrib">—</span>
+                <span class="s-dl">Interest</span><span class="s-dv" id="r-earlyInt">—</span>
+                <span class="s-dl">Active months</span><span class="s-dv" id="r-earlyMo">—</span>
+              </div>
+            </div>
+
+            <div class="strategy-card" id="card-late">
+              <div class="s-icon">⏳</div>
+              <div class="s-name">Late Saver</div>
+              <div class="s-balance" id="r-lateBal">—</div>
+              <div id="r-lateWinner"></div>
+              <div class="s-detail">
+                <span class="s-dl">Contributed</span><span class="s-dv" id="r-lateContrib">—</span>
+                <span class="s-dl">Interest</span><span class="s-dv" id="r-lateInt">—</span>
+                <span class="s-dl">Active months</span><span class="s-dv" id="r-lateMo">—</span>
+              </div>
+            </div>
+
+            <div class="strategy-card athome" id="card-home">
+              <div class="s-icon">🏠</div>
+              <div class="s-name">At Home</div>
+              <div class="s-balance" id="r-homeBal">—</div>
+              <div style="font-size:.67rem;color:var(--text-light);margin:.15rem 0 .1rem">No interest earned</div>
+              <div class="s-detail">
+                <span class="s-dl">Contributed</span><span class="s-dv" id="r-homeContrib">—</span>
+                <span class="s-dl">Active months</span><span class="s-dv" id="r-homeMo">—</span>
+              </div>
+            </div>
+
+          </div><!-- end strategy-grid -->
+
+          <div class="advantage-bar" id="advantageBar">—</div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label">Total Years</div>
+              <div class="r-value" id="r-totalYrs">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Monthly Rate</div>
+              <div class="r-value" id="r-moRate">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Early: Contributes</div>
+              <div class="r-value" id="r-earlyPhase">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Late: Contributes</div>
+              <div class="r-value" id="r-latePhase">—</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── CHART ─────────────────────────────────────────────────────────────── -->
+  <div class="card chart-card" style="margin-top:1.25rem">
+    <div class="card-header">Balance Growth Over Time</div>
+    <div class="chart-legend">
+      <span><span class="leg-line" style="background:#2d5a1b"></span>Early Saver</span>
+      <span><span class="leg-line" style="background:#1a6b5c"></span>Late Saver</span>
+      <span><span class="leg-dash"></span>At Home (cash)</span>
+    </div>
+    <div class="chart-container" style="height:320px; padding:.75rem 1rem 1rem">
+      <canvas id="hvbChart"></canvas>
+    </div>
+  </div>
+
+  <!-- ── YEAR-BY-YEAR TABLE ─────────────────────────────────────────────────── -->
+  <div class="card schedule-card" style="margin-top:1.25rem">
+    <div class="schedule-controls">
+      <strong style="font-size:.82rem">Year-by-Year Breakdown</strong>
+      <button class="btn-secondary" id="toggleBtn" onclick="toggleTable()" data-i18n="schedule.show">Show Schedule</button>
+    </div>
+    <div class="schedule-wrapper" id="tableWrapper" style="display:none">
+      <table class="hvb-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Yr</th>
+            <th rowspan="2">Age</th>
+            <th class="th-early" colspan="2">🏦 Early Saver</th>
+            <th class="th-late"  colspan="2">⏳ Late Saver</th>
+            <th class="th-home"  colspan="2">🏠 At Home</th>
+          </tr>
+          <tr>
+            <th class="th-early">Contrib.</th>
+            <th class="th-early">Balance</th>
+            <th class="th-late">Contrib.</th>
+            <th class="th-late">Balance</th>
+            <th class="th-home">Contrib.</th>
+            <th class="th-home">Balance</th>
+          </tr>
+        </thead>
+        <tbody id="hvbTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SCENARIO SENSITIVITY ─────────────────────────────────────────────── -->
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-header">Scenario Sensitivity</div>
+    <div class="card-body">
+      <div class="scen-grid">
+
+        <div>
+          <div class="scen-title">
+            Interest Rate Sensitivity
+            <span>(ages <span id="s-ages1">18–60</span>, <span id="s-ay1">8</span> active yrs)</span>
+          </div>
+          <table class="scen-table">
+            <thead><tr>
+              <th>Rate</th>
+              <th>Early Saver</th>
+              <th>Late Saver</th>
+              <th>Winner</th>
+            </tr></thead>
+            <tbody id="rateScenBody"></tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="scen-title">
+            Active Years Sensitivity
+            <span>(ages <span id="s-ages2">18–60</span>, rate <span id="s-rate2">5%</span>)</span>
+          </div>
+          <table class="scen-table">
+            <thead><tr>
+              <th>Active Yrs</th>
+              <th>Early Saver</th>
+              <th>Late Saver</th>
+              <th>Winner</th>
+            </tr></thead>
+            <tbody id="ayScenBody"></tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRINT BAR ─────────────────────────────────────────────────────────── -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#128424; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=15"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+let hvbChart = null;
+let currency = 'KHR';
+
+// ── Currency helpers ──────────────────────────────────────────────────────────
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr  = getXR();
+  const inp = document.getElementById('monthlyPMT');
+  const v   = parseFloat(inp.value) || 0;
+  if (newCur === 'KHR') {
+    inp.value = Math.round(v * xr);
+    inp.step  = '1000';
+  } else {
+    inp.value = +(v / xr).toFixed(2);
+    inp.step  = '1';
+  }
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === newCur)
+  );
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? '' : 'none';
+  document.getElementById('currPrefix').innerHTML      = newCur === 'KHR' ? '&#6107;' : '$';
+  calculate();
+}
+
+function fmtKHR(khr) {
+  if (currency === 'KHR') return '&#6107;&nbsp;' + Math.round(khr).toLocaleString('en-US');
+  const usd = khr / getXR();
+  return '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function fmtDisp(khr) {
+  if (currency === 'KHR') return Math.round(khr);
+  return Math.round(khr / getXR());
+}
+
+// ── Core formulas ─────────────────────────────────────────────────────────────
+// Early Saver: contributes for contribM months then balance compounds for growthM months
+function earlyFinal(pmt, r, contribM, growthM) {
+  if (r === 0) return pmt * contribM;   // no growth phase if r=0
+  return pmt * ((Math.pow(1 + r, contribM) - 1) / r) * Math.pow(1 + r, growthM);
+}
+
+// Late Saver: contributes monthly for lateM months (annuity)
+function lateFinal(pmt, r, lateM) {
+  if (r === 0) return pmt * lateM;
+  return pmt * ((Math.pow(1 + r, lateM) - 1) / r);
+}
+
+// At Home: straight accumulation
+function homeFinal(pmt, totalM) { return pmt * totalM; }
+
+// ── Year-by-year schedule ─────────────────────────────────────────────────────
+function buildSchedule(pmt, r, startAge, totalYears, activeYears) {
+  const rows = [];
+  const compF    = r > 0 ? Math.pow(1 + r, 12) : 1;
+  const annuityF = r > 0 ? (compF - 1) / r : 12;   // PMT multiplier per year
+  let eBal = 0, lBal = 0, hBal = 0;
+
+  for (let y = 1; y <= totalYears; y++) {
+    const age        = startAge + y - 1;
+    const earlyActive = y <= activeYears;
+    const lateActive  = y > activeYears;
+
+    const eContrib = earlyActive ? pmt * 12 : 0;
+    const lContrib = lateActive  ? pmt * 12 : 0;
+    const hContrib = pmt * 12;
+
+    // Early saver balance
+    if (earlyActive) eBal = eBal * compF + pmt * annuityF;
+    else             eBal = eBal * compF;
+
+    // Late saver balance (stays 0 during early-saver years)
+    if (lateActive)  lBal = lBal * compF + pmt * annuityF;
+
+    // At home balance
+    hBal += hContrib;
+
+    rows.push({ y, age, eContrib, eBal, lContrib, lBal, hContrib, hBal });
+  }
+  return rows;
+}
+
+// ── Main calculate ────────────────────────────────────────────────────────────
+function calculate() {
+  const pmtRaw   = Math.max(0, parseFloat(document.getElementById('monthlyPMT').value) || 0);
+  const pmt      = currency === 'KHR' ? pmtRaw : pmtRaw * getXR();
+  const rate     = Math.max(0, parseFloat(document.getElementById('annualRate').value) || 0) / 100;
+  const startAge = Math.max(1,  Math.min(90,  parseInt(document.getElementById('startAge').value)   || 18));
+  const endAge   = Math.max(2,  Math.min(100, parseInt(document.getElementById('endAge').value)    || 60));
+  const actYrs   = Math.max(1,  parseInt(document.getElementById('activeYears').value) || 8);
+
+  const totalYrs = Math.max(2, endAge - startAge);
+  const actCap   = Math.min(actYrs, totalYrs - 1);  // can't use all years as active
+  const r        = rate / 12;
+  const contribM = actCap * 12;
+  const growthM  = (totalYrs - actCap) * 12;
+  const totalM   = totalYrs * 12;
+
+  const eF = earlyFinal(pmt, r, contribM, growthM);
+  const lF = lateFinal(pmt, r, growthM);       // late = same months as growth phase
+  const hF = homeFinal(pmt, totalM);
+
+  const eContrib = pmt * contribM;
+  const lContrib = pmt * growthM;
+
+  // Winner
+  const earlyWins = eF >= lF && eF >= hF;
+  const lateWins  = lF > eF  && lF >= hF;
+
+  // Update cards
+  document.getElementById('r-earlyBal').innerHTML    = fmtKHR(eF);
+  document.getElementById('r-earlyContrib').innerHTML = fmtKHR(eContrib);
+  document.getElementById('r-earlyInt').innerHTML    = fmtKHR(eF - eContrib);
+  document.getElementById('r-earlyMo').textContent   = contribM;
+  document.getElementById('r-lateBal').innerHTML     = fmtKHR(lF);
+  document.getElementById('r-lateContrib').innerHTML  = fmtKHR(lContrib);
+  document.getElementById('r-lateInt').innerHTML     = fmtKHR(lF - lContrib);
+  document.getElementById('r-lateMo').textContent    = growthM;
+  document.getElementById('r-homeBal').innerHTML     = fmtKHR(hF);
+  document.getElementById('r-homeContrib').innerHTML  = fmtKHR(hF);
+  document.getElementById('r-homeMo').textContent    = totalM;
+
+  document.getElementById('r-totalYrs').textContent  = totalYrs + ' years';
+  document.getElementById('r-moRate').textContent     = (r * 100).toFixed(4) + '%';
+  document.getElementById('r-earlyPhase').textContent = 'Yrs 1–' + actCap + ', then grows';
+  document.getElementById('r-latePhase').textContent  = 'Yrs ' + (actCap + 1) + '–' + totalYrs;
+
+  // Winner styling
+  document.getElementById('card-early').classList.toggle('winner', earlyWins);
+  document.getElementById('card-late').classList.toggle('winner', lateWins);
+  document.getElementById('r-earlyWinner').innerHTML = earlyWins ? '<span class="winner-badge">★ Winner</span>' : '';
+  document.getElementById('r-lateWinner').innerHTML  = lateWins  ? '<span class="winner-badge">★ Winner</span>' : '';
+
+  // Advantage bar
+  const winName = earlyWins ? '🏦 Early Saver' : lateWins ? '⏳ Late Saver' : '🏠 At Home';
+  const winBal  = earlyWins ? eF : lateWins ? lF : hF;
+  document.getElementById('advantageBar').innerHTML =
+    `<strong>${winName} wins</strong> — <span>` + fmtKHR(winBal - hF) + ' more than saving at home</span>';
+
+  // Scenario labels
+  const ageLabel = startAge + '–' + endAge;
+  document.getElementById('s-ages1').textContent = ageLabel;
+  document.getElementById('s-ages2').textContent = ageLabel;
+  document.getElementById('s-ay1').textContent   = actCap;
+  document.getElementById('s-rate2').textContent = (rate * 100).toFixed(1) + '%';
+
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-GB',
+    { day: '2-digit', month: 'short', year: 'numeric' });
+
+  renderChart(pmt, r, startAge, totalYrs, actCap);
+  buildRateScenarios(pmt, rate, totalYrs, actCap);
+  buildActiveYrScenarios(pmt, rate, totalYrs, actCap);
+
+  if (document.getElementById('tableWrapper').style.display !== 'none') {
+    renderTable(pmt, r, startAge, totalYrs, actCap);
+  }
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function renderChart(pmt, r, startAge, totalYears, actYrs) {
+  const schedule = buildSchedule(pmt, r, startAge, totalYears, actYrs);
+  const ages  = schedule.map(d => d.age);
+  const eVals = schedule.map(d => fmtDisp(d.eBal));
+  const lVals = schedule.map(d => fmtDisp(d.lBal));
+  const hVals = schedule.map(d => fmtDisp(d.hBal));
+
+  const ctx = document.getElementById('hvbChart').getContext('2d');
+  if (hvbChart) hvbChart.destroy();
+
+  hvbChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ages,
+      datasets: [
+        {
+          label: 'Early Saver',
+          data: eVals,
+          borderColor: '#2d5a1b',
+          backgroundColor: 'rgba(45,90,27,.07)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false
+        },
+        {
+          label: 'Late Saver',
+          data: lVals,
+          borderColor: '#1a6b5c',
+          backgroundColor: 'rgba(26,107,92,.06)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false
+        },
+        {
+          label: 'At Home',
+          data: hVals,
+          borderColor: '#b45309',
+          backgroundColor: 'rgba(180,83,9,.04)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          tension: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            title: c => 'Age ' + c[0].label,
+            label: c => '  ' + c.dataset.label + ': ' +
+              (currency === 'KHR' ? '៛' : '$') + c.parsed.y.toLocaleString('en-US')
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Age', font: { size: 10 } },
+          ticks: { font: { size: 10 } },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            font: { size: 10 },
+            callback: v => {
+              if (currency === 'KHR')
+                return '៛' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'K' : v);
+              return '$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'K' : v);
+            }
+          },
+          grid: { color: 'rgba(0,0,0,.05)' }
+        }
+      }
+    }
+  });
+}
+
+// ── Scenario: interest rate sensitivity ──────────────────────────────────────
+function buildRateScenarios(pmt, currentRate, totalYrs, actYrs) {
+  const rates = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.10];
+  const contribM = actYrs * 12;
+  const growthM  = (totalYrs - actYrs) * 12;
+  let html = '';
+  for (const rate of rates) {
+    const r     = rate / 12;
+    const eF    = earlyFinal(pmt, r, contribM, growthM);
+    const lF    = lateFinal(pmt, r, growthM);
+    const eWins = eF >= lF;
+    const isCurrent = Math.abs(rate - currentRate) < 0.0001;
+    html += `<tr class="${isCurrent ? 'current-row' : ''}">
+      <td>${(rate * 100).toFixed(0)}%</td>
+      <td>${fmtKHR(eF)}</td>
+      <td>${fmtKHR(lF)}</td>
+      <td style="font-weight:700;color:${eWins ? '#2d5a1b' : '#1a6b5c'}">${eWins ? '🏦 Early' : '⏳ Late'}</td>
+    </tr>`;
+  }
+  document.getElementById('rateScenBody').innerHTML = html;
+}
+
+// ── Scenario: active years sensitivity ───────────────────────────────────────
+function buildActiveYrScenarios(pmt, annualRate, totalYrs, currentActYrs) {
+  const testYears = [3, 5, 7, 10, 15, 20, 25, 30].filter(y => y < totalYrs);
+  const r = annualRate / 12;
+  let html = '';
+  for (const ay of testYears) {
+    const contribM = ay * 12;
+    const growthM  = (totalYrs - ay) * 12;
+    const eF       = earlyFinal(pmt, r, contribM, growthM);
+    const lF       = lateFinal(pmt, r, growthM);
+    const eWins    = eF >= lF;
+    const isCurrent = ay === currentActYrs;
+    html += `<tr class="${isCurrent ? 'current-row' : ''}">
+      <td>${ay} yrs</td>
+      <td>${fmtKHR(eF)}</td>
+      <td>${fmtKHR(lF)}</td>
+      <td style="font-weight:700;color:${eWins ? '#2d5a1b' : '#1a6b5c'}">${eWins ? '🏦 Early' : '⏳ Late'}</td>
+    </tr>`;
+  }
+  document.getElementById('ayScenBody').innerHTML = html;
+}
+
+// ── Schedule table ────────────────────────────────────────────────────────────
+function renderTable(pmt, r, startAge, totalYears, actYrs) {
+  const schedule = buildSchedule(pmt, r, startAge, totalYears, actYrs);
+  let html = '';
+  for (const { y, age, eContrib, eBal, lContrib, lBal, hContrib, hBal } of schedule) {
+    const isMilestone = y === actYrs || y === actYrs + 1;
+    html += `<tr${isMilestone ? ' class="milestone"' : ''}>
+      <td>${y}</td>
+      <td>${age}</td>
+      <td class="c-early">${fmtKHR(eContrib)}</td>
+      <td class="c-early">${fmtKHR(eBal)}</td>
+      <td class="c-late">${fmtKHR(lContrib)}</td>
+      <td class="c-late">${fmtKHR(lBal)}</td>
+      <td class="c-home">${fmtKHR(hContrib)}</td>
+      <td class="c-home">${fmtKHR(hBal)}</td>
+    </tr>`;
+  }
+  document.getElementById('hvbTableBody').innerHTML = html;
+}
+
+// ── Toggle table ──────────────────────────────────────────────────────────────
+function toggleTable() {
+  const wrapper = document.getElementById('tableWrapper');
+  const btn     = document.getElementById('toggleBtn');
+  const hidden  = wrapper.style.display === 'none';
+  wrapper.style.display = hidden ? 'block' : 'none';
+  btn.setAttribute('data-i18n', hidden ? 'schedule.hide' : 'schedule.show');
+  btn.textContent = hidden ? 'Hide Schedule' : 'Show Schedule';
+  if (hidden) {
+    const pmtRaw   = parseFloat(document.getElementById('monthlyPMT').value) || 0;
+    const pmt      = currency === 'KHR' ? pmtRaw : pmtRaw * getXR();
+    const rate     = parseFloat(document.getElementById('annualRate').value) || 0;
+    const r        = rate / 100 / 12;
+    const startAge = parseInt(document.getElementById('startAge').value) || 18;
+    const endAge   = parseInt(document.getElementById('endAge').value)   || 60;
+    const actYrs   = parseInt(document.getElementById('activeYears').value) || 8;
+    const totalYrs = Math.max(2, endAge - startAge);
+    renderTable(pmt, r, startAge, totalYrs, Math.min(actYrs, totalYrs - 1));
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('exrateGroup').style.display = '';
+  calculate();
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input',  calculate);
+    el.addEventListener('change', calculate);
+  });
+});
+</script>
+
+</body>
+</html>

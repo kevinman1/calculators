@@ -116,7 +116,7 @@
             </div>
           </div>
         </div>
-        <div class="input-hint" data-i18n="nssf.hint.retirement_age">Cambodia NSSF: 60 (women) or 65 (men)</div>
+        <div class="input-hint" data-i18n="nssf.hint.retirement_age">Cambodia NSSF retirement age: 60</div>
 
         <div class="input-group" style="margin-top:.65rem">
           <label data-i18n="nssf.input.salary">Average Monthly Salary</label>
@@ -177,6 +177,7 @@
           <div class="formula-box">
             <strong data-i18n="nssf.result.formula">Rate Formula:</strong>
             <span id="r-formula">—</span>
+            <div id="r-formula-note" style="margin-top:.35rem;font-size:.78rem;color:#5a7a50;line-height:1.5"></div>
           </div>
 
           <!-- Warning: under 20 years -->
@@ -197,6 +198,11 @@
   <!-- ── CHART ──────────────────────────────────────────────────────────────── -->
   <div class="card chart-card">
     <div class="card-header" data-i18n="nssf.chart.title">Monthly Pension by Years of Contribution</div>
+    <div style="display:flex;gap:1.2rem;padding:.5rem 1rem 0;font-size:.76rem;color:#555;flex-wrap:wrap">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(194,120,40,0.82);margin-right:.35rem"></span>Already contributed</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(45,90,27,0.95);margin-right:.35rem"></span>Your retirement year</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(115,150,105,0.55);margin-right:.35rem"></span>Future years</span>
+    </div>
     <div class="chart-container">
       <canvas id="nssfChart"></canvas>
     </div>
@@ -297,7 +303,7 @@ function pensionRate(years) {
 function rateFormula(y) {
   if (y <= 0)  return '0 × 1.75%';
   if (y <= 15) return y + ' × 1.75%';
-  return '15 × 1.75% + ' + (y - 15) + ' × 1.25%';
+  return '(15 × 1.75%) + (' + (y - 15) + ' × 1.25%)';
 }
 
 // ── Date helpers ───────────────────────────────────────────────────────────────
@@ -352,20 +358,25 @@ function calculate() {
   document.getElementById('r-rateBadge').textContent    = (rate * 100).toFixed(2) + '%';
   document.getElementById('r-asPctSalary').textContent  = asPct.toFixed(2) + '%';
   document.getElementById('r-formula').textContent      = rateFormula(totalYears);
+  document.getElementById('r-formula-note').innerHTML   = totalYears > 15
+    ? '1st part: first 15 years at 1.75%/yr &nbsp;|&nbsp; 2nd part: remaining ' + (totalYears - 15) + ' years at 1.25%/yr'
+    : totalYears > 0
+      ? 'Years 1–15 at 1.75%/yr &nbsp;(rate increases to 1.25%/yr after year 15)'
+      : '';
 
   document.getElementById('warnUnder20').classList.toggle('visible', isUnder20);
   document.getElementById('warnZero').classList.toggle('visible', isZero);
   document.getElementById('printDate').textContent = today.toLocaleDateString('en-GB',
     { day: '2-digit', month: 'short', year: 'numeric' });
 
-  renderChart(totalYears, salaryKHR);
+  renderChart(totalYears, salaryKHR, Math.floor(yearsSoFar));
   if (document.getElementById('tableWrapper').style.display !== 'none') {
     renderTable(totalYears, salaryKHR, startAge);
   }
 }
 
 // ── Chart ───────────────────────────────────────────────────────────────────────
-function renderChart(userYears, salaryKHR) {
+function renderChart(userYears, salaryKHR, yearsAlready) {
   const xr    = getXR();
   const toDisp = v => currency === 'KHR' ? Math.round(v) : Math.round(v / xr);
   const sym   = currency === 'KHR' ? '&#6107;' : '$';
@@ -374,7 +385,9 @@ function renderChart(userYears, salaryKHR) {
   for (let y = 1; y <= 50; y++) {
     labels.push(y);
     values.push(toDisp(pensionRate(y) * salaryKHR));
-    colors.push(y === userYears ? 'rgba(45,90,27,0.92)' : 'rgba(115,150,105,0.72)');
+    if (y === userYears)       colors.push('rgba(45,90,27,0.95)');   // target year
+    else if (y <= yearsAlready) colors.push('rgba(194,120,40,0.82)'); // already contributed
+    else                        colors.push('rgba(115,150,105,0.55)'); // future
   }
 
   const ctx = document.getElementById('nssfChart').getContext('2d');

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="dti.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTI – Debt to Income Ratio – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── DTI hero gauge ── */
+    .dti-hero {
+      text-align: center;
+      padding: 1rem .75rem .75rem;
+    }
+    .dti-hero .dh-label {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--text-light); margin-bottom: .35rem;
+    }
+    .dti-pct {
+      font-size: 2.6rem; font-weight: 700; letter-spacing: -.03em; line-height: 1;
+      transition: color .3s;
+    }
+    .dti-pct.healthy  { color: #059669; }
+    .dti-pct.caution  { color: #d97706; }
+    .dti-pct.highrisk { color: #dc2626; }
+
+    .dti-rating {
+      display: inline-block; border-radius: 20px;
+      padding: .2rem .85rem; font-size: .8rem; font-weight: 700;
+      margin-top: .4rem; transition: background .3s, color .3s;
+    }
+    .dti-rating.healthy  { background: #d1fae5; color: #065f46; }
+    .dti-rating.caution  { background: #fef3c7; color: #92400e; }
+    .dti-rating.highrisk { background: #fee2e2; color: #991b1b; }
+
+    /* ── DTI progress bar ── */
+    .dti-bar-wrap {
+      margin: .75rem 0 .5rem;
+      position: relative;
+    }
+    .dti-bar-track {
+      height: 10px; border-radius: 5px; overflow: visible;
+      background: linear-gradient(to right,
+        #d1fae5 0%, #d1fae5 36%,
+        #fef3c7 36%, #fef3c7 43%,
+        #fee2e2 43%, #fee2e2 100%);
+      border: 1px solid #e5e7eb;
+      position: relative;
+    }
+    .dti-bar-fill {
+      height: 100%; border-radius: 5px;
+      background: currentColor; opacity: .35;
+      transition: width .4s;
+      max-width: 100%;
+    }
+    .dti-bar-needle {
+      position: absolute; top: -4px;
+      width: 3px; height: 18px; border-radius: 2px;
+      background: #374151;
+      transform: translateX(-50%);
+      transition: left .4s;
+    }
+    .dti-bar-labels {
+      display: flex; justify-content: space-between;
+      font-size: .65rem; color: var(--text-light); margin-top: .2rem;
+    }
+    .dti-bar-markers {
+      display: flex; justify-content: space-between;
+      font-size: .65rem; color: var(--text-light);
+      position: relative; margin-top: .1rem;
+    }
+
+    /* ── Two-chart row ── */
+    .charts-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.25rem; margin-top: 1.25rem;
+    }
+    @media (max-width: 840px) { .charts-row { grid-template-columns: 1fr; } }
+    .chart-container-sq { position: relative; height: 260px; padding: .5rem 1rem 1rem; }
+
+    /* ── Rating reference table ── */
+    .rating-table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    .rating-table thead th {
+      background: var(--green-800); color: white;
+      padding: .42rem .85rem; text-align: left;
+      font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .rating-table tbody td { padding: .5rem .85rem; border-bottom: 1px solid var(--green-50); }
+    .rating-table tbody tr:last-child td { border-bottom: none; }
+    .rating-table .band-badge {
+      display: inline-block; border-radius: 12px;
+      padding: .15rem .65rem; font-size: .76rem; font-weight: 700;
+    }
+    .rating-table .band-healthy  { background: #d1fae5; color: #065f46; }
+    .rating-table .band-caution  { background: #fef3c7; color: #92400e; }
+    .rating-table .band-highrisk { background: #fee2e2; color: #991b1b; }
+
+    /* ── Loan capacity section ── */
+    .loan-cap-hero {
+      text-align: center; padding: .85rem .75rem .6rem;
+      border-bottom: 1px solid var(--green-100); margin-bottom: .75rem;
+    }
+    .loan-cap-hero .lc-label {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-light); margin-bottom: .2rem;
+    }
+    .loan-cap-hero .lc-value {
+      font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em;
+      color: var(--green-800);
+    }
+    .loan-cap-hero .lc-value.negative { color: #dc2626; }
+    .loan-cap-hero .lc-sub { font-size: .74rem; color: var(--text-light); margin-top: .2rem; }
+
+    .lang-switch { margin-left: .5rem; display: flex; gap: .2rem; }
+    .lang-btn {
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      color: white; padding: .3rem .6rem; font-size: .75rem; border-radius: 3px; cursor: pointer;
+    }
+    .lang-btn.active { background: rgba(255,255,255,.35); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#loans" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="nav.loans">Loans</span>
+    &rsaquo; <span>DTI Ratio</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p>Debt-to-Income Ratio Calculator &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2>Debt-to-Income (DTI) Ratio</h2>
+    <p>See what percentage of your monthly income goes toward debt payments — and how much room you have to take on a new loan.</p>
+  </div>
+
+  <!-- ── SECTION 1: Current DTI ─────────────────────────────────────────── -->
+  <div class="calc-grid">
+
+    <!-- LEFT: Inputs -->
+    <div class="card">
+      <div class="card-header">Your Current DTI</div>
+      <div class="card-body">
+
+        <!-- Currency toggle -->
+        <div class="currency-toggle" style="margin-bottom:.85rem">
+          <button class="currency-btn active" data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+          <button class="currency-btn" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+        </div>
+        <div class="input-group" id="exrateGroup" style="margin-bottom:.6rem">
+          <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
+          <div class="input-wrapper">
+            <input type="number" id="exchangeRate" value="4100" min="1" step="100">
+            <span class="input-suffix">KHR</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Monthly Income</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="currPrefix">&#6107;</span>
+            <input type="number" id="income" value="4100000" min="0" step="10000">
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label">Monthly Debt Payments</div>
+
+        <div class="input-group">
+          <label>Housing / Rent</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="p2">&#6107;</span>
+            <input type="number" id="housing" value="820000" min="0" step="10000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Utilities</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="p3">&#6107;</span>
+            <input type="number" id="utilities" value="205000" min="0" step="5000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Existing Loan Payments</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="p4">&#6107;</span>
+            <input type="number" id="loanPayments" value="410000" min="0" step="10000">
+          </div>
+        </div>
+
+        <button class="btn-primary" style="margin-top:1rem" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: DTI Result -->
+    <div>
+      <div class="card">
+        <div class="card-header dark">Your DTI Result</div>
+        <div class="card-body" style="padding-bottom:.5rem">
+
+          <div class="dti-hero">
+            <div class="dh-label">Debt-to-Income Ratio</div>
+            <div class="dti-pct" id="dtiPct">—</div>
+            <div><span class="dti-rating" id="dtiRating">—</span></div>
+
+            <!-- Visual bar -->
+            <div class="dti-bar-wrap">
+              <div class="dti-bar-track">
+                <div class="dti-bar-fill" id="dtiBarFill" style="width:0%"></div>
+                <div class="dti-bar-needle" id="dtiNeedle" style="left:0%"></div>
+              </div>
+              <div class="dti-bar-labels">
+                <span>0%</span>
+                <span>36%</span>
+                <span>43%</span>
+                <span>100%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label">Total Debt Payments</div>
+              <div class="r-value" id="r-totalDebt">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Monthly Income</div>
+              <div class="r-value" id="r-income">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Available for Spending</div>
+              <div class="r-value" id="r-available">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Housing Share of Income</div>
+              <div class="r-value" id="r-housingPct">—</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── SECTION 2: Loan Capacity ──────────────────────────────────────────── -->
+  <div class="calc-grid" style="margin-top:1.25rem">
+
+    <!-- LEFT: Loan capacity inputs -->
+    <div class="card">
+      <div class="card-header">Loan Capacity Analysis</div>
+      <div class="card-body">
+
+        <div class="input-group">
+          <label>DTI Maximum (lender cap)</label>
+          <div class="input-wrapper">
+            <input type="number" id="dtiMax" value="40" min="1" max="100" step="1">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-hint">Most Cambodian lenders prefer ≤40%. International lenders often use 36–43%.</div>
+
+        <hr class="section-divider">
+        <div class="section-label">Ongoing Monthly Obligations</div>
+        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.6rem">Enter your current commitments that would continue if you took a new loan.</div>
+
+        <div class="input-group">
+          <label>Housing / Rent</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="p5">&#6107;</span>
+            <input type="number" id="lcHousing" value="820000" min="0" step="10000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Utilities</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="p6">&#6107;</span>
+            <input type="number" id="lcUtilities" value="205000" min="0" step="5000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Other Loan Payments</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="p7">&#6107;</span>
+            <input type="number" id="lcLoans" value="410000" min="0" step="10000">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Loan capacity result -->
+    <div>
+      <div class="card">
+        <div class="card-header dark">How Much Can I Borrow?</div>
+        <div class="card-body" style="padding:.5rem .75rem .65rem">
+
+          <div class="loan-cap-hero">
+            <div class="lc-label">Maximum New Monthly Payment</div>
+            <div class="lc-value" id="r-loanCap">—</div>
+            <div class="lc-sub" id="r-loanCapSub">—</div>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <div class="r-label">DTI Max in $</div>
+              <div class="r-value" id="r-dtiMaxAmt">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Current Obligations</div>
+              <div class="r-value" id="r-lcOblig">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">Available for Spending</div>
+              <div class="r-value" id="r-lcAvail">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label">DTI Cap Used</div>
+              <div class="r-value" id="r-lcCapUsed">—</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end section 2 -->
+
+  <!-- ── CHARTS ──────────────────────────────────────────────────────────────── -->
+  <div class="charts-row">
+
+    <div class="card chart-card">
+      <div class="card-header">Income Breakdown</div>
+      <div class="chart-container-sq">
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="card-header">How Much Can I Loan?</div>
+      <div class="chart-container-sq">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── DTI REFERENCE TABLE ────────────────────────────────────────────────── -->
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-header">Understanding Your DTI Ratio</div>
+    <div class="card-body" style="padding:.5rem 0 0">
+      <p style="padding:0 1rem .65rem;font-size:.82rem;color:var(--text-medium)">
+        Your DTI ratio shows what percentage of your monthly income goes toward debt payments. Lenders use this to assess your ability to take on new loans.
+      </p>
+      <table class="rating-table">
+        <thead>
+          <tr>
+            <th>DTI Range</th>
+            <th>Status</th>
+            <th>What It Means</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="row-healthy">
+            <td><strong>0% – 36%</strong></td>
+            <td><span class="band-badge band-healthy">✓ Healthy</span></td>
+            <td>Good position for new loans. Most lenders prefer this range.</td>
+          </tr>
+          <tr id="row-caution">
+            <td><strong>36% – 43%</strong></td>
+            <td><span class="band-badge band-caution">⚠ Caution</span></td>
+            <td>Some lenders may still approve, but options are limited.</td>
+          </tr>
+          <tr id="row-highrisk">
+            <td><strong>Over 43%</strong></td>
+            <td><span class="band-badge band-highrisk">✕ High Risk</span></td>
+            <td>Most lenders will decline. Focus on paying down existing debt.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:.65rem 1rem .85rem;font-size:.76rem;color:var(--text-light)">
+        💡 <strong>Tip:</strong> Adjust your monthly debt payments or income above to see how your DTI changes in real time.
+      </div>
+    </div>
+  </div>
+
+  <!-- Print bar -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">Click <strong>Print / Save as PDF</strong> to export results.</div>
+    <button class="btn-print" onclick="window.print()">&#128424; <span data-i18n="print.btn">Print / Save as PDF</span></button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=15"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+let pieChartInst = null;
+let barChartInst = null;
+let currency = 'KHR';
+
+// ── Currency helpers ──────────────────────────────────────────────────────────
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr = getXR();
+  const fields = ['income','housing','utilities','loanPayments','lcHousing','lcUtilities','lcLoans'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    const v  = parseFloat(el.value) || 0;
+    el.value = newCur === 'KHR' ? Math.round(v * xr) : +(v / xr).toFixed(2);
+    el.step  = newCur === 'KHR' ? id === 'utilities' || id === 'lcUtilities' ? '5000' : '10000' : '10';
+  });
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === newCur)
+  );
+  const sym = newCur === 'KHR' ? '&#6107;' : '$';
+  ['currPrefix','p2','p3','p4','p5','p6','p7'].forEach(id =>
+    document.getElementById(id).innerHTML = sym
+  );
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? '' : 'none';
+  calculate();
+}
+
+function fmt(khr) {
+  if (currency === 'KHR') return '&#6107;&nbsp;' + Math.round(khr).toLocaleString('en-US');
+  const usd = khr / getXR();
+  return '$' + usd.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function fmtDisp(khr) {
+  return currency === 'KHR' ? Math.round(khr) : Math.round(khr / getXR());
+}
+
+// ── DTI class helper ──────────────────────────────────────────────────────────
+function dtiClass(ratio) {
+  if (ratio <= 0.36) return 'healthy';
+  if (ratio <= 0.43) return 'caution';
+  return 'highrisk';
+}
+function dtiLabel(ratio) {
+  if (ratio <= 0.36) return '✓ Healthy';
+  if (ratio <= 0.43) return '⚠ Caution';
+  return '✕ High Risk';
+}
+
+// ── Main calculate ────────────────────────────────────────────────────────────
+function calculate() {
+  const xr       = getXR();
+  const toKHR    = v => currency === 'KHR' ? v : v * xr;
+
+  const income   = Math.max(0, toKHR(parseFloat(document.getElementById('income').value)       || 0));
+  const housing  = Math.max(0, toKHR(parseFloat(document.getElementById('housing').value)      || 0));
+  const utils    = Math.max(0, toKHR(parseFloat(document.getElementById('utilities').value)    || 0));
+  const loans    = Math.max(0, toKHR(parseFloat(document.getElementById('loanPayments').value) || 0));
+  const dtiMaxPct= Math.max(1, Math.min(100, parseFloat(document.getElementById('dtiMax').value) || 40)) / 100;
+  const lcHous   = Math.max(0, toKHR(parseFloat(document.getElementById('lcHousing').value)    || 0));
+  const lcUtils  = Math.max(0, toKHR(parseFloat(document.getElementById('lcUtilities').value)  || 0));
+  const lcLoans  = Math.max(0, toKHR(parseFloat(document.getElementById('lcLoans').value)      || 0));
+
+  // ── Current DTI ──
+  const totalDebt  = housing + utils + loans;
+  const dtiRatio   = income > 0 ? totalDebt / income : 0;
+  const available  = income - totalDebt;
+  const housingPct = income > 0 ? housing / income : 0;
+  const cls        = dtiClass(dtiRatio);
+
+  // ── Loan capacity ──
+  const dtiMaxAmt  = income * dtiMaxPct;
+  const lcOblig    = lcHous + lcUtils + lcLoans;
+  const loanCap    = dtiMaxAmt - lcOblig;
+  const lcAvail    = income - dtiMaxAmt;
+  const lcCapUsed  = income > 0 ? lcOblig / income * 100 : 0;
+
+  // ── Update DTI hero ──
+  const pctEl = document.getElementById('dtiPct');
+  pctEl.textContent = (dtiRatio * 100).toFixed(1) + '%';
+  pctEl.className   = 'dti-pct ' + cls;
+
+  const ratingEl = document.getElementById('dtiRating');
+  ratingEl.textContent = dtiLabel(dtiRatio);
+  ratingEl.className   = 'dti-rating ' + cls;
+
+  // Progress bar — cap visual at 100%
+  const barPct = Math.min(dtiRatio * 100, 100);
+  document.getElementById('dtiBarFill').style.width    = barPct + '%';
+  document.getElementById('dtiBarFill').style.color    = cls === 'healthy' ? '#059669' : cls === 'caution' ? '#d97706' : '#dc2626';
+  document.getElementById('dtiNeedle').style.left      = barPct + '%';
+
+  // Highlight current row in reference table
+  ['healthy','caution','highrisk'].forEach(c =>
+    document.getElementById('row-' + c).style.background = c === cls ? (c === 'healthy' ? '#f0fdf4' : c === 'caution' ? '#fffbeb' : '#fef2f2') : ''
+  );
+
+  // ── Update result fields ──
+  document.getElementById('r-totalDebt').innerHTML   = fmt(totalDebt);
+  document.getElementById('r-income').innerHTML      = fmt(income);
+  document.getElementById('r-available').innerHTML   = fmt(available);
+  document.getElementById('r-housingPct').textContent = (housingPct * 100).toFixed(1) + '%';
+
+  // Loan capacity
+  const lcCapEl  = document.getElementById('r-loanCap');
+  lcCapEl.innerHTML  = fmt(Math.max(0, loanCap));
+  lcCapEl.className  = 'lc-value' + (loanCap < 0 ? ' negative' : '');
+  document.getElementById('r-loanCapSub').textContent = loanCap < 0
+    ? 'Over capacity — reduce current obligations'
+    : 'Additional monthly payment capacity';
+  document.getElementById('r-dtiMaxAmt').innerHTML  = fmt(dtiMaxAmt);
+  document.getElementById('r-lcOblig').innerHTML    = fmt(lcOblig);
+  document.getElementById('r-lcAvail').innerHTML    = fmt(lcAvail);
+  document.getElementById('r-lcCapUsed').textContent = lcCapUsed.toFixed(1) + '% used';
+
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-GB',
+    { day: '2-digit', month: 'short', year: 'numeric' });
+
+  renderPieChart(totalDebt, available);
+  renderBarChart(lcOblig, loanCap, lcAvail);
+}
+
+// ── Pie chart — income breakdown ──────────────────────────────────────────────
+function renderPieChart(debtKHR, availKHR) {
+  const debt  = Math.max(0, fmtDisp(debtKHR));
+  const avail = Math.max(0, fmtDisp(availKHR));
+  const sym   = currency === 'KHR' ? '៛' : '$';
+
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  if (pieChartInst) pieChartInst.destroy();
+  pieChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Debt Payments', 'Available for Spending'],
+      datasets: [{
+        data: [debt, avail],
+        backgroundColor: ['#dc2626', '#059669'],
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '55%',
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14 } },
+        tooltip: {
+          callbacks: {
+            label: c => '  ' + c.label + ': ' + sym + c.parsed.toLocaleString('en-US')
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── Stacked bar — loan capacity breakdown ─────────────────────────────────────
+function renderBarChart(obligKHR, capKHR, availKHR) {
+  const oblig = Math.max(0, fmtDisp(obligKHR));
+  const cap   = Math.max(0, fmtDisp(capKHR));
+  const avail = Math.max(0, fmtDisp(availKHR));
+  const sym   = currency === 'KHR' ? '៛' : '$';
+
+  const ctx = document.getElementById('barChart').getContext('2d');
+  if (barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Monthly Income'],
+      datasets: [
+        {
+          label: 'Current Obligations',
+          data: [oblig],
+          backgroundColor: 'rgba(220,38,38,.75)',
+          borderRadius: 3
+        },
+        {
+          label: 'Loan Capacity',
+          data: [cap],
+          backgroundColor: 'rgba(245,158,11,.75)',
+          borderRadius: 3
+        },
+        {
+          label: 'Available for Spending',
+          data: [avail],
+          backgroundColor: 'rgba(5,150,105,.75)',
+          borderRadius: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } },
+        tooltip: {
+          callbacks: {
+            label: c => '  ' + c.dataset.label + ': ' + sym + c.parsed.y.toLocaleString('en-US')
+          }
+        }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: {
+          stacked: true,
+          ticks: {
+            font: { size: 10 },
+            callback: v => sym + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'K' : v)
+          },
+          grid: { color: 'rgba(0,0,0,.05)' }
+        }
+      }
+    }
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('exrateGroup').style.display = '';
+  calculate();
+  document.querySelectorAll('input').forEach(el => {
+    el.addEventListener('input',  calculate);
+    el.addEventListener('change', calculate);
+  });
+});
+</script>
+
+</body>
+</html>
