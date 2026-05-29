@@ -13,127 +13,126 @@
     .loan-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
     .loan-table thead th {
       background: var(--green-800); color: white;
-      padding: .38rem .6rem; text-align: left; font-size: .72rem;
+      padding: .38rem .55rem; text-align: left; font-size: .71rem;
       font-weight: 600; white-space: nowrap;
     }
     .loan-table tbody td {
-      padding: .3rem .4rem; border-bottom: 1px solid var(--green-50);
+      padding: .28rem .35rem; border-bottom: 1px solid var(--green-50);
       vertical-align: middle;
     }
-    .loan-table tbody tr:last-child td { border-bottom: none; }
+    .loan-table tbody tr { transition: background .15s; }
+    .loan-table tbody tr.drag-over { background: #d1fae5; }
     .loan-table input[type="number"],
     .loan-table input[type="text"],
     .loan-table select {
-      width: 100%; padding: .22rem .35rem;
+      width: 100%; padding: .2rem .3rem;
       border: 1px solid #d1d5db; border-radius: 4px;
-      font-size: .8rem; font-family: inherit;
-      background: white;
+      font-size: .8rem; font-family: inherit; background: white;
     }
     .loan-table input:focus, .loan-table select:focus {
       outline: none; border-color: var(--green-500);
     }
+
+    /* ── Drag handle + move buttons ── */
+    .move-btns { display: flex; flex-direction: column; gap: 1px; }
+    .move-btn {
+      background: var(--green-50); border: 1px solid var(--green-200);
+      border-radius: 3px; cursor: pointer; padding: 1px 5px;
+      font-size: .65rem; line-height: 1.2; color: var(--green-700);
+      transition: background .1s;
+    }
+    .move-btn:hover { background: var(--green-200); }
+    .drag-handle {
+      cursor: grab; color: var(--text-light); font-size: 1rem;
+      padding: 0 4px; user-select: none; line-height: 1;
+    }
+    .drag-handle:active { cursor: grabbing; }
+    .order-badge {
+      background: var(--green-800); color: white;
+      border-radius: 50%; width: 18px; height: 18px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .68rem; font-weight: 700; flex-shrink: 0;
+    }
+
     .del-btn {
       background: #fee2e2; color: #991b1b; border: none;
-      border-radius: 4px; padding: .2rem .5rem; cursor: pointer;
+      border-radius: 4px; padding: .18rem .45rem; cursor: pointer;
       font-size: .8rem; font-weight: 700;
     }
     .del-btn:hover { background: #fca5a5; }
     .add-loan-btn {
       background: var(--green-50); border: 1.5px dashed var(--green-400);
       color: var(--green-700); border-radius: 6px;
-      padding: .45rem 1rem; font-size: .82rem; font-weight: 600;
+      padding: .4rem 1rem; font-size: .82rem; font-weight: 600;
       cursor: pointer; margin-top: .6rem; width: 100%;
       transition: background .15s;
     }
     .add-loan-btn:hover { background: var(--green-100); }
 
-    /* ── Strategy comparison cards ── */
-    .strategy-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 1rem; margin-bottom: 1.25rem;
+    /* ── Strategy comparison table ── */
+    .compare-table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    .compare-table thead th {
+      background: var(--green-800); color: white;
+      padding: .42rem .75rem; text-align: left; font-size: .72rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
     }
-    @media (max-width: 600px) { .strategy-grid { grid-template-columns: 1fr; } }
-
-    .strategy-card { border-radius: var(--radius); overflow: hidden;
-      border: 1.5px solid var(--green-200); }
-    .strategy-card.winner-snowball { border-color: #6ee7b7; }
-    .strategy-card.winner-avalanche { border-color: #93c5fd; }
-
-    .strategy-card-head {
-      padding: .55rem 1rem; font-weight: 700; font-size: .9rem;
-      display: flex; align-items: center; gap: .5rem; justify-content: space-between;
+    .compare-table thead th:not(:first-child) { text-align: right; }
+    .compare-table tbody td {
+      padding: .48rem .75rem; border-bottom: 1px solid var(--green-50);
     }
-    .strategy-card-head.snowball-head { background: #d1fae5; color: #065f46; }
-    .strategy-card-head.avalanche-head { background: #dbeafe; color: #1e40af; }
-
-    .winner-badge {
-      background: #059669; color: white;
-      font-size: .68rem; font-weight: 700;
-      border-radius: 10px; padding: .1rem .55rem;
+    .compare-table tbody td:not(:first-child) { text-align: right; }
+    .compare-table tbody tr:last-child td { border-bottom: none; }
+    .compare-table tbody tr.best-row { background: #f0fdf4; }
+    .strategy-name { display: flex; align-items: center; gap: .45rem; font-weight: 600; }
+    .strategy-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
     }
-    .winner-badge.avl { background: #3b82f6; }
-
-    .strategy-card-body { padding: .75rem 1rem; }
-    .strat-stat { display: flex; justify-content: space-between;
-      align-items: baseline; padding: .28rem 0;
-      border-bottom: 1px solid var(--green-50); font-size: .84rem; }
-    .strat-stat:last-child { border-bottom: none; }
-    .strat-stat .s-label { color: var(--text-medium); }
-    .strat-stat .s-val { font-weight: 700; }
-    .strat-stat .s-val.snowball { color: #059669; }
-    .strat-stat .s-val.avalanche { color: #3b82f6; }
-    .strat-stat .s-val.baseline { color: var(--text-medium); }
-
-    /* ── Winner banner ── */
-    .winner-banner {
-      border-radius: var(--radius); padding: .85rem 1.1rem;
-      margin-bottom: 1.1rem; display: flex; align-items: center; gap: .75rem;
+    .best-badge {
+      display: inline-block; background: #059669; color: white;
+      border-radius: 10px; padding: .08rem .5rem; font-size: .68rem;
+      font-weight: 700; margin-left: .35rem; vertical-align: middle;
     }
-    .winner-banner.sb { background: #d1fae5; border: 1.5px solid #6ee7b7; }
-    .winner-banner.av { background: #dbeafe; border: 1.5px solid #93c5fd; }
-    .winner-banner.tie { background: var(--green-50); border: 1.5px solid var(--green-200); }
-    .wb-title { font-size: 1rem; font-weight: 800; }
-    .wb-title.sb { color: #065f46; }
-    .wb-title.av { color: #1e40af; }
-    .wb-sub { font-size: .82rem; color: var(--text-medium); margin-top: .15rem; }
 
-    /* ── Pay-off order chips ── */
-    .payoff-order { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-    .payoff-chip {
-      display: flex; align-items: center; gap: .3rem;
-      border-radius: 20px; padding: .18rem .65rem;
-      font-size: .78rem; font-weight: 600;
+    /* ── Payoff order chips ── */
+    .payoff-order { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin-top: .35rem; }
+    .po-chip {
+      border-radius: 14px; padding: .15rem .6rem;
+      font-size: .75rem; font-weight: 600; white-space: nowrap;
     }
-    .payoff-chip.sb-chip { background: #d1fae5; color: #065f46; }
-    .payoff-chip.av-chip { background: #dbeafe; color: #1e40af; }
-    .payoff-chip .chip-arrow { color: var(--text-light); font-size: .7rem; }
+    .po-arrow { color: var(--text-light); font-size: .75rem; }
 
-    /* ── Chart ── */
-    .chart-wrap { position: relative; height: 280px; padding: .5rem 0 0; }
+    /* ── Detail accordion ── */
+    .detail-row td { padding: 0 !important; border: none !important; }
+    .detail-inner {
+      padding: .6rem .75rem .75rem;
+      background: var(--green-50);
+      border-bottom: 1px solid var(--green-100);
+    }
+    .detail-btn {
+      background: none; border: none; color: var(--green-700);
+      font-size: .75rem; font-weight: 600; cursor: pointer;
+      padding: 0; margin-left: .4rem; text-decoration: underline;
+    }
+    .detail-btn:hover { color: var(--green-900); }
 
     /* ── Budget warning ── */
     .budget-warning {
       background: #fef3c7; border: 1.5px solid #fcd34d; border-radius: var(--radius);
-      padding: .75rem 1rem; font-size: .82rem; color: #92400e; margin-bottom: 1rem;
+      padding: .7rem 1rem; font-size: .82rem; color: #92400e; margin-bottom: 1rem;
       display: none;
     }
 
-    /* ── Section divider with label ── */
-    .section-head {
-      font-size: .78rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .07em; color: var(--green-700);
-      margin: .8rem 0 .45rem; display: flex; align-items: center; gap: .5rem;
-    }
-    .section-head::after { content: ''; flex: 1; height: 1px; background: var(--green-100); }
+    /* ── Chart ── */
+    .chart-wrap { position: relative; height: 300px; padding: .5rem 0 0; }
 
-    /* ── Baseline row ── */
-    .baseline-note {
-      font-size: .76rem; color: var(--text-light); font-style: italic;
-      margin-top: .35rem;
+    /* ── Strategy colour variables ── */
+    :root {
+      --c-snowball:    #059669;
+      --c-avalanche:   #3b82f6;
+      --c-stairstepper:#9333ea;
+      --c-highpayment: #d97706;
+      --c-custom:      #dc2626;
     }
-
-    /* ── Interest type badge ── */
-    select.int-type { width: auto; min-width: 90px; }
   </style>
 </head>
 <body>
@@ -166,7 +165,7 @@
       &rsaquo; <span data-i18n="calc.debt_payoff.name">Debt Pay-Off Strategies</span>
     </div>
     <h2 data-i18n="calc.debt_payoff.name">Debt Pay-Off Strategies</h2>
-    <p>Compare two proven strategies — <strong>Snowball</strong> (smallest balance first) and <strong>Avalanche</strong> (highest interest first) — to find the fastest and cheapest path to becoming debt-free.</p>
+    <p>Compare all five pay-off strategies side by side — enter your debts, set your monthly budget, and instantly see which approach gets you debt-free fastest and cheapest.</p>
   </div>
 </div>
 
@@ -185,122 +184,85 @@
     </span>
   </div>
 
-  <!-- ── BUDGET INPUT ── -->
+  <!-- ── BUDGET ── -->
   <div class="card" style="margin-bottom:1rem">
     <div class="card-header">Monthly Budget for Debt Payments</div>
     <div class="card-body" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
-      <div class="input-wrapper" style="max-width:220px">
+      <div class="input-wrapper" style="max-width:210px">
         <span class="input-prefix" id="budgetPfx">$</span>
         <input type="number" id="monthlyBudget" value="300" min="1" step="10"
-          style="font-size:1.1rem;font-weight:700">
+          style="font-size:1.1rem;font-weight:700" oninput="calculate()">
       </div>
       <div style="font-size:.82rem;color:var(--text-medium)">
-        per month — this is the total you can put toward all debts combined
+        per month — total available for <strong>all</strong> debts combined
       </div>
     </div>
   </div>
 
   <!-- ── LOAN TABLE ── -->
   <div class="card" style="margin-bottom:1rem">
-    <div class="card-header">Your Debts</div>
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Your Debts</span>
+      <span style="font-size:.72rem;font-weight:400;color:#a7f3d0">
+        ☰ drag rows · ▲▼ move · Custom order = 🎯 strategy
+      </span>
+    </div>
     <div class="card-body" style="padding:.5rem .75rem .75rem">
       <div class="loan-table-wrap">
         <table class="loan-table">
           <thead>
             <tr>
-              <th style="width:90px">Debt Name</th>
-              <th style="width:110px">Balance</th>
-              <th style="width:80px">Rate/mo</th>
-              <th style="width:100px">Interest Type</th>
-              <th style="width:100px">Min. Payment</th>
-              <th style="width:65px">Penalty</th>
-              <th style="width:30px"></th>
+              <th style="width:24px">#</th>
+              <th style="width:24px">☰</th>
+              <th style="width:22px"></th>
+              <th style="width:88px">Debt Name</th>
+              <th style="width:105px">Balance</th>
+              <th style="width:72px">Rate/mo</th>
+              <th style="width:95px">Int. Type</th>
+              <th style="width:95px">Min. Payment</th>
+              <th style="width:58px">Penalty</th>
+              <th style="width:24px"></th>
             </tr>
           </thead>
           <tbody id="loanTableBody"></tbody>
         </table>
       </div>
       <button class="add-loan-btn" onclick="addLoan()">+ Add Another Debt</button>
-      <div style="font-size:.72rem;color:var(--text-light);margin-top:.5rem">
-        <strong>Interest type:</strong> <em>Simple</em> = interest charged on original balance each month (flat fee). <em>Compound</em> = interest charged on current balance (standard loans).
-        <strong>Penalty</strong> = extra % charge if you pay less than minimum.
+      <div style="font-size:.71rem;color:var(--text-light);margin-top:.45rem;line-height:1.5">
+        <strong>Simple interest</strong> = fixed charge on original balance each month.&nbsp;
+        <strong>Compound</strong> = interest on current balance (most loans).&nbsp;
+        <strong>Penalty</strong> = extra % if you pay less than minimum.
       </div>
     </div>
   </div>
 
   <!-- ── BUDGET WARNING ── -->
   <div class="budget-warning" id="budgetWarning">
-    ⚠️ <strong>Budget is less than total minimum payments</strong> — the strategies cannot work as intended.
-    Increase your monthly budget or reduce minimums to apply snowball/avalanche.
+    ⚠️ <strong>Budget is less than total minimum payments</strong> — strategies may stall.
+    Increase your monthly budget or reduce minimum payments.
   </div>
 
   <!-- ── RESULTS ── -->
   <div id="resultsSection">
 
-    <!-- Winner banner -->
-    <div class="winner-banner" id="winnerBanner">
-      <div style="font-size:1.6rem" id="winnerIcon">🏆</div>
-      <div>
-        <div class="wb-title" id="winnerTitle">—</div>
-        <div class="wb-sub" id="winnerSub">—</div>
+    <!-- Strategy comparison table -->
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header">All Strategies Compared</div>
+      <div class="card-body" style="padding:0">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Strategy</th>
+              <th>Pay-off Order</th>
+              <th>Months</th>
+              <th>Total Interest</th>
+              <th>Total Paid</th>
+            </tr>
+          </thead>
+          <tbody id="compareBody"></tbody>
+        </table>
       </div>
     </div>
-
-    <!-- Strategy comparison cards -->
-    <div class="strategy-grid">
-
-      <!-- Snowball -->
-      <div class="strategy-card" id="sbCard">
-        <div class="strategy-card-head snowball-head">
-          <span>⛄ Snowball <span style="font-weight:400;font-size:.78rem">(Smallest → Largest)</span></span>
-          <span class="winner-badge" id="sbBadge" style="display:none">✓ Saves More</span>
-        </div>
-        <div class="strategy-card-body">
-          <div class="strat-stat">
-            <span class="s-label">Months to Debt-Free</span>
-            <span class="s-val snowball" id="r-sbMonths">—</span>
-          </div>
-          <div class="strat-stat">
-            <span class="s-label">Total Interest Paid</span>
-            <span class="s-val snowball" id="r-sbInterest">—</span>
-          </div>
-          <div class="strat-stat">
-            <span class="s-label">Total Amount Paid</span>
-            <span class="s-val snowball" id="r-sbTotal">—</span>
-          </div>
-          <div class="section-head">Pay-off order</div>
-          <div class="payoff-order" id="r-sbOrder"></div>
-        </div>
-      </div>
-
-      <!-- Avalanche -->
-      <div class="strategy-card" id="avCard">
-        <div class="strategy-card-head avalanche-head">
-          <span>🏔 Avalanche <span style="font-weight:400;font-size:.78rem">(Highest Rate → Lowest)</span></span>
-          <span class="winner-badge avl" id="avBadge" style="display:none">✓ Saves More</span>
-        </div>
-        <div class="strategy-card-body">
-          <div class="strat-stat">
-            <span class="s-label">Months to Debt-Free</span>
-            <span class="s-val avalanche" id="r-avMonths">—</span>
-          </div>
-          <div class="strat-stat">
-            <span class="s-label">Total Interest Paid</span>
-            <span class="s-val avalanche" id="r-avInterest">—</span>
-          </div>
-          <div class="strat-stat">
-            <span class="s-label">Total Amount Paid</span>
-            <span class="s-val avalanche" id="r-avTotal">—</span>
-          </div>
-          <div class="section-head">Pay-off order</div>
-          <div class="payoff-order" id="r-avOrder"></div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Baseline note -->
-    <div class="baseline-note" id="baselineNote"></div>
 
     <!-- Chart -->
     <div class="card" style="margin-bottom:1.25rem">
@@ -312,40 +274,56 @@
       </div>
     </div>
 
-    <!-- Per-loan breakdown -->
+    <!-- How-to explainer -->
     <div class="card">
-      <div class="card-header">Per-Debt Summary</div>
-      <div class="card-body" style="padding:.5rem 0 0">
-        <table class="rating-table" id="perLoanTable">
-          <thead>
-            <tr>
-              <th>Debt</th>
-              <th>Balance</th>
-              <th>Rate / mo</th>
-              <th>Min. Payment</th>
-              <th style="color:#6ee7b7">⛄ SB Paid Off</th>
-              <th style="color:#6ee7b7">⛄ SB Interest</th>
-              <th style="color:#93c5fd">🏔 AV Paid Off</th>
-              <th style="color:#93c5fd">🏔 AV Interest</th>
-            </tr>
-          </thead>
-          <tbody id="perLoanBody"></tbody>
+      <div class="card-header">Strategy Guide</div>
+      <div class="card-body" style="font-size:.82rem;color:var(--text-medium);line-height:1.7">
+        <table style="width:100%;border-collapse:collapse">
+          <tr style="border-bottom:1px solid var(--green-100)">
+            <td style="padding:.5rem .6rem .5rem 0;width:130px;vertical-align:top">
+              <strong style="color:var(--c-snowball)">⛄ Snowball</strong>
+            </td>
+            <td style="padding:.5rem 0">
+              Pay off the <strong>smallest balance</strong> first. Builds momentum with quick wins. Best for motivation.
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--green-100)">
+            <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
+              <strong style="color:var(--c-avalanche)">🏔 Avalanche</strong>
+            </td>
+            <td style="padding:.5rem 0">
+              Pay off the <strong>highest interest rate</strong> first. Mathematically minimises total interest. Best if disciplined.
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--green-100)">
+            <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
+              <strong style="color:var(--c-stairstepper)">🪜 Stairstepper</strong>
+            </td>
+            <td style="padding:.5rem 0">
+              Pay off whichever debt will be eliminated <strong>soonest</strong> with your available extra budget. Frees up cash flow the fastest — re-evaluated after each payoff. A balance between snowball and avalanche.
+            </td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--green-100)">
+            <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
+              <strong style="color:var(--c-highpayment)">💰 High Payment</strong>
+            </td>
+            <td style="padding:.5rem 0">
+              Pay off the debt with the <strong>highest minimum payment</strong> first. Frees up the largest monthly cash amount when paid off — good if your goal is maximising future cash flow.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
+              <strong style="color:var(--c-custom)">🎯 Custom</strong>
+            </td>
+            <td style="padding:.5rem 0">
+              <strong>Your own order</strong>. Drag the rows or use ▲▼ to arrange debts in the order you want to pay them off. The custom strategy follows the table order from top to bottom.
+            </td>
+          </tr>
         </table>
       </div>
     </div>
 
-    <!-- Explainer -->
-    <div class="card" style="margin-top:1.25rem">
-      <div class="card-header">Which Strategy Should You Choose?</div>
-      <div class="card-body" style="font-size:.83rem;color:var(--text-medium);line-height:1.7">
-        <p><strong>⛄ Snowball</strong> — Pay off the <em>smallest balance</em> first, then roll that freed-up payment to the next smallest. You get early wins, which builds motivation and momentum. Often recommended for people who need encouragement to stay on track.</p>
-        <p style="margin-top:.6rem"><strong>🏔 Avalanche</strong> — Pay off the <em>highest interest rate</em> first. Mathematically optimal: you minimize total interest paid. Best for those who are disciplined and want to spend as little as possible.</p>
-        <p style="margin-top:.6rem"><strong>Both strategies work by rolling freed payments to the next debt.</strong> The key is to keep your monthly budget fixed and stick to the plan. Any extra money beyond minimums accelerates the strategy.</p>
-        <p style="margin-top:.6rem">💡 <strong>Tip:</strong> If the same debt appears first in both strategies, the results will be identical. The biggest savings usually occur when a high-interest debt has a large balance.</p>
-      </div>
-    </div>
-
-  </div><!-- end resultsSection -->
+  </div>
 
   <!-- Print bar -->
   <div class="print-bar">
@@ -353,7 +331,7 @@
     <button class="btn-print" onclick="window.print()">&#128424; <span data-i18n="print.btn">Print / Save as PDF</span></button>
   </div>
 
-</div><!-- end container -->
+</div>
 
 <footer>
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
@@ -366,7 +344,16 @@
 
 let debtChartInst = null;
 let currency = 'USD';
-let loanId = 0;
+let loanId    = 0;
+
+// ── Strategy config ───────────────────────────────────────────────────────────
+const STRATEGIES = [
+  { key: 'snowball',     emoji: '⛄', name: 'Snowball',     desc: 'Smallest balance first',       color: '#059669' },
+  { key: 'avalanche',   emoji: '🏔', name: 'Avalanche',   desc: 'Highest rate first',            color: '#3b82f6' },
+  { key: 'stairstepper',emoji: '🪜', name: 'Stairstepper',desc: 'Quickest payoff first',         color: '#9333ea' },
+  { key: 'highPayment', emoji: '💰', name: 'High Payment', desc: 'Highest minimum payment first', color: '#d97706' },
+  { key: 'custom',      emoji: '🎯', name: 'Custom',       desc: 'Your order (top → bottom)',     color: '#dc2626' },
+];
 
 // ── Currency helpers ──────────────────────────────────────────────────────────
 function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
@@ -374,219 +361,276 @@ function getXR() { return Math.max(1, parseFloat(document.getElementById('exchan
 function setCurrency(newCur) {
   if (currency === newCur) return;
   const xr = getXR();
-  // Convert budget
   const budgetEl = document.getElementById('monthlyBudget');
-  budgetEl.value = newCur === 'KHR'
-    ? Math.round(parseFloat(budgetEl.value) * xr)
-    : Math.round(parseFloat(budgetEl.value) / xr);
-  budgetEl.step = newCur === 'KHR' ? 10000 : 10;
+  budgetEl.value = newCur === 'KHR' ? Math.round(parseFloat(budgetEl.value) * xr) : Math.round(parseFloat(budgetEl.value) / xr);
+  budgetEl.step  = newCur === 'KHR' ? 10000 : 10;
 
-  // Convert loan balances and minimums
   document.querySelectorAll('.balance-input').forEach(el => {
-    const v = parseFloat(el.value) || 0;
-    el.value = newCur === 'KHR' ? Math.round(v * xr) : Math.round(v / xr);
-    el.step = newCur === 'KHR' ? 10000 : 10;
+    el.value = newCur === 'KHR' ? Math.round(parseFloat(el.value) * xr) : Math.round(parseFloat(el.value) / xr);
+    el.step  = newCur === 'KHR' ? 10000 : 10;
   });
   document.querySelectorAll('.min-input').forEach(el => {
-    const v = parseFloat(el.value) || 0;
-    el.value = newCur === 'KHR' ? Math.round(v * xr) : Math.round(v / xr);
-    el.step = newCur === 'KHR' ? 1000 : 5;
+    el.value = newCur === 'KHR' ? Math.round(parseFloat(el.value) * xr) : Math.round(parseFloat(el.value) / xr);
+    el.step  = newCur === 'KHR' ? 1000 : 5;
   });
 
   currency = newCur;
-  document.querySelectorAll('.currency-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.currency === newCur));
+  document.querySelectorAll('.currency-btn').forEach(b => b.classList.toggle('active', b.dataset.currency === newCur));
   document.getElementById('budgetPfx').innerHTML = newCur === 'KHR' ? '&#6107;' : '$';
-  document.querySelectorAll('.cur-pfx').forEach(el =>
-    el.innerHTML = newCur === 'KHR' ? '&#6107;' : '$');
+  document.querySelectorAll('.cur-pfx').forEach(el => el.innerHTML = newCur === 'KHR' ? '&#6107;' : '$');
   document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? 'flex' : 'none';
-
   calculate();
 }
 
-function toUSD(val) { return currency === 'KHR' ? val / getXR() : val; }
+function toUSD(v) { return currency === 'KHR' ? v / getXR() : v; }
 
-function fmt(usdVal, decimals) {
-  const v = Math.round(Math.abs(usdVal));
-  if (currency === 'KHR') return '&#6107;&nbsp;' + Math.round(v * getXR()).toLocaleString('en-US');
-  if (decimals) return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+function fmt(usdVal) {
+  const v = Math.abs(Math.round(usdVal));
+  if (currency === 'KHR') return '&#6107;&thinsp;' + Math.round(v * getXR()).toLocaleString('en-US');
   return '$' + v.toLocaleString('en-US');
 }
 
 // ── Loan row management ───────────────────────────────────────────────────────
 const DEFAULT_LOANS = [
-  { name: 'Small Loan',    balance: 300,  rate: 1.0,  type: 'compound', min: 15,  penalty: 0 },
-  { name: 'Credit Card',   balance: 1200, rate: 3.0,  type: 'compound', min: 50,  penalty: 0 },
-  { name: 'Microfinance',  balance: 5000, rate: 1.5,  type: 'compound', min: 120, penalty: 0 },
+  { name: 'Small Loan',   balance: 300,  rate: 1.0, type: 'compound', min: 15,  penalty: 0 },
+  { name: 'Credit Card',  balance: 1200, rate: 3.0, type: 'compound', min: 50,  penalty: 0 },
+  { name: 'Microfinance', balance: 5000, rate: 1.5, type: 'compound', min: 120, penalty: 0 },
 ];
 
 function addLoan(data) {
   const id = ++loanId;
-  const d = data || { name: '', balance: 0, rate: 1, type: 'compound', min: 0, penalty: 0 };
+  const d  = data || { name: '', balance: 0, rate: 1, type: 'compound', min: 0, penalty: 0 };
   const tbody = document.getElementById('loanTableBody');
   const tr = document.createElement('tr');
   tr.id = 'loan-row-' + id;
-  const sym = currency === 'KHR' ? '&#6107;' : '$';
-  const step = currency === 'KHR' ? 10000 : 10;
-  const mstep = currency === 'KHR' ? 1000 : 5;
-  const bal = currency === 'KHR' ? Math.round(d.balance * getXR()) : d.balance;
-  const mn  = currency === 'KHR' ? Math.round(d.min * getXR()) : d.min;
+  tr.draggable = true;
+  tr.dataset.id = id;
+  const sym  = currency === 'KHR' ? '&#6107;' : '$';
+  const bstep = currency === 'KHR' ? 10000 : 10;
+  const mstep = currency === 'KHR' ? 1000  : 5;
+  const bal  = currency === 'KHR' ? Math.round(d.balance * getXR()) : d.balance;
+  const mn   = currency === 'KHR' ? Math.round(d.min * getXR())     : d.min;
+
   tr.innerHTML = `
-    <td><input type="text" class="name-input" value="${d.name}" placeholder="Debt name"
-      oninput="calculate()"></td>
+    <td style="text-align:center"><span class="order-badge row-num">1</span></td>
+    <td style="text-align:center"><span class="drag-handle" title="Drag to reorder">⠿</span></td>
+    <td><div class="move-btns">
+      <button class="move-btn" onclick="moveLoan(${id},-1)" title="Move up">▲</button>
+      <button class="move-btn" onclick="moveLoan(${id},+1)" title="Move down">▼</button>
+    </div></td>
+    <td><input type="text"   class="name-input"    value="${d.name}" placeholder="Debt name" oninput="calculate()"></td>
     <td><div style="display:flex;align-items:center;gap:2px">
-      <span class="cur-pfx" style="font-size:.8rem;color:var(--text-medium);white-space:nowrap">${sym}</span>
-      <input type="number" class="balance-input" value="${bal}" min="0" step="${step}" oninput="calculate()">
+      <span class="cur-pfx" style="font-size:.8rem;color:var(--text-medium)">${sym}</span>
+      <input type="number" class="balance-input" value="${bal}" min="0" step="${bstep}" oninput="calculate()">
     </div></td>
     <td><div style="display:flex;align-items:center;gap:2px">
-      <input type="number" class="rate-input" value="${d.rate}" min="0" max="100" step="0.1"
-        style="width:60px" oninput="calculate()">
-      <span style="font-size:.75rem;color:var(--text-light)">%</span>
+      <input type="number" class="rate-input" value="${d.rate}" min="0" max="100" step="0.1" style="width:55px" oninput="calculate()">
+      <span style="font-size:.73rem;color:var(--text-light)">%</span>
     </div></td>
-    <td><select class="int-type" onchange="calculate()">
+    <td><select class="int-type" style="width:auto;min-width:88px" onchange="calculate()">
       <option value="compound"${d.type==='compound'?' selected':''}>Compound</option>
       <option value="simple"${d.type==='simple'?' selected':''}>Simple</option>
     </select></td>
     <td><div style="display:flex;align-items:center;gap:2px">
-      <span class="cur-pfx" style="font-size:.8rem;color:var(--text-medium);white-space:nowrap">${sym}</span>
+      <span class="cur-pfx" style="font-size:.8rem;color:var(--text-medium)">${sym}</span>
       <input type="number" class="min-input" value="${mn}" min="0" step="${mstep}" oninput="calculate()">
     </div></td>
     <td><div style="display:flex;align-items:center;gap:2px">
-      <input type="number" class="penalty-input" value="${d.penalty}" min="0" max="50" step="0.5"
-        style="width:44px" oninput="calculate()">
-      <span style="font-size:.75rem;color:var(--text-light)">%</span>
+      <input type="number" class="penalty-input" value="${d.penalty}" min="0" max="50" step="0.5" style="width:40px" oninput="calculate()">
+      <span style="font-size:.73rem;color:var(--text-light)">%</span>
     </div></td>
     <td><button class="del-btn" onclick="removeLoan(${id})" title="Remove">✕</button></td>
   `;
+
   tbody.appendChild(tr);
+  initDragDrop(tr);
+  updateRowNumbers();
+  calculate();
 }
 
 function removeLoan(id) {
   const row = document.getElementById('loan-row-' + id);
   if (row) row.remove();
+  updateRowNumbers();
   calculate();
 }
 
+function moveLoan(id, dir) {
+  const tbody = document.getElementById('loanTableBody');
+  const rows  = Array.from(tbody.querySelectorAll('tr'));
+  const idx   = rows.findIndex(r => r.id === 'loan-row-' + id);
+  if (idx === -1) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= rows.length) return;
+  if (dir === -1) tbody.insertBefore(rows[idx], rows[newIdx]);
+  else tbody.insertBefore(rows[newIdx], rows[idx]);
+  updateRowNumbers();
+  calculate();
+}
+
+function updateRowNumbers() {
+  document.querySelectorAll('#loanTableBody tr').forEach((tr, i) => {
+    const badge = tr.querySelector('.row-num');
+    if (badge) badge.textContent = i + 1;
+  });
+}
+
+// ── Drag-and-drop reordering ──────────────────────────────────────────────────
+let dragSrc = null;
+
+function initDragDrop(tr) {
+  tr.addEventListener('dragstart', e => {
+    dragSrc = tr;
+    tr.style.opacity = '.4';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  tr.addEventListener('dragend', () => {
+    tr.style.opacity = '';
+    document.querySelectorAll('#loanTableBody tr').forEach(r => r.classList.remove('drag-over'));
+  });
+  tr.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('#loanTableBody tr').forEach(r => r.classList.remove('drag-over'));
+    if (tr !== dragSrc) tr.classList.add('drag-over');
+    return false;
+  });
+  tr.addEventListener('drop', e => {
+    e.stopPropagation();
+    if (dragSrc !== tr) {
+      const tbody = document.getElementById('loanTableBody');
+      const rows  = Array.from(tbody.querySelectorAll('tr'));
+      const srcIdx = rows.indexOf(dragSrc);
+      const dstIdx = rows.indexOf(tr);
+      if (srcIdx < dstIdx) tbody.insertBefore(dragSrc, tr.nextSibling);
+      else tbody.insertBefore(dragSrc, tr);
+      updateRowNumbers();
+      calculate();
+    }
+    return false;
+  });
+}
+
+// ── Read loans from table ─────────────────────────────────────────────────────
 function getLoans() {
   const rows = document.querySelectorAll('#loanTableBody tr');
   const loans = [];
   rows.forEach((row, i) => {
-    const balance  = toUSD(parseFloat(row.querySelector('.balance-input').value) || 0);
-    const rate     = parseFloat(row.querySelector('.rate-input').value) || 0;
-    const type     = row.querySelector('.int-type').value;
-    const min      = toUSD(parseFloat(row.querySelector('.min-input').value) || 0);
-    const penalty  = parseFloat(row.querySelector('.penalty-input').value) || 0;
-    const name     = row.querySelector('.name-input').value.trim() || ('Debt ' + (i + 1));
-    if (balance > 0) {
-      loans.push({ id: i, name, balance, origBalance: balance, rate, type, min, penalty });
-    }
+    const balance = toUSD(parseFloat(row.querySelector('.balance-input').value) || 0);
+    const rate    = parseFloat(row.querySelector('.rate-input').value)     || 0;
+    const type    = row.querySelector('.int-type').value;
+    const min     = toUSD(parseFloat(row.querySelector('.min-input').value) || 0);
+    const penalty = parseFloat(row.querySelector('.penalty-input').value)  || 0;
+    const name    = row.querySelector('.name-input').value.trim() || ('Debt ' + (i + 1));
+    if (balance > 0) loans.push({ id: i, name, balance, origBalance: balance, rate, type, min, penalty, tableOrder: i });
   });
   return loans;
 }
 
-// ── Core strategy computation ─────────────────────────────────────────────────
-function runStrategy(loansInput, budget, strategy) {
-  // Deep copy
-  let debts = loansInput.map(l => ({
-    ...l,
-    balance: l.balance,
-    origBalance: l.origBalance,
-    interestPaid: 0,
-    totalPaid: 0,
-    paidOffMonth: null,
-  }));
+// ── Core simulation ───────────────────────────────────────────────────────────
+function deepCopy(loans) {
+  return loans.map(l => ({ ...l, interestPaid: 0, totalPaid: 0, paidOffMonth: null, origBalance: l.origBalance || l.balance }));
+}
 
-  // Sort priority
-  if (strategy === 'snowball') {
-    debts.sort((a, b) => a.balance - b.balance);
-  } else {
-    debts.sort((a, b) => b.rate - a.rate);
+function applyPayment(d, payment) {
+  if (d.balance < 0.005) return;
+  const interest = d.type === 'simple'
+    ? d.origBalance * d.rate / 100
+    : d.balance * d.rate / 100;
+
+  let penalty = 0;
+  if (d.type === 'compound' && payment < d.min && d.penalty > 0) {
+    const afterInt = d.balance + interest;
+    penalty = Math.max(0, afterInt - payment) * d.penalty / 100;
   }
 
-  const priorityOrder = debts.map(d => d.id);
-  const history = [debts.reduce((s, d) => s + d.balance, 0)]; // month 0
+  const charge  = interest + penalty;
+  const actual  = Math.min(payment, d.balance + charge);
+  d.balance     = Math.max(0, d.balance + charge - actual);
+  d.interestPaid += charge;
+  d.totalPaid    += actual;
+}
+
+// Compute months-to-payoff for a single target given a per-month budget
+function monthsToPayoff(target, targetBudget) {
+  let bal = target.balance;
+  let m   = 0;
+  while (bal > 0.005 && m < 600) {
+    m++;
+    const interest = target.type === 'simple' ? target.origBalance * target.rate / 100 : bal * target.rate / 100;
+    const pay = Math.min(targetBudget, bal + interest);
+    bal = Math.max(0, bal + interest - pay);
+  }
+  return m;
+}
+
+function pickTarget(activeDebts, budget, strategy) {
+  if (!activeDebts.length) return null;
+  if (strategy === 'snowball')    return activeDebts.reduce((m, d) => d.balance < m.balance ? d : m);
+  if (strategy === 'avalanche')   return activeDebts.reduce((m, d) => d.rate    > m.rate    ? d : m);
+  if (strategy === 'highPayment') return activeDebts.reduce((m, d) => d.min     > m.min     ? d : m);
+  if (strategy === 'custom')      return activeDebts.reduce((m, d) => d.tableOrder < m.tableOrder ? d : m);
+  // stairstepper: pick whichever has fewest months to payoff with available extra
+  if (strategy === 'stairstepper') {
+    let best = null, bestM = Infinity;
+    for (const t of activeDebts) {
+      const othersMin = activeDebts.filter(x => x.id !== t.id).reduce((s, x) => s + Math.min(x.min, x.balance), 0);
+      const targetBudget = Math.max(0, budget - othersMin);
+      const m = targetBudget > 0 ? monthsToPayoff(t, targetBudget) : 600;
+      if (m < bestM) { bestM = m; best = t; }
+    }
+    return best || activeDebts[0];
+  }
+  return activeDebts[0];
+}
+
+function runStrategy(loansInput, budget, strategy) {
+  const debts = deepCopy(loansInput);
+  const history = [debts.reduce((s, d) => s + d.balance, 0)];
+  const payoffOrder = [];
   let month = 0;
-  const MAX_MONTHS = 600;
+  const MAX = 600;
 
-  while (debts.some(d => d.balance > 0.005) && month < MAX_MONTHS) {
+  while (debts.some(d => d.balance > 0.005) && month < MAX) {
     month++;
-
-    // Current target = highest priority with balance > 0
-    const targetId = priorityOrder.find(id => {
-      const d = debts.find(x => x.id === id);
-      return d && d.balance > 0.005;
-    });
-
-    // Compute minimums for non-targets
-    const nonTargets = debts.filter(d => d.id !== targetId && d.balance > 0.005);
+    const active = debts.filter(d => d.balance > 0.005);
+    const target = pickTarget(active, budget, strategy);
+    const nonTargets = active.filter(d => d.id !== target.id);
     const nonTargetMin = nonTargets.reduce((s, d) => s + Math.min(d.min, d.balance), 0);
 
+    // Pay non-targets their minimum
     let remaining = budget;
-
-    // Pay non-targets their minimum (or full balance if smaller)
     nonTargets.forEach(d => {
-      const payment = Math.min(d.min, d.balance);
-      remaining -= payment;
-      applyPayment(d, payment);
+      const pay = Math.min(d.min, d.balance);
+      remaining -= pay;
+      applyPayment(d, pay);
     });
 
-    // Target gets all remaining budget (capped at payoff amount)
-    const target = debts.find(d => d.id === targetId);
-    if (target && target.balance > 0.005) {
-      // Compute how much is needed to pay off target this month
-      const interestThisMonth = target.type === 'simple'
+    // Target gets all remaining
+    if (target) {
+      const interest = target.type === 'simple'
         ? target.origBalance * target.rate / 100
         : target.balance * target.rate / 100;
-      const payoffNeeded = target.balance + interestThisMonth;
-      const payment = Math.max(0, Math.min(remaining, payoffNeeded));
-      remaining -= payment;
-      applyPayment(target, payment);
+      const pay = Math.max(0, Math.min(remaining, target.balance + interest * 1.05));
+      applyPayment(target, pay);
     }
 
     // Mark paid-off
     debts.forEach(d => {
-      if (d.balance <= 0.005 && d.paidOffMonth === null) {
+      if (d.balance < 0.005 && d.paidOffMonth === null) {
         d.balance = 0;
         d.paidOffMonth = month;
+        payoffOrder.push(d);
       }
     });
 
-    const totalRemaining = debts.reduce((s, d) => s + d.balance, 0);
-    history.push(totalRemaining);
+    history.push(debts.reduce((s, d) => s + d.balance, 0));
   }
 
-  // If hit max months, mark remaining as unpaid
   const totalInterest = debts.reduce((s, d) => s + d.interestPaid, 0);
-  const totalPaid = debts.reduce((s, d) => s + d.totalPaid, 0);
-  const payOffOrder = priorityOrder.map(id => debts.find(d => d.id === id));
+  const totalPaid     = debts.reduce((s, d) => s + d.totalPaid, 0);
 
-  return { months: month, totalInterest, totalPaid, history, payOffOrder, debts };
-}
-
-function applyPayment(debt, payment) {
-  if (debt.balance <= 0.005) return;
-  payment = Math.min(payment, debt.balance + debt.origBalance * debt.rate / 100 * 1.1); // cap
-
-  let interest;
-  if (debt.type === 'simple') {
-    interest = debt.origBalance * debt.rate / 100;
-  } else {
-    interest = debt.balance * debt.rate / 100;
-  }
-
-  let penalty = 0;
-  if (debt.type === 'compound' && payment < debt.min && debt.penalty > 0) {
-    // Penalty charged on remaining balance after payment
-    const afterInterest = debt.balance + interest;
-    penalty = Math.max(0, afterInterest - payment) * debt.penalty / 100;
-  }
-
-  const actualInterest = interest + penalty;
-  const actualPayment  = Math.min(payment, debt.balance + actualInterest);
-
-  debt.balance = Math.max(0, debt.balance + actualInterest - actualPayment);
-  debt.interestPaid += actualInterest;
-  debt.totalPaid    += actualPayment;
+  return { months: month, totalInterest, totalPaid, history, payoffOrder, debts };
 }
 
 // ── Render results ─────────────────────────────────────────────────────────────
@@ -594,164 +638,138 @@ function calculate() {
   const loans  = getLoans();
   const budget = toUSD(parseFloat(document.getElementById('monthlyBudget').value) || 0);
 
-  if (loans.length === 0) {
+  if (!loans.length || budget <= 0) {
     document.getElementById('resultsSection').style.opacity = '0.3';
     return;
   }
   document.getElementById('resultsSection').style.opacity = '1';
 
   const totalMin = loans.reduce((s, l) => s + l.min, 0);
-  const warning  = document.getElementById('budgetWarning');
-  warning.style.display = budget < totalMin ? 'block' : 'none';
+  document.getElementById('budgetWarning').style.display = budget < totalMin ? 'block' : 'none';
 
-  const sb = runStrategy(loans, budget, 'snowball');
-  const av = runStrategy(loans, budget, 'avalanche');
+  // Run all strategies
+  const results = {};
+  STRATEGIES.forEach(s => { results[s.key] = runStrategy(loans, budget, s.key); });
 
-  // Winner
-  const banner     = document.getElementById('winnerBanner');
-  const winTitle   = document.getElementById('winnerTitle');
-  const winSub     = document.getElementById('winnerSub');
-  const sbBadge    = document.getElementById('sbBadge');
-  const avBadge    = document.getElementById('avBadge');
-  sbBadge.style.display = 'none';
-  avBadge.style.display = 'none';
-
-  const sbInt = sb.totalInterest;
-  const avInt = av.totalInterest;
-  const saving = Math.abs(sbInt - avInt);
-
-  if (avInt < sbInt - 0.01) {
-    banner.className = 'winner-banner av';
-    document.getElementById('winnerIcon').textContent = '🏔';
-    winTitle.className = 'wb-title av';
-    winTitle.textContent = '🏔 Avalanche saves more money';
-    winSub.innerHTML = 'Avalanche pays <strong>' + fmt(saving) + ' less interest</strong> than Snowball over the payoff period.';
-    avBadge.style.display = '';
-    document.getElementById('avCard').className = 'strategy-card winner-avalanche';
-    document.getElementById('sbCard').className = 'strategy-card';
-  } else if (sbInt < avInt - 0.01) {
-    banner.className = 'winner-banner sb';
-    document.getElementById('winnerIcon').textContent = '⛄';
-    winTitle.className = 'wb-title sb';
-    winTitle.textContent = '⛄ Snowball saves more money';
-    winSub.innerHTML = 'Snowball pays <strong>' + fmt(saving) + ' less interest</strong> than Avalanche over the payoff period.';
-    sbBadge.style.display = '';
-    document.getElementById('sbCard').className = 'strategy-card winner-snowball';
-    document.getElementById('avCard').className = 'strategy-card';
-  } else {
-    banner.className = 'winner-banner tie';
-    document.getElementById('winnerIcon').textContent = '🤝';
-    winTitle.className = 'wb-title';
-    winTitle.textContent = 'Both strategies are equivalent';
-    winSub.textContent = 'Same pay-off order — results are identical.';
-    document.getElementById('sbCard').className = 'strategy-card';
-    document.getElementById('avCard').className = 'strategy-card';
-  }
-
-  // Stats
-  document.getElementById('r-sbMonths').textContent    = sb.months + ' months (' + (sb.months / 12).toFixed(1) + ' yrs)';
-  document.getElementById('r-sbInterest').innerHTML    = fmt(sb.totalInterest);
-  document.getElementById('r-sbTotal').innerHTML       = fmt(sb.totalPaid);
-  document.getElementById('r-avMonths').textContent    = av.months + ' months (' + (av.months / 12).toFixed(1) + ' yrs)';
-  document.getElementById('r-avInterest').innerHTML    = fmt(av.totalInterest);
-  document.getElementById('r-avTotal').innerHTML       = fmt(av.totalPaid);
-
-  // Pay-off order chips
-  renderOrderChips('r-sbOrder', sb.payOffOrder, 'sb-chip');
-  renderOrderChips('r-avOrder', av.payOffOrder, 'av-chip');
-
-  // Per-loan table
-  renderPerLoan(loans, sb, av);
-
-  // Chart
-  renderChart(sb.history, av.history);
-}
-
-function renderOrderChips(containerId, order, chipClass) {
-  const el = document.getElementById(containerId);
-  el.innerHTML = '';
-  const active = order.filter(d => d && d.origBalance > 0);
-  active.forEach((d, i) => {
-    if (i > 0) {
-      const arr = document.createElement('span');
-      arr.className = 'chip-arrow'; arr.textContent = '→';
-      el.appendChild(arr);
-    }
-    const chip = document.createElement('span');
-    chip.className = 'payoff-chip ' + chipClass;
-    chip.textContent = d.name + (d.paidOffMonth ? ' (mo.' + d.paidOffMonth + ')' : '');
-    el.appendChild(chip);
+  // Find best (lowest interest)
+  let bestKey = STRATEGIES[0].key;
+  STRATEGIES.forEach(s => {
+    if (results[s.key].totalInterest < results[bestKey].totalInterest) bestKey = s.key;
   });
+
+  renderCompareTable(results, bestKey, loans);
+  renderChart(results);
 }
 
-function renderPerLoan(loans, sb, av) {
-  const tbody = document.getElementById('perLoanBody');
+function renderCompareTable(results, bestKey, loans) {
+  const tbody = document.getElementById('compareBody');
   tbody.innerHTML = '';
-  loans.forEach(loan => {
-    const sbDebt = sb.debts.find(d => d.id === loan.id);
-    const avDebt = av.debts.find(d => d.id === loan.id);
+
+  const bestInterest = results[bestKey].totalInterest;
+
+  STRATEGIES.forEach((s, si) => {
+    const r = results[s.key];
+    const isBest = s.key === bestKey;
+
+    // Main row
     const tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td><strong>' + loan.name + '</strong></td>' +
-      '<td>' + fmt(loan.balance) + '</td>' +
-      '<td>' + loan.rate.toFixed(2) + '%</td>' +
-      '<td>' + fmt(loan.min) + '</td>' +
-      '<td style="color:#059669">' + (sbDebt && sbDebt.paidOffMonth ? 'Month ' + sbDebt.paidOffMonth : '—') + '</td>' +
-      '<td style="color:#059669">' + (sbDebt ? fmt(sbDebt.interestPaid) : '—') + '</td>' +
-      '<td style="color:#3b82f6">' + (avDebt && avDebt.paidOffMonth ? 'Month ' + avDebt.paidOffMonth : '—') + '</td>' +
-      '<td style="color:#3b82f6">' + (avDebt ? fmt(avDebt.interestPaid) : '—') + '</td>';
+    if (isBest) tr.className = 'best-row';
+
+    const orderHtml = r.payoffOrder.map((d, i) => {
+      const chip = `<span class="po-chip" style="background:${s.color}22;color:${s.color}">${d.name}</span>`;
+      const arrow = i < r.payoffOrder.length - 1 ? '<span class="po-arrow">→</span>' : '';
+      return chip + arrow;
+    }).join('');
+
+    const saving = bestInterest < r.totalInterest
+      ? '<span style="font-size:.72rem;color:var(--text-light)">+' + fmt(r.totalInterest - bestInterest) + '</span>'
+      : (isBest ? '<span style="font-size:.72rem;color:#059669">★ Best</span>' : '');
+
+    tr.innerHTML = `
+      <td>
+        <div class="strategy-name">
+          <span class="strategy-dot" style="background:${s.color}"></span>
+          ${s.emoji} ${s.name}${isBest ? '<span class="best-badge">✓ Best</span>' : ''}
+        </div>
+        <div style="font-size:.71rem;color:var(--text-light);margin-top:.1rem;padding-left:1.1rem">${s.desc}</div>
+      </td>
+      <td>
+        <div class="payoff-order">${orderHtml}</div>
+        <button class="detail-btn" onclick="toggleDetail(${si})">▼ details</button>
+      </td>
+      <td><strong>${r.months}</strong> mo</td>
+      <td>${fmt(r.totalInterest)} ${saving}</td>
+      <td>${fmt(r.totalPaid)}</td>
+    `;
     tbody.appendChild(tr);
+
+    // Detail row (hidden)
+    const dtr = document.createElement('tr');
+    dtr.className = 'detail-row';
+    dtr.id = 'detail-row-' + si;
+    dtr.style.display = 'none';
+
+    const perLoanHtml = loans.map(loan => {
+      const dLoan = r.debts.find(d => d.id === loan.id);
+      return `
+        <div style="display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid #e5e7eb;font-size:.8rem">
+          <span style="font-weight:600">${loan.name}</span>
+          <span style="display:flex;gap:1.5rem">
+            <span style="color:var(--text-medium)">Paid off: <strong>${dLoan && dLoan.paidOffMonth ? 'mo.' + dLoan.paidOffMonth : '—'}</strong></span>
+            <span style="color:var(--text-medium)">Interest: <strong>${dLoan ? fmt(dLoan.interestPaid) : '—'}</strong></span>
+            <span style="color:var(--text-medium)">Total paid: <strong>${dLoan ? fmt(dLoan.totalPaid) : '—'}</strong></span>
+          </span>
+        </div>
+      `;
+    }).join('');
+
+    dtr.innerHTML = `<td colspan="5"><div class="detail-inner">${perLoanHtml}</div></td>`;
+    tbody.appendChild(dtr);
   });
+}
+
+function toggleDetail(idx) {
+  const row = document.getElementById('detail-row-' + idx);
+  if (!row) return;
+  const isOpen = row.style.display !== 'none';
+  row.style.display = isOpen ? 'none' : '';
+  // Update button text
+  const btns = document.querySelectorAll('.detail-btn');
+  if (btns[idx]) btns[idx].textContent = isOpen ? '▼ details' : '▲ hide';
 }
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
-function renderChart(sbHistory, avHistory) {
-  const maxMonths = Math.max(sbHistory.length, avHistory.length);
-  const labels = Array.from({ length: maxMonths }, (_, i) => i === 0 ? 'Start' : 'Mo.' + i);
+function renderChart(results) {
+  const maxLen = Math.max(...STRATEGIES.map(s => results[s.key].history.length));
+  const labels = Array.from({ length: maxLen }, (_, i) => i === 0 ? 'Start' : 'Mo.' + i);
 
-  // Pad shorter array
-  while (sbHistory.length < maxMonths) sbHistory.push(0);
-  while (avHistory.length < maxMonths) avHistory.push(0);
-
-  const sbData = sbHistory.map(v => Math.round(v));
-  const avData = avHistory.map(v => Math.round(v));
+  const datasets = STRATEGIES.map((s, i) => {
+    const hist = [...results[s.key].history];
+    while (hist.length < maxLen) hist.push(0);
+    return {
+      label: s.emoji + ' ' + s.name,
+      data: hist.map(v => Math.round(v)),
+      borderColor: s.color,
+      backgroundColor: s.color + '10',
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.2,
+      borderDash: i >= 2 ? (i === 2 ? [6,3] : i === 3 ? [2,3] : [8,4]) : [],
+      fill: false,
+    };
+  });
 
   const ctx = document.getElementById('debtChart').getContext('2d');
   if (debtChartInst) debtChartInst.destroy();
   debtChartInst = new Chart(ctx, {
     type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: '⛄ Snowball',
-          data: sbData,
-          borderColor: '#059669',
-          backgroundColor: 'rgba(5,150,105,0.07)',
-          borderWidth: 2.5,
-          pointRadius: 0,
-          tension: 0.2,
-          fill: true,
-        },
-        {
-          label: '🏔 Avalanche',
-          data: avData,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,0.07)',
-          borderWidth: 2.5,
-          pointRadius: 0,
-          tension: 0.2,
-          borderDash: [5, 3],
-          fill: false,
-        },
-      ],
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { position: 'top', labels: { font: { size: 12 }, padding: 14 } },
+        legend: { position: 'top', labels: { font: { size: 11 }, padding: 10, boxWidth: 20 } },
         tooltip: {
           callbacks: {
             label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y),
@@ -767,13 +785,7 @@ function renderChart(sbHistory, avHistory) {
           min: 0,
           ticks: {
             font: { size: 11 },
-            callback: v => {
-              if (currency === 'KHR') {
-                const k = Math.round(v * getXR() / 1000);
-                return '&#6107;' + k + 'k';
-              }
-              return '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v);
-            },
+            callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v),
           },
           grid: { color: 'rgba(0,0,0,0.05)' },
           title: { display: true, text: 'Remaining Debt', font: { size: 11 } },
@@ -785,9 +797,7 @@ function renderChart(sbHistory, avHistory) {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 DEFAULT_LOANS.forEach(l => addLoan(l));
-document.getElementById('monthlyBudget').addEventListener('input', calculate);
 document.getElementById('exchangeRate').addEventListener('input', calculate);
-calculate();
 </script>
 </body>
 </html>
