@@ -591,6 +591,13 @@ function runStrategy(loansInput, budget, strategy) {
   let month = 0;
   const MAX = 600;
 
+  // Early exit: if total compound interest already exceeds budget, debts are unpayable
+  const totalCompInt = debts.filter(d => d.type === 'compound' && d.rate > 0)
+    .reduce((s, d) => s + d.balance * d.rate / 100, 0);
+  if (totalCompInt > budget) {
+    return { months: MAX, totalInterest: 0, totalPaid: 0, history, payoffOrder, debts, hitMax: true };
+  }
+
   while (debts.some(d => d.balance > 0.005) && month < MAX) {
     month++;
     const active = debts.filter(d => d.balance > 0.005);
@@ -598,11 +605,22 @@ function runStrategy(loansInput, budget, strategy) {
     const nonTargets = active.filter(d => d.id !== target.id);
     const nonTargetMin = nonTargets.reduce((s, d) => s + Math.min(d.min, d.balance), 0);
 
-    // Pay non-targets their minimum
+    // Pay non-targets: for compound loans, pay at least monthly interest so
+    // the balance doesn't grow out of control when min payment is 0.
     let remaining = budget;
-    nonTargets.forEach(d => {
-      const pay = Math.min(d.min, d.balance);
-      remaining -= pay;
+    const ntPayments = nonTargets.map(d => {
+      if (d.type === 'compound' && d.rate > 0) {
+        const interest = d.balance * d.rate / 100;
+        return Math.min(Math.max(d.min, interest), d.balance + interest);
+      }
+      return Math.min(d.min, d.balance);
+    });
+    const totalNT = ntPayments.reduce((s, v) => s + v, 0);
+    // Scale down proportionally if budget can't cover all non-target payments
+    const ntScale = totalNT > 0 && totalNT > remaining ? remaining / totalNT : 1;
+    nonTargets.forEach((d, i) => {
+      const pay = ntPayments[i] * ntScale;
+      remaining = Math.max(0, remaining - pay);
       applyPayment(d, pay);
     });
 
@@ -629,8 +647,9 @@ function runStrategy(loansInput, budget, strategy) {
 
   const totalInterest = debts.reduce((s, d) => s + d.interestPaid, 0);
   const totalPaid     = debts.reduce((s, d) => s + d.totalPaid, 0);
+  const hitMax = month >= MAX;
 
-  return { months: month, totalInterest, totalPaid, history, payoffOrder, debts };
+  return { months: month, totalInterest, totalPaid, history, payoffOrder, debts, hitMax };
 }
 
 // ── Render results ─────────────────────────────────────────────────────────────
@@ -645,7 +664,19 @@ function calculate() {
   document.getElementById('resultsSection').style.opacity = '1';
 
   const totalMin = loans.reduce((s, l) => s + l.min, 0);
-  document.getElementById('budgetWarning').style.display = budget < totalMin ? 'block' : 'none';
+  // Also warn when monthly compound interest alone exceeds budget
+  const totalCompoundInterest = loans.filter(l => l.type === 'compound' && l.rate > 0)
+    .reduce((s, l) => s + l.balance * l.rate / 100, 0);
+  const warnEl = document.getElementById('budgetWarning');
+  if (budget < totalMin) {
+    warnEl.innerHTML = '⚠️ <strong>Budget is less than total minimum payments</strong> — strategies may stall. Increase your monthly budget or reduce minimum payments.';
+    warnEl.style.display = 'block';
+  } else if (totalCompoundInterest > budget) {
+    warnEl.innerHTML = `⚠️ <strong>Monthly interest on compound loans (${fmt(totalCompoundInterest)}) exceeds your budget (${fmt(budget)})</strong> — these debts cannot be paid off. Increase your budget or check that rates are per-month (not per-year).`;
+    warnEl.style.display = 'block';
+  } else {
+    warnEl.style.display = 'none';
+  }
 
   // Run all strategies
   const results = {};
@@ -681,25 +712,28 @@ function renderCompareTable(results, bestKey, loans) {
       return chip + arrow;
     }).join('');
 
-    const saving = bestInterest < r.totalInterest
+    const saving = !r.hitMax && bestInterest < r.totalInterest
       ? '<span style="font-size:.72rem;color:var(--text-light)">+' + fmt(r.totalInterest - bestInterest) + '</span>'
-      : (isBest ? '<span style="font-size:.72rem;color:#059669">★ Best</span>' : '');
+      : (!r.hitMax && isBest ? '<span style="font-size:.72rem;color:#059669">★ Best</span>' : '');
+
+    const intCell  = r.hitMax ? '<span style="color:#dc2626;font-size:.8rem">Cannot pay off</span>' : fmt(r.totalInterest) + ' ' + saving;
+    const paidCell = r.hitMax ? '—' : fmt(r.totalPaid);
 
     tr.innerHTML = `
       <td>
         <div class="strategy-name">
           <span class="strategy-dot" style="background:${s.color}"></span>
-          ${s.emoji} ${s.name}${isBest ? '<span class="best-badge">✓ Best</span>' : ''}
+          ${s.emoji} ${s.name}${isBest && !r.hitMax ? '<span class="best-badge">✓ Best</span>' : ''}
         </div>
         <div style="font-size:.71rem;color:var(--text-light);margin-top:.1rem;padding-left:1.1rem">${s.desc}</div>
       </td>
       <td>
         <div class="payoff-order">${orderHtml}</div>
-        <button class="detail-btn" onclick="toggleDetail(${si})">▼ details</button>
+        ${r.payoffOrder.length ? '<button class="detail-btn" onclick="toggleDetail(' + si + ')">▼ details</button>' : ''}
       </td>
-      <td><strong>${r.months}</strong> mo</td>
-      <td>${fmt(r.totalInterest)} ${saving}</td>
-      <td>${fmt(r.totalPaid)}</td>
+      <td>${r.hitMax ? '<strong style="color:#dc2626">⚠️ 600+</strong> <span style="font-size:.72rem;color:#dc2626">mo (unpayable)</span>' : '<strong>' + r.months + '</strong> mo'}</td>
+      <td>${intCell}</td>
+      <td>${paidCell}</td>
     `;
     tbody.appendChild(tr);
 
