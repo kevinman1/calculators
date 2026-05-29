@@ -217,7 +217,7 @@
               <th style="width:22px"></th>
               <th style="width:88px">Debt Name</th>
               <th style="width:105px">Balance</th>
-              <th style="width:72px">Rate/mo</th>
+              <th style="width:72px">Rate/yr</th>
               <th style="width:95px">Int. Type</th>
               <th style="width:95px">Min. Payment</th>
               <th style="width:58px">Penalty</th>
@@ -231,7 +231,8 @@
       <div style="font-size:.71rem;color:var(--text-light);margin-top:.45rem;line-height:1.5">
         <strong>Simple interest</strong> = fixed charge on original balance each month.&nbsp;
         <strong>Compound</strong> = interest on current balance (most loans).&nbsp;
-        <strong>Penalty</strong> = extra % if you pay less than minimum.
+        <strong>Penalty</strong> = extra % if you pay less than minimum.&nbsp;
+        <strong>Rate/yr</strong> = yearly interest rate (e.g. 18% = 1.5%/month).
       </div>
     </div>
   </div>
@@ -392,14 +393,14 @@ function fmt(usdVal) {
 
 // ── Loan row management ───────────────────────────────────────────────────────
 const DEFAULT_LOANS = [
-  { name: 'Small Loan',   balance: 300,  rate: 1.0, type: 'compound', min: 15,  penalty: 0 },
-  { name: 'Credit Card',  balance: 1200, rate: 3.0, type: 'compound', min: 50,  penalty: 0 },
-  { name: 'Microfinance', balance: 5000, rate: 1.5, type: 'compound', min: 120, penalty: 0 },
+  { name: 'Small Loan',   balance: 300,  rate: 12,  type: 'compound', min: 15,  penalty: 0 },
+  { name: 'Credit Card',  balance: 1200, rate: 36,  type: 'compound', min: 50,  penalty: 0 },
+  { name: 'Microfinance', balance: 5000, rate: 18,  type: 'compound', min: 120, penalty: 0 },
 ];
 
 function addLoan(data) {
   const id = ++loanId;
-  const d  = data || { name: '', balance: 0, rate: 1, type: 'compound', min: 0, penalty: 0 };
+  const d  = data || { name: '', balance: 0, rate: 12, type: 'compound', min: 0, penalty: 0 };
   const tbody = document.getElementById('loanTableBody');
   const tr = document.createElement('tr');
   tr.id = 'loan-row-' + id;
@@ -424,7 +425,7 @@ function addLoan(data) {
       <input type="number" class="balance-input" value="${bal}" min="0" step="${bstep}" oninput="calculate()">
     </div></td>
     <td><div style="display:flex;align-items:center;gap:2px">
-      <input type="number" class="rate-input" value="${d.rate}" min="0" max="100" step="0.1" style="width:55px" oninput="calculate()">
+      <input type="number" class="rate-input" value="${d.rate}" min="0" max="500" step="0.1" style="width:55px" oninput="calculate()">
       <span style="font-size:.73rem;color:var(--text-light)">%</span>
     </div></td>
     <td><select class="int-type" style="width:auto;min-width:88px" onchange="calculate()">
@@ -534,9 +535,10 @@ function deepCopy(loans) {
 
 function applyPayment(d, payment) {
   if (d.balance < 0.005) return;
+  const monthlyRate = d.rate / 12 / 100;   // yearly % → monthly decimal
   const interest = d.type === 'simple'
-    ? d.origBalance * d.rate / 100
-    : d.balance * d.rate / 100;
+    ? d.origBalance * monthlyRate
+    : d.balance * monthlyRate;
 
   let penalty = 0;
   if (d.type === 'compound' && payment < d.min && d.penalty > 0) {
@@ -557,7 +559,8 @@ function monthsToPayoff(target, targetBudget) {
   let m   = 0;
   while (bal > 0.005 && m < 600) {
     m++;
-    const interest = target.type === 'simple' ? target.origBalance * target.rate / 100 : bal * target.rate / 100;
+    const mr = target.rate / 12 / 100;
+    const interest = target.type === 'simple' ? target.origBalance * mr : bal * mr;
     const pay = Math.min(targetBudget, bal + interest);
     bal = Math.max(0, bal + interest - pay);
   }
@@ -593,7 +596,7 @@ function runStrategy(loansInput, budget, strategy) {
 
   // Early exit: if total compound interest already exceeds budget, debts are unpayable
   const totalCompInt = debts.filter(d => d.type === 'compound' && d.rate > 0)
-    .reduce((s, d) => s + d.balance * d.rate / 100, 0);
+    .reduce((s, d) => s + d.balance * d.rate / 12 / 100, 0);
   if (totalCompInt > budget) {
     return { months: MAX, totalInterest: 0, totalPaid: 0, history, payoffOrder, debts, hitMax: true };
   }
@@ -605,30 +608,20 @@ function runStrategy(loansInput, budget, strategy) {
     const nonTargets = active.filter(d => d.id !== target.id);
     const nonTargetMin = nonTargets.reduce((s, d) => s + Math.min(d.min, d.balance), 0);
 
-    // Pay non-targets: for compound loans, pay at least monthly interest so
-    // the balance doesn't grow out of control when min payment is 0.
+    // Pay non-targets their minimum payment
     let remaining = budget;
-    const ntPayments = nonTargets.map(d => {
-      if (d.type === 'compound' && d.rate > 0) {
-        const interest = d.balance * d.rate / 100;
-        return Math.min(Math.max(d.min, interest), d.balance + interest);
-      }
-      return Math.min(d.min, d.balance);
-    });
-    const totalNT = ntPayments.reduce((s, v) => s + v, 0);
-    // Scale down proportionally if budget can't cover all non-target payments
-    const ntScale = totalNT > 0 && totalNT > remaining ? remaining / totalNT : 1;
-    nonTargets.forEach((d, i) => {
-      const pay = ntPayments[i] * ntScale;
-      remaining = Math.max(0, remaining - pay);
+    nonTargets.forEach(d => {
+      const pay = Math.min(d.min, d.balance);
+      remaining -= pay;
       applyPayment(d, pay);
     });
 
     // Target gets all remaining
     if (target) {
+      const mr = target.rate / 12 / 100;
       const interest = target.type === 'simple'
-        ? target.origBalance * target.rate / 100
-        : target.balance * target.rate / 100;
+        ? target.origBalance * mr
+        : target.balance * mr;
       const pay = Math.max(0, Math.min(remaining, target.balance + interest * 1.05));
       applyPayment(target, pay);
     }
@@ -666,7 +659,7 @@ function calculate() {
   const totalMin = loans.reduce((s, l) => s + l.min, 0);
   // Also warn when monthly compound interest alone exceeds budget
   const totalCompoundInterest = loans.filter(l => l.type === 'compound' && l.rate > 0)
-    .reduce((s, l) => s + l.balance * l.rate / 100, 0);
+    .reduce((s, l) => s + l.balance * l.rate / 12 / 100, 0);
   const warnEl = document.getElementById('budgetWarning');
   if (budget < totalMin) {
     warnEl.innerHTML = '⚠️ <strong>Budget is less than total minimum payments</strong> — strategies may stall. Increase your monthly budget or reduce minimum payments.';
