@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="rvb.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renting vs. Financing – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Winner banner ── */
+    .winner-banner {
+      border-radius: var(--radius); padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem; display: flex; align-items: center;
+      gap: .75rem; flex-wrap: wrap;
+    }
+    .winner-banner.buy  { background: #d1fae5; border: 1.5px solid #6ee7b7; }
+    .winner-banner.rent { background: #dbeafe; border: 1.5px solid #93c5fd; }
+    .winner-icon { font-size: 1.6rem; line-height: 1; }
+    .winner-label { font-size: .8rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-medium); }
+    .winner-title { font-size: 1.15rem; font-weight: 800; }
+    .winner-title.buy  { color: #065f46; }
+    .winner-title.rent { color: #1e40af; }
+    .winner-saving { font-size: .88rem; color: var(--text-medium); margin-top: .15rem; }
+
+    /* ── Net cost cards ── */
+    .cost-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;
+    }
+    @media (max-width: 520px) { .cost-cards { grid-template-columns: 1fr; } }
+    .cost-card {
+      border: 1.5px solid var(--green-200); border-radius: var(--radius);
+      padding: .85rem 1rem; text-align: center; position: relative;
+    }
+    .cost-card.winner { border-color: #6ee7b7; background: #f0fdf4; }
+    .cost-card.winner-rent { border-color: #93c5fd; background: #eff6ff; }
+    .cost-card-label { font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-light); margin-bottom: .3rem; }
+    .cost-card-value { font-size: 1.5rem; font-weight: 800; }
+    .cost-card-value.buy  { color: #065f46; }
+    .cost-card-value.rent { color: #1e40af; }
+    .cost-card-sub { font-size: .74rem; color: var(--text-light); margin-top: .2rem; }
+    .cost-card-badge {
+      position: absolute; top: .4rem; right: .5rem;
+      background: #059669; color: white; font-size: .68rem; font-weight: 700;
+      border-radius: 10px; padding: .1rem .55rem;
+    }
+    .cost-card-badge.rent-badge { background: #3b82f6; }
+
+    /* ── Key stats grid ── */
+    .key-stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: .65rem; margin-bottom: 1.25rem;
+    }
+    .stat-item {
+      background: var(--green-50); border-radius: 6px;
+      padding: .6rem .85rem; text-align: center;
+    }
+    .stat-item .s-label { font-size: .68rem; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: .05em; }
+    .stat-item .s-value { font-size: 1rem; font-weight: 700; color: var(--green-800);
+      margin-top: .2rem; }
+
+    /* ── Section headers ── */
+    .section-title {
+      font-size: .82rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--green-700);
+      border-bottom: 2px solid var(--green-100); padding-bottom: .35rem;
+      margin-bottom: .85rem;
+    }
+
+    /* ── Year table ── */
+    .year-table-wrap { overflow-x: auto; }
+    .year-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .year-table thead th {
+      background: var(--green-800); color: white;
+      padding: .4rem .65rem; text-align: right; font-size: .72rem;
+      font-weight: 600; white-space: nowrap;
+    }
+    .year-table thead th:first-child { text-align: center; }
+    .year-table tbody td {
+      padding: .38rem .65rem; border-bottom: 1px solid var(--green-50);
+      text-align: right; white-space: nowrap;
+    }
+    .year-table tbody td:first-child { text-align: center; font-weight: 600;
+      color: var(--text-medium); }
+    .year-table tbody tr:nth-child(even) { background: #fafafa; }
+    .year-table tbody tr:last-child td { border-bottom: none; font-weight: 700;
+      background: var(--green-50); }
+    .year-table .buy-col  { color: #065f46; }
+    .year-table .rent-col { color: #1e40af; }
+    .year-table .neg { color: #dc2626; }
+
+    /* section group divider */
+    .col-group-buy  { border-left: 3px solid #6ee7b7; }
+    .col-group-rent { border-left: 3px solid #93c5fd; }
+
+    /* ── Chart container ── */
+    .chart-wrap { position: relative; height: 280px; padding: .5rem 0 0; }
+
+    /* ── Input column heads ── */
+    .input-col-head {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; padding: .45rem .9rem .45rem;
+      border-radius: 6px 6px 0 0; margin: -.75rem -.75rem .75rem;
+    }
+    .input-col-head.buy-head  { background: #d1fae5; color: #065f46; }
+    .input-col-head.rent-head { background: #dbeafe; color: #1e40af; }
+
+    /* ── Collapsible year table ── */
+    .table-toggle-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; padding: .5rem 0; user-select: none;
+    }
+    .table-toggle-bar:hover .table-toggle-btn { text-decoration: underline; }
+    .table-toggle-btn { font-size: .8rem; color: var(--green-700); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" class="active" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="breadcrumb">
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      &rsaquo; <span data-i18n="nav.budgeting">Budgeting</span>
+      &rsaquo; <span data-i18n="calc.rent_vs_buy.name">Renting vs. Financing</span>
+    </div>
+    <h2 data-i18n="calc.rent_vs_buy.name">Renting vs. Financing</h2>
+    <p>Compare the true long-term cost of buying a home versus renting — including mortgage, taxes, maintenance, and the opportunity cost of your down payment.</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── CURRENCY TOGGLE ── -->
+  <div class="currency-bar" style="margin-bottom:1rem">
+    <span class="currency-label">Currency:</span>
+    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">USD $</button>
+    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')">KHR &#6107;</button>
+    <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
+      <span style="color:var(--text-medium)" data-i18n="loan.exrate">1 USD =</span>
+      <input type="number" id="exchangeRate" value="4100" min="100" step="100"
+        style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem">
+      <span style="color:var(--text-medium)">KHR</span>
+    </span>
+  </div>
+
+  <!-- ── INPUT SECTION ── -->
+  <div class="calc-grid" style="margin-bottom:1.25rem">
+
+    <!-- BUY SIDE -->
+    <div class="card">
+      <div class="card-header">🏠 Home Purchase</div>
+      <div class="card-body">
+
+        <div class="input-group">
+          <label>Home Price</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx1">$</span>
+            <input type="number" id="homePrice" value="500000" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Down Payment</label>
+          <div class="input-wrapper">
+            <input type="number" id="downPct" value="10" min="1" max="100" step="0.5">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-hint" id="downAmtHint">= $50,000</div>
+
+        <div class="input-group">
+          <label>Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="interestRate" value="7.5" min="0.1" max="50" step="0.1">
+            <span class="input-suffix">% / yr</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Loan Term</label>
+          <div class="input-wrapper">
+            <input type="number" id="loanTerm" value="25" min="1" max="30" step="1">
+            <span class="input-suffix">yrs (max 30)</span>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label">Annual Costs</div>
+
+        <div class="input-group">
+          <label>Buying Closing Costs</label>
+          <div class="input-wrapper">
+            <input type="number" id="buyClosing" value="2" min="0" max="20" step="0.1">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-hint">Financed into the loan</div>
+
+        <div class="input-group">
+          <label>Property Tax</label>
+          <div class="input-wrapper">
+            <input type="number" id="propTax" value="1.5" min="0" max="10" step="0.1">
+            <span class="input-suffix">% / yr</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Home Insurance</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx2">$</span>
+            <input type="number" id="homeIns" value="2500" min="0" step="100">
+            <span class="input-suffix">/ yr</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>HOA Fee</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfx3">$</span>
+            <input type="number" id="hoaFee" value="0" min="0" step="100">
+            <span class="input-suffix">/ yr</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Maintenance Cost</label>
+          <div class="input-wrapper">
+            <input type="number" id="maintCost" value="2" min="0" max="20" step="0.1">
+            <span class="input-suffix">% / yr</span>
+          </div>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label">Sale</div>
+
+        <div class="input-group">
+          <label>Home Value Appreciation</label>
+          <div class="input-wrapper">
+            <input type="number" id="appreciation" value="3" min="0" max="30" step="0.1">
+            <span class="input-suffix">% / yr</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Selling Closing Costs</label>
+          <div class="input-wrapper">
+            <input type="number" id="sellClosing" value="7" min="0" max="20" step="0.1">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RENT SIDE + SHARED -->
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header">🏘 Renting</div>
+        <div class="card-body">
+
+          <div class="input-group">
+            <label>Monthly Rent</label>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="pfx4">$</span>
+              <input type="number" id="monthlyRent" value="2000" min="0" step="50">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Rent Increase</label>
+            <div class="input-wrapper">
+              <input type="number" id="rentIncrease" value="3" min="0" max="30" step="0.1">
+              <span class="input-suffix">% / yr</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Renter's Insurance</label>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="pfx5">$</span>
+              <input type="number" id="rentersIns" value="15" min="0" step="5">
+              <span class="input-suffix">/ mo</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Security Deposit</label>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="pfx6">$</span>
+              <input type="number" id="secDeposit" value="4000" min="0" step="100">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Other Upfront Costs</label>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="pfx7">$</span>
+              <input type="number" id="upfrontCost" value="100" min="0" step="50">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">📈 Your Investment Return</div>
+        <div class="card-body">
+
+          <div class="input-group">
+            <label>Average Investment Return</label>
+            <div class="input-wrapper">
+              <input type="number" id="investReturn" value="3" min="0" max="30" step="0.1">
+              <span class="input-suffix">% / yr</span>
+            </div>
+          </div>
+          <div class="input-hint">What the down payment could earn if invested elsewhere (e.g., savings account, bonds).</div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end input grid -->
+
+  <!-- ── RESULTS ── -->
+  <div id="resultsSection">
+
+    <!-- Winner banner -->
+    <div class="winner-banner" id="winnerBanner">
+      <div class="winner-icon" id="winnerIcon">🏆</div>
+      <div>
+        <div class="winner-label">Better Option</div>
+        <div class="winner-title" id="winnerTitle">—</div>
+        <div class="winner-saving" id="winnerSaving">—</div>
+      </div>
+    </div>
+
+    <!-- Net cost cards -->
+    <div class="cost-cards">
+      <div class="cost-card" id="buyCostCard">
+        <div class="cost-card-label">🏠 Net Cost of Buying</div>
+        <div class="cost-card-value buy" id="r-buyCost">—</div>
+        <div class="cost-card-sub" id="r-buySub">after home sale proceeds</div>
+      </div>
+      <div class="cost-card" id="rentCostCard">
+        <div class="cost-card-label">🏘 Net Cost of Renting</div>
+        <div class="cost-card-value rent" id="r-rentCost">—</div>
+        <div class="cost-card-sub" id="r-rentSub">deposit returned at end</div>
+      </div>
+    </div>
+
+    <!-- Key stats -->
+    <div class="key-stats">
+      <div class="stat-item">
+        <div class="s-label">Monthly Mortgage</div>
+        <div class="s-value" id="r-monthlyMortgage">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label">Down Payment</div>
+        <div class="s-value" id="r-downPmt">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label">Final Home Value</div>
+        <div class="s-value" id="r-finalHomeVal">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label">Opp. Cost of Down Pmt</div>
+        <div class="s-value" id="r-oppCost">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label">Total Rent Paid</div>
+        <div class="s-value" id="r-totalRent">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label">Crossover Year</div>
+        <div class="s-value" id="r-crossover">—</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header">Cumulative Net Cost Over Time</div>
+      <div class="card-body" style="padding:.5rem 1rem .75rem">
+        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.4rem">
+          Net cost = total money spent minus home equity (buying) or cumulative rent (renting). Lower is better.
+        </div>
+        <div class="chart-wrap">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year-by-year table -->
+    <div class="card">
+      <div class="card-body" style="padding:.6rem .75rem .75rem">
+        <div class="table-toggle-bar" onclick="toggleTable()">
+          <div class="section-title" style="margin:0;border:0;padding:0">Year-by-Year Summary</div>
+          <span class="table-toggle-btn" id="tableToggleBtn">▼ Show Table</span>
+        </div>
+        <div id="tableWrap" style="display:none">
+          <div class="year-table-wrap" style="margin-top:.65rem">
+            <table class="year-table" id="yearTable">
+              <thead>
+                <tr>
+                  <th rowspan="2">Year</th>
+                  <th colspan="4" style="text-align:center;border-bottom:1px solid #4d7c64;background:#1a5c38">🏠 Buying</th>
+                  <th colspan="2" style="text-align:center;border-bottom:1px solid #3b72c4;background:#1e3a8a">🏘 Renting</th>
+                </tr>
+                <tr>
+                  <th class="col-group-buy">Annual Cost</th>
+                  <th>Cumulative</th>
+                  <th>Home Equity</th>
+                  <th>Net Position</th>
+                  <th class="col-group-rent">Annual Cost</th>
+                  <th>Cumulative</th>
+                </tr>
+              </thead>
+              <tbody id="yearTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="card" style="margin-top:1.25rem">
+      <div class="card-header">How This Calculator Works</div>
+      <div class="card-body" style="font-size:.82rem;color:var(--text-medium);line-height:1.65">
+        <p><strong>Buying costs</strong> include: mortgage payments, property tax (grows with home value), home insurance &amp; maintenance (grow with appreciation), HOA fees, and the <em>opportunity cost</em> of your down payment — what it could have earned if invested at your assumed return rate.</p>
+        <p style="margin-top:.6rem"><strong>Selling costs</strong> (agent fees, transfer tax, etc.) are deducted from the final home value in the net cost calculation.</p>
+        <p style="margin-top:.6rem"><strong>Renting costs</strong> include monthly rent (growing at your rent-increase rate), renter's insurance, and upfront costs. The security deposit is returned at the end of the term.</p>
+        <p style="margin-top:.6rem"><strong>Net cost</strong> is the total money you end up spending after accounting for the home you own (buy) or the rent you've paid (rent). A lower number means less money spent overall.</p>
+        <p style="margin-top:.6rem">💡 <strong>Tip:</strong> The crossover year is when buying becomes cheaper than renting on a cumulative basis. Before this point, renting may be financially advantageous.</p>
+      </div>
+    </div>
+
+  </div><!-- end resultsSection -->
+
+  <!-- Print bar -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">Click <strong>Print / Save as PDF</strong> to export results.</div>
+    <button class="btn-print" onclick="window.print()">&#128424; <span data-i18n="print.btn">Print / Save as PDF</span></button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=15"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+let lineChartInst = null;
+let currency = 'USD';
+let tableVisible = false;
+let lastData = null;
+
+// ── Currency helpers ──────────────────────────────────────────────────────────
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+
+const MONETARY_IDS = ['homePrice','homeIns','hoaFee','monthlyRent','rentersIns','secDeposit','upfrontCost'];
+
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr = getXR();
+  MONETARY_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    const v = parseFloat(el.value) || 0;
+    el.value = newCur === 'KHR' ? Math.round(v * xr) : +(v / xr).toFixed(0);
+    if (id === 'homePrice') el.step = newCur === 'KHR' ? '100000' : '1000';
+    else if (id === 'homeIns' || id === 'hoaFee') el.step = newCur === 'KHR' ? '50000' : '100';
+    else if (id === 'monthlyRent') el.step = newCur === 'KHR' ? '10000' : '50';
+    else if (id === 'rentersIns') el.step = newCur === 'KHR' ? '5000' : '5';
+    else if (id === 'secDeposit') el.step = newCur === 'KHR' ? '100000' : '100';
+    else if (id === 'upfrontCost') el.step = newCur === 'KHR' ? '5000' : '50';
+  });
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === newCur));
+  const sym = newCur === 'KHR' ? '&#6107;' : '$';
+  ['pfx1','pfx2','pfx3','pfx4','pfx5','pfx6','pfx7'].forEach(id =>
+    document.getElementById(id).innerHTML = sym);
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? 'flex' : 'none';
+  calculate();
+}
+
+function toUSD(val) {
+  return currency === 'KHR' ? val / getXR() : val;
+}
+
+function fmt(usdVal) {
+  if (currency === 'KHR') {
+    const khr = Math.round(usdVal * getXR());
+    return '&#6107;&nbsp;' + khr.toLocaleString('en-US');
+  }
+  return '$' + Math.round(usdVal).toLocaleString('en-US');
+}
+
+// ── PMT helper ────────────────────────────────────────────────────────────────
+function pmt(r, n, pv) {
+  if (r === 0) return pv / n;
+  return pv * r / (1 - Math.pow(1 + r, -n));
+}
+
+// ── Loan balance after k payments ─────────────────────────────────────────────
+function loanBalance(pv, r, monthlyPmt, k) {
+  if (r === 0) return pv - monthlyPmt * k;
+  return pv * Math.pow(1 + r, k) - monthlyPmt * (Math.pow(1 + r, k) - 1) / r;
+}
+
+// ── Core computation ──────────────────────────────────────────────────────────
+function compute() {
+  // Inputs (in user's currency, then convert to USD for calc)
+  const homePrice    = toUSD(parseFloat(document.getElementById('homePrice').value)    || 0);
+  const downPct      = (parseFloat(document.getElementById('downPct').value)           || 10) / 100;
+  const rate         = (parseFloat(document.getElementById('interestRate').value)      || 7.5) / 100;
+  const termYrs      = Math.min(30, Math.max(1, parseInt(document.getElementById('loanTerm').value) || 25));
+  const buyClosingPct= (parseFloat(document.getElementById('buyClosing').value)        || 2)  / 100;
+  const propTaxPct   = (parseFloat(document.getElementById('propTax').value)           || 1.5)/ 100;
+  const homeInsAmt   = toUSD(parseFloat(document.getElementById('homeIns').value)      || 0);
+  const hoaAmt       = toUSD(parseFloat(document.getElementById('hoaFee').value)       || 0);
+  const maintPct     = (parseFloat(document.getElementById('maintCost').value)         || 2)  / 100;
+  const appRate      = (parseFloat(document.getElementById('appreciation').value)      || 3)  / 100;
+  const sellClosingPct=(parseFloat(document.getElementById('sellClosing').value)       || 7)  / 100;
+  const monthlyRent  = toUSD(parseFloat(document.getElementById('monthlyRent').value)  || 0);
+  const rentInc      = (parseFloat(document.getElementById('rentIncrease').value)      || 3)  / 100;
+  const rentersIns   = toUSD(parseFloat(document.getElementById('rentersIns').value)   || 0); // per month
+  const secDeposit   = toUSD(parseFloat(document.getElementById('secDeposit').value)   || 0);
+  const upfrontCost  = toUSD(parseFloat(document.getElementById('upfrontCost').value)  || 0);
+  const investReturn = (parseFloat(document.getElementById('investReturn').value)      || 3)  / 100;
+
+  // ── Buying setup ──
+  const downPmt    = homePrice * downPct;
+  const loanAmt    = homePrice * (1 - downPct) + homePrice * buyClosingPct; // closing costs financed
+  const r          = rate / 12;
+  const n          = termYrs * 12;
+  const monthlyMtg = pmt(r, n, loanAmt);
+  const annualMtg  = monthlyMtg * 12;
+
+  // ── Update down amount hint ──
+  document.getElementById('downAmtHint').innerHTML =
+    '= ' + fmt(downPmt) + ' down payment';
+
+  // ── Year-by-year data ──
+  const years = [];
+  let cumulativeBuy  = downPmt; // cash out = just down payment (closing financed)
+  let cumulativeRent = secDeposit + upfrontCost;
+  let investBal      = downPmt;  // down payment invested alternatively
+  let crossoverYear  = null;
+  let totalOppCost   = 0;
+  let totalRentPaid  = 0;
+
+  for (let t = 1; t <= termYrs; t++) {
+    // ── Buy: costs this year ──
+    const homeValT   = homePrice * Math.pow(1 + appRate, t - 1); // value at START of year t (end of prev year)
+    const propTaxT   = homeValT * propTaxPct;
+    const homeInsT   = homeInsAmt * Math.pow(1 + appRate, t - 1);
+    const maintT     = homeValT * maintPct;
+    const hoaT       = hoaAmt;
+    const oppCostT   = investBal * investReturn;         // what down pmt earns this year
+    investBal       *= (1 + investReturn);               // compound the investment balance
+    totalOppCost    += oppCostT;
+
+    let annualBuyT   = annualMtg + propTaxT + homeInsT + maintT + hoaT + oppCostT;
+    const loanBalT   = loanBalance(loanAmt, r, monthlyMtg, t * 12);
+    const homeValTEnd= homePrice * Math.pow(1 + appRate, t - 1); // same: value at END of year t (before next appreciation)
+
+    // In final year, add selling costs to cumulative
+    let sellingCostsT = 0;
+    if (t === termYrs) {
+      const finalHomeVal  = homePrice * Math.pow(1 + appRate, t - 1);
+      sellingCostsT       = finalHomeVal * sellClosingPct;
+      annualBuyT         += sellingCostsT;
+    }
+
+    cumulativeBuy += annualBuyT;
+    const homeEquityT  = homeValTEnd - Math.max(0, loanBalT);
+    const netBuyT      = homeEquityT - cumulativeBuy;
+
+    // ── Rent: costs this year ──
+    const rentT      = monthlyRent * 12 * Math.pow(1 + rentInc, t - 1);
+    const insT       = rentersIns * 12;
+    totalRentPaid   += rentT + insT;
+    let annualRentT  = rentT + insT;
+    if (t === termYrs) annualRentT -= secDeposit; // deposit returned at end of term
+    cumulativeRent  += annualRentT;
+    const netRentT   = -cumulativeRent;
+
+    // ── Crossover ──
+    if (crossoverYear === null && netBuyT > netRentT) {
+      crossoverYear = t;
+    }
+
+    years.push({
+      year: t,
+      annualBuy: annualBuyT,
+      cumulativeBuy,
+      homeEquity: homeEquityT,
+      netBuy: netBuyT,
+      annualRent: annualRentT,
+      cumulativeRent,
+      netRent: netRentT,
+    });
+  }
+
+  const lastYr = years[years.length - 1];
+  const netBuyFinal  = lastYr.netBuy;
+  const netRentFinal = lastYr.netRent;
+  const buyWins      = netBuyFinal > netRentFinal; // less negative = cheaper
+  const finalHomeVal = homePrice * Math.pow(1 + appRate, termYrs - 1);
+
+  return {
+    years, netBuyFinal, netRentFinal, buyWins,
+    monthlyMtg, downPmt, finalHomeVal, totalOppCost, totalRentPaid,
+    crossoverYear, termYrs,
+  };
+}
+
+// ── Render results ─────────────────────────────────────────────────────────────
+function calculate() {
+  const d = compute();
+  lastData = d;
+
+  // Winner banner
+  const banner = document.getElementById('winnerBanner');
+  const winTitle= document.getElementById('winnerTitle');
+  const winSaving=document.getElementById('winnerSaving');
+  const saving  = Math.abs(d.netBuyFinal - d.netRentFinal);
+
+  if (d.buyWins) {
+    banner.className = 'winner-banner buy';
+    document.getElementById('winnerIcon').textContent = '🏠';
+    winTitle.className = 'winner-title buy';
+    winTitle.textContent = 'Buying is more economical';
+    winSaving.innerHTML = 'Buying saves approximately <strong>' + fmt(saving) + '</strong> compared to renting over ' + d.termYrs + ' years.';
+  } else {
+    banner.className = 'winner-banner rent';
+    document.getElementById('winnerIcon').textContent = '🏘';
+    winTitle.className = 'winner-title rent';
+    winTitle.textContent = 'Renting is more economical';
+    winSaving.innerHTML = 'Renting saves approximately <strong>' + fmt(saving) + '</strong> compared to buying over ' + d.termYrs + ' years.';
+  }
+
+  // Cost cards
+  const buyCostCard  = document.getElementById('buyCostCard');
+  const rentCostCard = document.getElementById('rentCostCard');
+  buyCostCard.className  = 'cost-card' + (d.buyWins  ? ' winner' : '');
+  rentCostCard.className = 'cost-card' + (!d.buyWins ? ' winner-rent' : '');
+
+  // Remove old badges
+  buyCostCard.querySelectorAll('.cost-card-badge').forEach(b => b.remove());
+  rentCostCard.querySelectorAll('.cost-card-badge').forEach(b => b.remove());
+  if (d.buyWins) {
+    const b = document.createElement('div');
+    b.className = 'cost-card-badge'; b.textContent = '✓ Better';
+    buyCostCard.appendChild(b);
+  } else {
+    const b = document.createElement('div');
+    b.className = 'cost-card-badge rent-badge'; b.textContent = '✓ Better';
+    rentCostCard.appendChild(b);
+  }
+
+  document.getElementById('r-buyCost').innerHTML  = fmt(Math.abs(d.netBuyFinal));
+  document.getElementById('r-rentCost').innerHTML = fmt(Math.abs(d.netRentFinal));
+
+  // Key stats
+  document.getElementById('r-monthlyMortgage').innerHTML = fmt(d.monthlyMtg);
+  document.getElementById('r-downPmt').innerHTML         = fmt(d.downPmt);
+  document.getElementById('r-finalHomeVal').innerHTML    = fmt(d.finalHomeVal);
+  document.getElementById('r-oppCost').innerHTML         = fmt(d.totalOppCost);
+  document.getElementById('r-totalRent').innerHTML       = fmt(d.totalRentPaid);
+  document.getElementById('r-crossover').textContent     =
+    d.crossoverYear ? 'Year ' + d.crossoverYear : '—';
+
+  // Chart
+  renderChart(d.years);
+
+  // Table (if visible)
+  if (tableVisible) renderTable(d.years);
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function renderChart(years) {
+  const labels    = years.map(y => 'Yr ' + y.year);
+  const buyData   = years.map(y => Math.round(Math.abs(y.netBuy)));
+  const rentData  = years.map(y => Math.round(Math.abs(y.netRent)));
+
+  const ctx = document.getElementById('lineChart').getContext('2d');
+  if (lineChartInst) lineChartInst.destroy();
+  lineChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '🏠 Buying Net Cost',
+          data: buyData,
+          borderColor: '#059669',
+          backgroundColor: 'rgba(5,150,105,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 2,
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: '🏘 Renting Net Cost',
+          data: rentData,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 2,
+          tension: 0.3,
+          borderDash: [5, 3],
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 12 }, padding: 14 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y),
+          },
+        },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 10 } },
+        y: {
+          ticks: {
+            font: { size: 11 },
+            callback: v => '$' + (v / 1000).toFixed(0) + 'k',
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          title: { display: true, text: 'Net Cost (lower = better)', font: { size: 11 } },
+        },
+      },
+    },
+  });
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+function renderTable(years) {
+  const tbody = document.getElementById('yearTableBody');
+  tbody.innerHTML = '';
+  years.forEach(y => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + y.year + '</td>' +
+      '<td class="buy-col col-group-buy">' + fmt(y.annualBuy)       + '</td>' +
+      '<td class="buy-col">'               + fmt(y.cumulativeBuy)   + '</td>' +
+      '<td class="buy-col">'               + fmt(y.homeEquity)       + '</td>' +
+      '<td class="' + (y.netBuy  > y.netRent ? 'buy-col' : 'neg') + '">' + fmt(Math.abs(y.netBuy))  + '</td>' +
+      '<td class="rent-col col-group-rent">'+ fmt(y.annualRent)      + '</td>' +
+      '<td class="' + (y.netRent > y.netBuy  ? 'rent-col' : 'neg') + '">' + fmt(Math.abs(y.netRent)) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleTable() {
+  tableVisible = !tableVisible;
+  document.getElementById('tableWrap').style.display = tableVisible ? '' : 'none';
+  document.getElementById('tableToggleBtn').textContent = tableVisible ? '▲ Hide Table' : '▼ Show Table';
+  if (tableVisible && lastData) renderTable(lastData.years);
+}
+
+// ── Auto-calculate on any input change ───────────────────────────────────────
+document.querySelectorAll('input[type="number"]').forEach(el => {
+  el.addEventListener('input', calculate);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+calculate();
+</script>
+</body>
+</html>
