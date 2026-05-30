@@ -516,7 +516,12 @@ window.WFC_STRINGS = {
     "nssf.table.monthly":  "Monthly Pension",
     "nssf.table.annual":   "Annual Pension",
     "nssf.table.age":      "Age at Retirement",
-    "nssf.source":         "Source: Cambodia NSSF. Rate: 1.75%/yr (years 1–15); 1.25%/yr (year 16+); max 70% at 50 years. Minimum 20 years required for monthly pension."
+    "nssf.source":         "Source: Cambodia NSSF. Rate: 1.75%/yr (years 1–15); 1.25%/yr (year 16+); max 70% at 50 years. Minimum 20 years required for monthly pension.",
+
+    "dp.page_title":  "Debt Pay-Off Strategies",
+    "dti.page_title": "DTI – Debt to Income Ratio",
+    "rvb.page_title": "Renting vs. Financing",
+    "hvb.page_title": "Savings: Home vs. Bank"
   },
   "km": {
     "site.name": "ហិរញ្ញវត្តប្រាជ្ញា កម្ពុជា",
@@ -1034,6 +1039,11 @@ window.WFC_STRINGS = {
     "nssf.table.monthly":  "ប្រាក់សោធនប្រចាំខែ",
     "nssf.table.annual":   "ប្រាក់សោធនប្រចាំឆ្នាំ",
     "nssf.table.age":      "អាយុពេលចូលនិវត្តន៍",
-    "nssf.source":         "ប្រភព: NSSF កម្ពុជា។ អត្រា: ១.៧៥%/ឆ្នាំ (ឆ្នាំ ១–១៥); ១.២៥%/ឆ្នាំ (ឆ្នាំ ១៦+); អតិបរមា ៧០% នៅ ៥០ ឆ្នាំ។ ត្រូវការ ២០ ឆ្នាំ ដើម្បីបានប្រាក់សោធនប្រចាំខែ។"
+    "nssf.source":         "ប្រភព: NSSF កម្ពុជា។ អត្រា: ១.៧៥%/ឆ្នាំ (ឆ្នាំ ១–១៥); ១.២៥%/ឆ្នាំ (ឆ្នាំ ១៦+); អតិបរមា ៧០% នៅ ៥០ ឆ្នាំ។ ត្រូវការ ២០ ឆ្នាំ ដើម្បីបានប្រាក់សោធនប្រចាំខែ។",
+
+    "dp.page_title":  "យុត្ថសាស្ត្រសងបំណុល",
+    "dti.page_title": "សមាមាត្របំណុលទៅប្រាក់ចំណូល (DTI)",
+    "rvb.page_title": "ជួល ឬ ទិញផ្ទះ",
+    "hvb.page_title": "សន្សាំ៖ ផ្ទះ ឬ ធនាគារ"
   }
 };
