@@ -393,9 +393,10 @@ function fmt(usdVal) {
 
 // ── Loan row management ───────────────────────────────────────────────────────
 const DEFAULT_LOANS = [
-  { name: 'Small Loan',   balance: 300,  rate: 12,  type: 'compound', min: 15,  penalty: 0 },
-  { name: 'Credit Card',  balance: 1200, rate: 36,  type: 'compound', min: 50,  penalty: 0 },
-  { name: 'Microfinance', balance: 5000, rate: 18,  type: 'compound', min: 120, penalty: 0 },
+  { name: 'Informal Loan 1', balance: 50,   rate: 120, type: 'simple',   min: 5,  penalty: 0 },
+  { name: 'Informal Loan 2', balance: 100,  rate: 180, type: 'simple',   min: 15, penalty: 0 },
+  { name: 'MFI Loan',        balance: 500,  rate: 15,  type: 'compound', min: 25, penalty: 0 },
+  { name: 'Bank Loan',       balance: 1650, rate: 26,  type: 'compound', min: 70, penalty: 0 },
 ];
 
 function addLoan(data) {
