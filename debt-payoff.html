@@ -125,6 +125,18 @@
     /* ── Chart ── */
     .chart-wrap { position: relative; height: 300px; padding: .5rem 0 0; }
 
+    /* ── Payment Schedule table ── */
+    .sched-table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    .sched-table thead th { background:var(--green-800); color:#fff; padding:.35rem .55rem; text-align:right; font-size:.72rem; font-weight:600; white-space:nowrap; }
+    .sched-table thead th:first-child { text-align:center; }
+    .sched-table tbody td { padding:.26rem .55rem; text-align:right; border-bottom:1px solid #f0f0f0; }
+    .sched-table tbody td:first-child { text-align:center; color:#aaa; font-size:.74rem; white-space:nowrap; }
+    .sched-table tbody tr:hover td { background:#fafafa; }
+    .sched-table .target-cell { background:#e8f5e2 !important; font-weight:700; color:#2d5a1b; }
+    .sched-table .paid-cell   { color:#ddd; text-align:center; }
+    .sched-table .done-cell   { background:#e8f5e2; font-weight:700; color:#2d5a1b; font-size:.76rem; text-align:center; }
+    .sched-table .yr-row td   { border-top:2px solid #e0e0e0; }
+
     /* ── Strategy colour variables ── */
     :root {
       --c-snowball:    #059669;
@@ -271,6 +283,37 @@
       <div class="card-body" style="padding:.5rem 1rem .75rem">
         <div class="chart-wrap">
           <canvas id="debtChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Schedule -->
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
+        <span>Monthly Payment Schedule</span>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <select id="schedStrategy" onchange="renderScheduleIfOpen()"
+            style="font-size:.8rem;padding:.25rem .4rem;border:1px solid #d1d5db;border-radius:4px;background:#fff">
+            <option value="snowball">⛄ Snowball</option>
+            <option value="avalanche">🏔 Avalanche</option>
+            <option value="stairstepper">🪜 Stairstepper</option>
+            <option value="highPayment">💰 High Payment</option>
+            <option value="custom">🎯 Custom</option>
+          </select>
+          <button class="btn-secondary" id="schedToggle" onclick="toggleSchedule()">Show Schedule</button>
+        </div>
+      </div>
+      <div id="scheduleWrapper" style="display:none">
+        <div style="overflow-x:auto">
+          <table class="sched-table">
+            <thead id="schedHead"></thead>
+            <tbody id="schedBody"></tbody>
+          </table>
+        </div>
+        <div style="font-size:.71rem;color:var(--text-light);padding:.45rem .75rem .6rem;line-height:1.6">
+          <span style="display:inline-block;background:#e8f5e2;border-radius:3px;padding:.05rem .4rem;color:#2d5a1b;font-weight:700;margin-right:.3rem">highlighted</span>
+          = focus debt getting the extra payment that month.
+          Each row shows exactly how much to pay each lender.
         </div>
       </div>
     </div>
@@ -684,6 +727,7 @@ function calculate() {
 
   renderCompareTable(results, bestKey, loans);
   renderChart(results);
+  renderScheduleIfOpen();
 }
 
 function renderCompareTable(results, bestKey, loans) {
@@ -821,6 +865,115 @@ function renderChart(results) {
       },
     },
   });
+}
+
+// ── Payment Schedule ──────────────────────────────────────────────────────────
+function runStrategyDetailed(loansInput, budget, strategy) {
+  const debts = deepCopy(loansInput);
+  const schedule = [];
+  const paidOffAt = {};
+  let month = 0;
+  const MAX = 600;
+
+  while (debts.some(d => d.balance > 0.005) && month < MAX) {
+    month++;
+    const active     = debts.filter(d => d.balance > 0.005);
+    const target     = pickTarget(active, budget, strategy);
+    if (!target) break;
+    const nonTargets = active.filter(d => d.id !== target.id);
+
+    const row = {};
+    debts.forEach(d => { row[d.id] = { pay: 0, isTarget: d.id === target.id }; });
+
+    let remaining = budget;
+    nonTargets.forEach(d => {
+      const pay = Math.min(d.min, d.balance);
+      remaining  -= pay;
+      row[d.id].pay = pay;
+      applyPayment(d, pay);
+    });
+
+    const mr   = target.rate / 12 / 100;
+    const tInt = target.type === 'simple' ? target.origBalance * mr : target.balance * mr;
+    const tPay = Math.max(0, Math.min(remaining, target.balance + tInt * 1.05));
+    row[target.id].pay = tPay;
+    applyPayment(target, tPay);
+
+    debts.forEach(d => {
+      if (d.balance < 0.005 && d.paidOffMonth === null) {
+        d.balance = 0;
+        d.paidOffMonth = month;
+        paidOffAt[d.id] = month;
+      }
+    });
+
+    schedule.push({ month, row });
+  }
+  return { schedule, paidOffAt };
+}
+
+function buildAndRenderSchedule() {
+  const loans    = getLoans();
+  const budget   = toUSD(parseFloat(document.getElementById('monthlyBudget').value) || 0);
+  const strategy = document.getElementById('schedStrategy').value;
+  if (!loans.length || budget <= 0) return;
+
+  const { schedule, paidOffAt } = runStrategyDetailed(loans, budget, strategy);
+
+  // Header
+  document.getElementById('schedHead').innerHTML =
+    '<tr><th style="text-align:center">Month</th>' +
+    loans.map(l => `<th>${l.name}</th>`).join('') +
+    '<th style="text-align:right">Total</th></tr>';
+
+  // Body
+  const tbody = document.getElementById('schedBody');
+  tbody.innerHTML = '';
+
+  schedule.forEach(({ month, row }) => {
+    const tr = document.createElement('tr');
+    if (month > 1 && month % 12 === 1) tr.classList.add('yr-row');
+
+    let html  = `<td>Mo.${month}</td>`;
+    let total = 0;
+
+    loans.forEach(l => {
+      const po  = paidOffAt[l.id];
+      const pay = (row[l.id] && row[l.id].pay) || 0;
+      total += pay;
+
+      if (po !== undefined && month > po) {
+        html += '<td class="paid-cell">✓</td>';
+      } else if (po !== undefined && month === po) {
+        html += '<td class="done-cell">✓ Done</td>';
+      } else if (row[l.id] && row[l.id].isTarget) {
+        html += `<td class="target-cell">${fmt(pay)}</td>`;
+      } else if (pay > 0) {
+        html += `<td>${fmt(pay)}</td>`;
+      } else {
+        html += '<td class="paid-cell">—</td>';
+      }
+    });
+
+    html += `<td style="font-weight:600">${fmt(total)}</td>`;
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderScheduleIfOpen() {
+  if (document.getElementById('scheduleWrapper').style.display !== 'none') {
+    buildAndRenderSchedule();
+  }
+}
+
+function toggleSchedule() {
+  const wrapper = document.getElementById('scheduleWrapper');
+  const btn     = document.getElementById('schedToggle');
+  const isHidden = wrapper.style.display === 'none';
+  wrapper.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden ? 'Hide Schedule' : 'Show Schedule';
+  if (isHidden) buildAndRenderSchedule();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
