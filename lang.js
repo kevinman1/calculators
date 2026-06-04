@@ -583,7 +583,7 @@ window.WFC_STRINGS = {
     "calc.family_budget.desc": "ផែនការថវិកាមូលដ្ឋានសម្រាបគ្រួសារ",
     "calc.church_budget.name": "ថវិកាក្រុមជំនុំ",
     "calc.church_budget.desc": "ឧបករណ៍សាមញ្ញសម្រាប់ធ្វើថវិកាក្រុមជំនុំ",
-    "calc.farm_budget.name": "ថវិកាដាំណាំ",
+    "calc.farm_budget.name": "ថវិកាកសិដ្ឋាន",
     "calc.farm_budget.desc": "គណនាថាតើដំណាំផ្តល់ផលចំណេញឬអត់",
     "calc.insurance.name": "ធានារ៉ាប់រង – បញ្ចប់មុនកំណត់?",
     "calc.insurance.desc": "វាយតម្លៃមើលថាតើការរំលាយគោលការណ៍ធានារ៉ាប់រងជាគំនិតល្អឬអត់",
