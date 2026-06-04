@@ -83,7 +83,7 @@
         <div class="input-group" id="exrateGroup" style="display:none;margin-bottom:.5rem">
           <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
           <div class="input-wrapper">
-            <input type="number" id="exchangeRate" value="4100" min="1" step="100" oninput="onMainInput()">
+            <input type="number" id="exchangeRate" value="4000" min="1" step="100" oninput="onMainInput()">
             <span class="input-suffix">KHR</span>
           </div>
         </div>
@@ -324,7 +324,7 @@ function fmtMoney(v) {
   return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function currSym() { return currency === 'KHR' ? '&#6107;' : '$'; }
-function getXR()   { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+function getXR()   { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
 
 function toISO(d) {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');

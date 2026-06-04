@@ -160,7 +160,7 @@
     <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')">KHR &#6107;</button>
     <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
       <span style="color:var(--text-medium)" data-i18n="loan.exrate">1 USD =</span>
-      <input type="number" id="exchangeRate" value="4100" min="100" step="100"
+      <input type="number" id="exchangeRate" value="4000" min="100" step="100"
         style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem">
       <span style="color:var(--text-medium)">KHR</span>
     </span>
@@ -481,7 +481,7 @@ let tableVisible = false;
 let lastData = null;
 
 // ── Currency helpers ──────────────────────────────────────────────────────────
-function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
 
 const MONETARY_IDS = ['homePrice','homeIns','hoaFee','monthlyRent','rentersIns','secDeposit','upfrontCost'];
 

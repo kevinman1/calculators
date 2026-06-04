@@ -203,7 +203,7 @@
         <div class="input-group" id="exrateGroup" style="margin-bottom:.6rem">
           <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
           <div class="input-wrapper">
-            <input type="number" id="exchangeRate" value="4100" min="1" step="100">
+            <input type="number" id="exchangeRate" value="4000" min="1" step="100">
             <span class="input-suffix">KHR</span>
           </div>
         </div>
@@ -448,7 +448,7 @@ let hvbChart = null;
 let currency = 'KHR';
 
 // ── Currency helpers ──────────────────────────────────────────────────────────
-function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
 
 function setCurrency(newCur) {
   if (currency === newCur) return;

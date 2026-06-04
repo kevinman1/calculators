@@ -190,7 +190,7 @@
         <div class="input-group" id="exrateGroup" style="display:none;margin-bottom:.6rem">
           <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
           <div class="input-wrapper">
-            <input type="number" id="exchangeRate" value="4100" min="1" step="100" oninput="calculate()">
+            <input type="number" id="exchangeRate" value="4000" min="1" step="100" oninput="calculate()">
             <span class="input-suffix">KHR</span>
           </div>
         </div>
@@ -360,7 +360,7 @@ function fmtMoney(v) {
   return '$' + Math.round(v).toLocaleString('en-US');
 }
 function currSym() { return currency === 'KHR' ? '&#6107;' : '$'; }
-function getXR()   { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
+function getXR()   { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
 
 // ── Expense inputs ─────────────────────────────────────────────────────────────
 const EXPENSE_IDS = ['housing','food','transport','debt','education','phone','insurance','property_tax','other'];
