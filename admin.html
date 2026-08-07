@@ -311,6 +311,70 @@
     }
     .trans-row textarea:focus { border-color: var(--green-600); }
     .trans-row textarea.km { font-family: 'Hanuman', 'Khmer OS', sans-serif; }
+    .trans-row.filtered-out { display: none; }
+
+    /* ── Search / tools bar ── */
+    .trans-tools {
+      display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+      margin-bottom: 1rem;
+    }
+    .trans-tools input[type=search] {
+      flex: 1 1 260px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      padding: .45rem .7rem;
+      font-size: .85rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .trans-tools input[type=search]:focus { border-color: var(--green-600); }
+    .trans-count { font-size: .78rem; color: var(--text-light); white-space: nowrap; }
+    .link-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: .78rem; font-family: inherit; color: var(--green-700);
+      text-decoration: underline; padding: .2rem .3rem;
+    }
+    .link-btn:hover { color: var(--green-800); }
+
+    /* auto-discovered sections get a subtle marker */
+    .section-block-header .auto-tag {
+      font-size: .62rem; font-weight: 700; letter-spacing: .04em;
+      background: rgba(255,255,255,.22); padding: .1rem .4rem;
+      border-radius: 3px; margin-left: .5rem; text-transform: none;
+    }
+    .section-block-header .hdr-left { display: flex; align-items: center; gap: .1rem; }
+
+    /* ── Import preview dialog ── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      display: flex; align-items: center; justify-content: center; z-index: 50;
+      padding: 1rem;
+    }
+    .modal-box {
+      background: white; border-radius: 9px; max-width: 620px; width: 100%;
+      max-height: 82vh; display: flex; flex-direction: column;
+      box-shadow: 0 8px 30px rgba(0,0,0,.25);
+    }
+    .modal-box h3 {
+      background: var(--green-700); color: white; margin: 0;
+      padding: .8rem 1.1rem; font-size: .95rem; border-radius: 9px 9px 0 0;
+    }
+    .modal-body { padding: 1.1rem; overflow-y: auto; font-size: .87rem; }
+    .modal-foot {
+      padding: .8rem 1.1rem; border-top: 1px solid var(--green-100);
+      display: flex; justify-content: flex-end; gap: .5rem;
+    }
+    .imp-stat { display: flex; gap: 1.25rem; margin-bottom: .9rem; flex-wrap: wrap; }
+    .imp-stat div { font-size: .8rem; color: var(--text-medium); }
+    .imp-stat b { display: block; font-size: 1.4rem; color: var(--green-800); }
+    .imp-list {
+      font-family: monospace; font-size: .74rem; line-height: 1.55;
+      background: var(--green-50); border: 1px solid var(--green-100);
+      border-radius: 5px; padding: .6rem .75rem; max-height: 230px; overflow-y: auto;
+    }
+    .imp-list .imp-add { color: #1e7e34; }
+    .imp-list .imp-chg { color: #b8860b; }
+    .imp-list .imp-del { color: #c0392b; }
 
     @media (max-width: 780px) {
       .section-block-body {
@@ -365,9 +429,21 @@
         <h2>Translation Editor</h2>
         <div class="toolbar-btns">
           <span class="save-status" id="saveStatus">Unsaved changes</span>
+          <button class="btn-secondary" onclick="backupTranslations()" title="Download every English and Khmer string as a JSON file">⬇ Backup</button>
+          <button class="btn-secondary" onclick="document.getElementById('importFile').click()" title="Load translations from a backup JSON file">⬆ Import</button>
+          <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importTranslations(this)">
           <button class="btn-secondary" onclick="saveTranslations()">💾 Save to GitHub</button>
         </div>
       </div>
+
+      <div class="trans-tools">
+        <input type="search" id="keySearch" placeholder="Search key, English or Khmer text…" oninput="filterRows()">
+        <span class="trans-count" id="transCount"></span>
+        <button class="link-btn" onclick="expandAll(true)">Expand all</button>
+        <button class="link-btn" onclick="expandAll(false)">Collapse all</button>
+        <button class="link-btn" onclick="restoreLocalSnapshot()" title="Undo back to the copy saved automatically before your last save">↩ Restore local snapshot</button>
+      </div>
+
       <div id="editorContent"></div>
     </div>
 
@@ -671,6 +747,44 @@ const SECTIONS = [
 let authToken  = '';
 let fileSHA    = '';
 let strings    = { en: {}, km: {} };  // live editable copy
+let pristine   = { en: {}, km: {} };  // exactly what was fetched from GitHub this session
+const SNAPSHOT_KEY = 'wfc-lang-snapshot';
+
+// Friendly names for auto-discovered key prefixes. Anything not listed here
+// still shows up — it just gets a generic "prefix.*" heading.
+const PREFIX_NAMES = {
+  site:            '🌐 Site & Footer',
+  nav:             '🧭 Navigation Menu',
+  bread:           '🧭 Breadcrumbs',
+  index:           '🏠 Home Page',
+  badge:           '🏷 Badges',
+  btn:             '🔘 Buttons',
+  print:           '🖨 Print',
+  currency:        '💱 Currency',
+  calc:            '📋 Calculator Names & Descriptions',
+  input:           '🔧 Shared Input Labels',
+  result:          '📊 Shared Result Labels',
+  cmp:             '⚖️ Shared Comparison Labels',
+  sched:           '🗓 Shared Schedule Table',
+  schedule:        '🗓 Schedule (misc)',
+  fixed:           '💰 Fixed Deposit Savings',
+  monthly:         '📅 Monthly Contribution Savings',
+  ef:              '🛟 Emergency Fund',
+  nssf:            '🏛 NSSF Pension',
+  hvb:             '🏠 Savings: Home vs Bank',
+  invest:          '📈 Investment Evaluation',
+  simple_daily:    '📆 Simple Interest – Daily',
+  simple_monthly:  '🗓 Simple Interest – Monthly/Yearly',
+  loan:            '🏦 Loan Calculator (4 Parts)',
+  cln:             '📉 Compound Interest Loan',
+  fl:              '🔀 Flexible Loan (Periodic Principal)',
+  cmr:             '📊 Compound Loan — Multiple Rates',
+  lcp:             '⚖️ Loan Comparison',
+  dp:              '🎯 Debt Pay-Off Strategies',
+  dti:             '📐 DTI – Debt to Income Ratio',
+  rvb:             '🏘 Renting vs Financing',
+  cinf:            '📈 Cambodian Inflation',
+};
 
 // ── Inflation state ────────────────────────────────────────────────────────
 const INF_FILEPATH  = 'cambodia-inflation.html';
@@ -732,79 +846,170 @@ function parseAndLoad(raw) {
   const parsed = JSON.parse(m[1]);
   strings.en = Object.assign({}, parsed.en || {});
   strings.km = Object.assign({}, parsed.km || {});
+  // Keep an untouched copy of what GitHub actually holds, so saves merge against
+  // the real file rather than the (possibly cached) lang.js bundled into this page.
+  pristine.en = Object.assign({}, parsed.en || {});
+  pristine.km = Object.assign({}, parsed.km || {});
+}
+
+// ── Key helpers ────────────────────────────────────────────────────────────
+function allKeys() {
+  const set = new Set(Object.keys(strings.en));
+  Object.keys(strings.km).forEach(k => set.add(k));
+  return Array.from(set);
+}
+
+function prefixOf(key)  { return key.split('.')[0]; }
+function prefixName(p)  { return PREFIX_NAMES[p] || ('🔤 ' + p + '.*'); }
+
+// Turn "fl.delay.skip_sun" into "Delay › skip sun" for a readable row label
+function autoLabel(key) {
+  const parts = key.split('.').slice(1);
+  if (!parts.length) return key;
+  const txt = parts.join(' › ').replace(/_/g, ' ');
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
 }
 
 // ── Build editor UI ────────────────────────────────────────────────────────
+// Every key in lang.js gets a row. SECTIONS supplies the friendly ordering and
+// labels for the curated ones; anything it does not mention is grouped by key
+// prefix and appended, so newly added keys can never go missing from the editor.
 function buildEditor() {
   const container = document.getElementById('editorContent');
   container.innerHTML = '';
 
+  const covered = new Set();
+  SECTIONS.forEach(([, rows]) => rows.forEach(([key]) => covered.add(key)));
+
+  // 1. Curated sections, in their hand-picked order.
+  //    Skip keys that no longer exist in lang.js at all — they are leftovers
+  //    from calculators that have since changed.
   SECTIONS.forEach(([title, rows]) => {
-    const block = document.createElement('div');
-    block.className = 'section-block';
-
-    const hdr = document.createElement('div');
-    hdr.className = 'section-block-header';
-    hdr.innerHTML = title + ' <span class="chevron">▾</span>';
-    hdr.onclick = function() {
-      this.classList.toggle('collapsed');
-      this.nextElementSibling.classList.toggle('hidden');
-    };
-    block.appendChild(hdr);
-
-    const body = document.createElement('div');
-    body.className = 'section-block-body';
-
-    // Column headers
-    ['Key / Description', 'English', 'ខ្មែរ (Khmer)'].forEach(h => {
-      const ch = document.createElement('div');
-      ch.className = 'col-header';
-      ch.textContent = h;
-      body.appendChild(ch);
-    });
-
-    rows.forEach(([key, label]) => {
-      const row = document.createElement('div');
-      row.className = 'trans-row';
-
-      // Key cell
-      const kc = document.createElement('div');
-      kc.className = 'key-cell';
-      kc.innerHTML = '<span class="key-label">' + escHtml(label) + '</span>' + escHtml(key);
-      row.appendChild(kc);
-
-      // English textarea
-      const enCell = document.createElement('div');
-      const enTA   = document.createElement('textarea');
-      enTA.value   = strings.en[key] || '';
-      enTA.rows    = rows.length > 1 ? 2 : 2;
-      enTA.setAttribute('data-key', key);
-      enTA.setAttribute('data-lang', 'en');
-      enTA.addEventListener('input', onStringChange);
-      autoResize(enTA);
-      enCell.appendChild(enTA);
-      row.appendChild(enCell);
-
-      // Khmer textarea
-      const kmCell = document.createElement('div');
-      const kmTA   = document.createElement('textarea');
-      kmTA.value   = strings.km[key] || '';
-      kmTA.className = 'km';
-      kmTA.setAttribute('data-key', key);
-      kmTA.setAttribute('data-lang', 'km');
-      kmTA.addEventListener('input', onStringChange);
-      autoResize(kmTA);
-      kmCell.appendChild(kmTA);
-      row.appendChild(kmCell);
-
-      body.appendChild(row);
-    });
-
-    block.appendChild(body);
-    container.appendChild(block);
+    const live = rows.filter(([key]) =>
+      strings.en[key] !== undefined || strings.km[key] !== undefined);
+    if (live.length) renderSection(container, title, live, false);
   });
 
-  setStatus('Loaded from GitHub ✓', 'ok');
+  // 2. Everything else, grouped by prefix.
+  const curatedPrefixes = new Set(Array.from(covered).map(prefixOf));
+  const groups = {};
+  allKeys().filter(k => !covered.has(k)).forEach(k => {
+    (groups[prefixOf(k)] = groups[prefixOf(k)] || []).push(k);
+  });
+
+  Object.keys(groups)
+    .sort((a, b) => prefixName(a).localeCompare(prefixName(b)))
+    .forEach(p => {
+      const rows  = groups[p].sort().map(k => [k, autoLabel(k)]);
+      const title = prefixName(p) + (curatedPrefixes.has(p) ? ' — additional' : '');
+      renderSection(container, title, rows, true);
+    });
+
+  updateCount();
+  setStatus('Loaded from GitHub ✓ — ' + allKeys().length + ' keys', 'ok');
+}
+
+function renderSection(container, title, rows, isAuto) {
+  const block = document.createElement('div');
+  block.className = 'section-block';
+
+  const hdr = document.createElement('div');
+  hdr.className = 'section-block-header';
+  hdr.innerHTML =
+    '<span class="hdr-left">' + escHtml(title) +
+    (isAuto ? '<span class="auto-tag">auto</span>' : '') +
+    '<span class="auto-tag">' + rows.length + '</span></span>' +
+    '<span class="chevron">▾</span>';
+  hdr.onclick = function() {
+    this.classList.toggle('collapsed');
+    this.nextElementSibling.classList.toggle('hidden');
+  };
+  block.appendChild(hdr);
+
+  const body = document.createElement('div');
+  body.className = 'section-block-body';
+
+  ['Key / Description', 'English', 'ខ្មែរ (Khmer)'].forEach(h => {
+    const ch = document.createElement('div');
+    ch.className = 'col-header';
+    ch.textContent = h;
+    body.appendChild(ch);
+  });
+
+  rows.forEach(([key, label]) => {
+    const row = document.createElement('div');
+    row.className = 'trans-row';
+    row.setAttribute('data-key', key);
+    // Pre-computed haystack so the search box stays responsive across 500+ rows
+    row.setAttribute('data-search', (
+      key + ' ' + label + ' ' + (strings.en[key] || '') + ' ' + (strings.km[key] || '')
+    ).toLowerCase());
+
+    const kc = document.createElement('div');
+    kc.className = 'key-cell';
+    kc.innerHTML = '<span class="key-label">' + escHtml(label) + '</span>' + escHtml(key);
+    row.appendChild(kc);
+
+    row.appendChild(makeCell(key, 'en'));
+    row.appendChild(makeCell(key, 'km'));
+    body.appendChild(row);
+  });
+
+  block.appendChild(body);
+  container.appendChild(block);
+}
+
+function makeCell(key, lang) {
+  const cell = document.createElement('div');
+  const ta   = document.createElement('textarea');
+  ta.value   = strings[lang][key] || '';
+  ta.rows    = 2;
+  if (lang === 'km') ta.className = 'km';
+  ta.setAttribute('data-key', key);
+  ta.setAttribute('data-lang', lang);
+  ta.addEventListener('input', onStringChange);
+  autoResize(ta);
+  cell.appendChild(ta);
+  return cell;
+}
+
+// ── Search / filter ────────────────────────────────────────────────────────
+function filterRows() {
+  const q = document.getElementById('keySearch').value.trim().toLowerCase();
+
+  document.querySelectorAll('#editorContent .section-block').forEach(block => {
+    const rows = block.querySelectorAll('.trans-row');
+    let shown = 0;
+    rows.forEach(row => {
+      const hit = !q || row.getAttribute('data-search').indexOf(q) !== -1;
+      row.classList.toggle('filtered-out', !hit);
+      if (hit) shown++;
+    });
+    block.style.display = shown ? '' : 'none';
+    // While searching, force sections open so matches are actually visible
+    if (q) {
+      block.querySelector('.section-block-header').classList.remove('collapsed');
+      block.querySelector('.section-block-body').classList.remove('hidden');
+    }
+  });
+
+  updateCount(q);
+}
+
+function updateCount(q) {
+  const el = document.getElementById('transCount');
+  if (!el) return;
+  const total = allKeys().length;
+  if (!q) { el.textContent = total + ' keys'; return; }
+  const shown = document.querySelectorAll('#editorContent .trans-row:not(.filtered-out)').length;
+  el.textContent = shown + ' of ' + total + ' keys';
+}
+
+function expandAll(open) {
+  document.querySelectorAll('#editorContent .section-block').forEach(block => {
+    block.querySelector('.section-block-header').classList.toggle('collapsed', !open);
+    block.querySelector('.section-block-body').classList.toggle('hidden', !open);
+  });
 }
 
 function autoResize(ta) {
@@ -824,9 +1029,187 @@ function onStringChange(e) {
   setStatus('Unsaved changes', '');
 }
 
+// ── Local safety snapshot ──────────────────────────────────────────────────
+// Taken before anything that replaces the working set (a save or an import),
+// so a mistake is always one click from being undone.
+function takeSnapshot(reason) {
+  try {
+    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify({
+      takenAt: new Date().toISOString(),
+      reason:  reason,
+      en:      strings.en,
+      km:      strings.km
+    }));
+  } catch (e) {
+    /* storage full or blocked — never block the actual save over this */
+  }
+}
+
+function restoreLocalSnapshot() {
+  let snap;
+  try { snap = JSON.parse(localStorage.getItem(SNAPSHOT_KEY) || 'null'); }
+  catch (e) { snap = null; }
+
+  if (!snap) {
+    setStatus('No local snapshot yet — one is taken before each save or import', 'err');
+    return;
+  }
+
+  const when  = new Date(snap.takenAt).toLocaleString();
+  const count = Object.keys(snap.en || {}).length;
+  if (!confirm(
+    'Restore the snapshot taken before your last ' + (snap.reason || 'change') + '?\n\n' +
+    'Taken: ' + when + '\n' +
+    'Contains: ' + count + ' keys\n\n' +
+    'This replaces what is currently in the editor. Nothing is sent to GitHub ' +
+    'until you click Save.'
+  )) return;
+
+  strings.en = Object.assign({}, snap.en || {});
+  strings.km = Object.assign({}, snap.km || {});
+  buildEditor();
+  document.getElementById('keySearch').value = '';
+  filterRows();
+  setStatus('Snapshot restored — review, then Save to GitHub', 'ok');
+}
+
+// ── Backup: download everything as JSON ────────────────────────────────────
+function backupTranslations() {
+  const keys = allKeys().sort();
+  const en = {}, km = {};
+  keys.forEach(k => {
+    if (strings.en[k] !== undefined) en[k] = strings.en[k];
+    if (strings.km[k] !== undefined) km[k] = strings.km[k];
+  });
+
+  const now   = new Date();
+  const pad   = n => String(n).padStart(2, '0');
+  const stamp = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+                '_' + pad(now.getHours()) + pad(now.getMinutes());
+
+  const payload = {
+    _meta: {
+      app:        'Wise Financial Cambodia — translations',
+      sourceFile: FILEPATH,
+      repo:       REPO,
+      exportedAt: now.toISOString(),
+      keyCount:   keys.length,
+      note:       'Restore this with the Import button on the Translation Editor.'
+    },
+    en: en,
+    km: km
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'wfc-translations-' + stamp + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  setStatus('Backed up ' + keys.length + ' keys ✓', 'ok');
+}
+
+// ── Import: load a backup, show what changes, then confirm ─────────────────
+function importTranslations(input) {
+  const file = input.files && input.files[0];
+  input.value = '';           // allow re-picking the same file later
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    let data;
+    try {
+      data = JSON.parse(reader.result);
+    } catch (e) {
+      setStatus('Import failed — that file is not valid JSON', 'err');
+      return;
+    }
+    if (!data || typeof data !== 'object' || (!data.en && !data.km)) {
+      setStatus('Import failed — no "en" or "km" section found in that file', 'err');
+      return;
+    }
+
+    const inEn = data.en || {};
+    const inKm = data.km || {};
+    const added = [], changed = [], untouched = [];
+
+    const incoming = new Set(Object.keys(inEn).concat(Object.keys(inKm)));
+    incoming.forEach(k => {
+      const isNew =
+        strings.en[k] === undefined && strings.km[k] === undefined;
+      if (isNew) { added.push(k); return; }
+      const enDiff = inEn[k] !== undefined && inEn[k] !== strings.en[k];
+      const kmDiff = inKm[k] !== undefined && inKm[k] !== strings.km[k];
+      if (enDiff || kmDiff) changed.push(k);
+    });
+    allKeys().forEach(k => { if (!incoming.has(k)) untouched.push(k); });
+
+    showImportDialog(file.name, data, added, changed, untouched);
+  };
+  reader.onerror = () => setStatus('Import failed — could not read that file', 'err');
+  reader.readAsText(file);
+}
+
+function showImportDialog(filename, data, added, changed, untouched) {
+  const list = (arr, cls, prefix) => arr.slice(0, 60)
+    .map(k => '<div class="' + cls + '">' + prefix + ' ' + escHtml(k) + '</div>').join('') +
+    (arr.length > 60 ? '<div>…and ' + (arr.length - 60) + ' more</div>' : '');
+
+  const exported = data._meta && data._meta.exportedAt
+    ? new Date(data._meta.exportedAt).toLocaleString()
+    : 'unknown';
+
+  const back = document.createElement('div');
+  back.className = 'modal-backdrop';
+  back.innerHTML =
+    '<div class="modal-box">' +
+      '<h3>Import translations</h3>' +
+      '<div class="modal-body">' +
+        '<p style="margin:0 0 .8rem"><b>' + escHtml(filename) + '</b><br>' +
+          '<span style="color:var(--text-light);font-size:.8rem">Exported: ' + escHtml(exported) + '</span></p>' +
+        '<div class="imp-stat">' +
+          '<div><b>' + added.length + '</b>new keys</div>' +
+          '<div><b>' + changed.length + '</b>keys changed</div>' +
+          '<div><b>' + untouched.length + '</b>keys left as-is</div>' +
+        '</div>' +
+        (added.length || changed.length
+          ? '<div class="imp-list">' + list(added, 'imp-add', '+') + list(changed, 'imp-chg', '~') + '</div>'
+          : '<p style="color:var(--text-light)">This file matches what is already in the editor — nothing would change.</p>') +
+        '<p style="margin:.9rem 0 0;font-size:.8rem;color:var(--text-light)">' +
+          'Keys that exist here but not in the file are <b>kept</b>, never deleted. ' +
+          'Nothing reaches GitHub until you click <b>Save to GitHub</b>.</p>' +
+      '</div>' +
+      '<div class="modal-foot">' +
+        '<button class="btn-secondary" id="impCancel">Cancel</button>' +
+        '<button class="btn-primary" id="impConfirm">Apply to editor</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(back);
+  const close = () => document.body.removeChild(back);
+  back.querySelector('#impCancel').onclick = close;
+  back.onclick = e => { if (e.target === back) close(); };
+  back.querySelector('#impConfirm').onclick = () => {
+    takeSnapshot('import');
+    Object.assign(strings.en, data.en || {});
+    Object.assign(strings.km, data.km || {});
+    close();
+    buildEditor();
+    document.getElementById('keySearch').value = '';
+    filterRows();
+    setStatus('Imported ' + (added.length + changed.length) +
+              ' keys — review, then Save to GitHub', 'ok');
+  };
+}
+
 // ── Save to GitHub ─────────────────────────────────────────────────────────
 async function saveTranslations() {
   setStatus('Saving…', '');
+  takeSnapshot('save');
   document.querySelector('[onclick="saveTranslations()"]').disabled = true;
 
   try {
@@ -874,12 +1257,10 @@ async function saveTranslations() {
 
 // ── Rebuild lang.js from strings ──────────────────────────────────────────
 function buildLangJs() {
-  // Merge any keys that exist in the current strings but weren't shown in the editor
-  // (preserves keys not listed in SECTIONS)
-  const existingEn = (window.WFC_STRINGS || {}).en || {};
-  const existingKm = (window.WFC_STRINGS || {}).km || {};
-  const mergedEn = Object.assign({}, existingEn, strings.en);
-  const mergedKm = Object.assign({}, existingKm, strings.km);
+  // Merge onto the copy fetched from GitHub at login — not the lang.js bundled
+  // into this page, which the browser may be serving from cache.
+  const mergedEn = Object.assign({}, pristine.en, strings.en);
+  const mergedKm = Object.assign({}, pristine.km, strings.km);
 
   return 'window.WFC_STRINGS = ' + JSON.stringify({ en: mergedEn, km: mergedKm }, null, 2) + ';\n';
 }
@@ -1288,6 +1669,7 @@ function logout() {
   fileSHA   = '';
   holSHA    = '';
   strings   = { en: {}, km: {} };
+  pristine  = { en: {}, km: {} };
   holDates  = new Set();
   sessionStorage.removeItem('wfc-pat');
   document.getElementById('loginSection').style.display  = 'flex';
