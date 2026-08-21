@@ -344,6 +344,25 @@
     }
     .section-block-header .hdr-left { display: flex; align-items: center; gap: .1rem; }
 
+    /* ── Pending-change banner ── */
+    .pr-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+      background: #fff8e1;
+      border: 1.5px solid #f0c36d;
+      border-radius: 7px;
+      padding: .7rem 1rem;
+      margin-bottom: 1.1rem;
+      font-size: .87rem;
+      color: #6b4f12;
+    }
+    .pr-banner.ok  { background: var(--green-50); border-color: var(--green-300); color: var(--green-800); }
+    .pr-banner.err { background: #fdecea; border-color: #e8a49c; color: #922b21; }
+    .pr-banner .pr-msg { flex: 1 1 260px; }
+    .pr-banner .pr-note { font-size: .8rem; opacity: .85; }
+    .pr-banner .pr-actions { display: flex; gap: .5rem; align-items: center; }
+    .pr-banner .btn-secondary { text-decoration: none; }
+
     /* ── Import preview dialog ── */
     .modal-backdrop {
       position: fixed; inset: 0; background: rgba(0,0,0,.45);
@@ -415,6 +434,9 @@
 
   <!-- ── Editor ── -->
   <div id="editorSection">
+
+    <!-- Pending-change banner (shown once a save has opened a pull request) -->
+    <div class="pr-banner" id="prBanner" style="display:none"></div>
 
     <!-- Tab switcher -->
     <div class="admin-tabs">
@@ -750,6 +772,15 @@ let strings    = { en: {}, km: {} };  // live editable copy
 let pristine   = { en: {}, km: {} };  // exactly what was fetched from GitHub this session
 const SNAPSHOT_KEY = 'wfc-lang-snapshot';
 
+// ── Review workflow ────────────────────────────────────────────────────────
+// master is protected, so saves land on a working branch and open a pull
+// request instead of publishing straight to the live site.
+const BASE_BRANCH = 'master';
+const WORK_BRANCH = 'editor-updates';
+let currentPR   = null;    // the open PR our saves are stacking onto, if any
+let canMerge    = false;   // true for repo admins, who can publish without review
+let viewerLogin = '';
+
 // Friendly names for auto-discovered key prefixes. Anything not listed here
 // still shows up — it just gets a generic "prefix.*" heading.
 const PREFIX_NAMES = {
@@ -828,6 +859,21 @@ async function login() {
     document.getElementById('logoutBtn').style.display      = 'inline';
     buildEditor();
 
+    // Work out whether this person can publish without review, and surface any
+    // change already waiting. Neither is fatal, so failures are swallowed.
+    try {
+      const me    = await ghJson('/user');
+      viewerLogin = me.login;
+      const perm  = await ghJson('/repos/' + REPO + '/collaborators/' + me.login + '/permission');
+      canMerge    = perm.permission === 'admin';
+    } catch (e) {
+      canMerge = false;
+    }
+    try {
+      currentPR = await findOpenPR();
+      renderPRBanner();
+    } catch (e) { /* banner just stays hidden */ }
+
     // Also load holidays.js (non-blocking — holiday tab loads lazily)
     loadHolidaysFromGitHub();
 
@@ -836,6 +882,133 @@ async function login() {
     document.getElementById('loginError').textContent   = 'Error: ' + e.message;
     document.querySelector('.admin-login .btn-primary').textContent = 'Access Editor';
   }
+}
+
+// ── GitHub API helpers ─────────────────────────────────────────────────────
+function ghFetch(path, opts) {
+  opts = opts || {};
+  const headers = {
+    Authorization: 'token ' + authToken,
+    Accept:        'application/vnd.github.v3+json'
+  };
+  if (opts.body) headers['Content-Type'] = 'application/json';
+  return fetch(API_BASE + path, Object.assign({}, opts, { headers: headers }));
+}
+
+async function ghJson(path, opts) {
+  const resp = await ghFetch(path, opts);
+  if (!resp.ok) {
+    let msg = 'HTTP ' + resp.status;
+    try { const e = await resp.json(); if (e.message) msg = e.message; } catch (err) { /* keep status */ }
+    throw new Error(msg);
+  }
+  if (resp.status === 204) return null;
+  return resp.json();
+}
+
+// ── Pull-request plumbing ──────────────────────────────────────────────────
+async function findOpenPR() {
+  const owner = REPO.split('/')[0];
+  const prs = await ghJson('/repos/' + REPO + '/pulls?state=open&base=' + BASE_BRANCH +
+                           '&head=' + owner + ':' + WORK_BRANCH);
+  return (prs && prs.length) ? prs[0] : null;
+}
+
+// Reuse the open PR if there is one, so a run of edits batches into a single
+// review. If there is none, start the branch again from master — otherwise a
+// branch left over from a merged PR would quietly revert newer work.
+async function ensureWorkBranch() {
+  const open = await findOpenPR();
+  if (open) return open;
+
+  const base    = await ghJson('/repos/' + REPO + '/git/ref/heads/' + BASE_BRANCH);
+  const baseSha = base.object.sha;
+  const probe   = await ghFetch('/repos/' + REPO + '/git/ref/heads/' + WORK_BRANCH);
+
+  if (probe.ok) {
+    await ghJson('/repos/' + REPO + '/git/refs/heads/' + WORK_BRANCH,
+      { method: 'PATCH', body: JSON.stringify({ sha: baseSha, force: true }) });
+  } else {
+    await ghJson('/repos/' + REPO + '/git/refs',
+      { method: 'POST', body: JSON.stringify({ ref: 'refs/heads/' + WORK_BRANCH, sha: baseSha }) });
+  }
+  return null;
+}
+
+async function commitViaPR(filepath, contentStr, message, prTitle) {
+  let pr = await ensureWorkBranch();
+
+  // The file's sha on the working branch, which may differ from master
+  let sha;
+  const cur = await ghFetch('/repos/' + REPO + '/contents/' + filepath + '?ref=' + WORK_BRANCH);
+  if (cur.ok) sha = (await cur.json()).sha;
+
+  const body = {
+    message: message,
+    content: btoa(unescape(encodeURIComponent(contentStr))),
+    branch:  WORK_BRANCH
+  };
+  if (sha) body.sha = sha;
+
+  const put = await ghJson('/repos/' + REPO + '/contents/' + filepath,
+    { method: 'PUT', body: JSON.stringify(body) });
+
+  if (!pr) {
+    pr = await ghJson('/repos/' + REPO + '/pulls', { method: 'POST', body: JSON.stringify({
+      title: prTitle,
+      head:  WORK_BRANCH,
+      base:  BASE_BRANCH,
+      body:  'Opened automatically from the admin editor.\n\n' +
+             'Merging this publishes the change to calculators.savecambodia.com.'
+    })});
+  }
+
+  currentPR = pr;
+  renderPRBanner();
+  return put.content.sha;
+}
+
+async function mergeCurrentPR() {
+  if (!currentPR) return;
+  const btn = document.getElementById('prMergeBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Publishing…'; }
+  try {
+    await ghJson('/repos/' + REPO + '/pulls/' + currentPR.number + '/merge',
+      { method: 'PUT', body: JSON.stringify({ merge_method: 'squash' }) });
+    // Clear the branch so the next edit starts fresh from master
+    await ghFetch('/repos/' + REPO + '/git/refs/heads/' + WORK_BRANCH, { method: 'DELETE' });
+    currentPR = null;
+    renderPRBanner('Published ✓ — live on the site in about a minute.');
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Publish now'; }
+    renderPRBanner('Could not publish: ' + e.message);
+  }
+}
+
+function renderPRBanner(note) {
+  const el = document.getElementById('prBanner');
+  if (!el) return;
+
+  if (!currentPR) {
+    el.style.display = note ? 'flex' : 'none';
+    el.className     = 'pr-banner' + (note && note.indexOf('Could not') === 0 ? ' err' : ' ok');
+    el.innerHTML     = note ? '<span>' + escHtml(note) + '</span>' : '';
+    return;
+  }
+
+  el.style.display = 'flex';
+  el.className     = 'pr-banner';
+  el.innerHTML =
+    '<span class="pr-msg"><b>Change #' + currentPR.number + '</b> is saved and waiting to be published.' +
+      (canMerge ? '' : ' Someone with admin access needs to review and publish it.') +
+      (note ? '<br><span class="pr-note">' + escHtml(note) + '</span>' : '') +
+    '</span>' +
+    '<span class="pr-actions">' +
+      '<a class="btn-secondary" href="' + currentPR.html_url + '" target="_blank" rel="noopener">View on GitHub</a>' +
+      (canMerge
+        ? '<button class="btn-primary" id="prMergeBtn" onclick="mergeCurrentPR()">Publish now</button>'
+        : '') +
+    '</span>';
 }
 
 // ── Parse lang.js content → strings ───────────────────────────────────────
@@ -1213,40 +1386,15 @@ async function saveTranslations() {
   document.querySelector('[onclick="saveTranslations()"]').disabled = true;
 
   try {
-    const content = buildLangJs();
-    const encoded = btoa(unescape(encodeURIComponent(content)));
-
-    // Re-fetch SHA in case it changed
-    const checkResp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + FILEPATH, {
-      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (checkResp.ok) {
-      const checkData = await checkResp.json();
-      fileSHA = checkData.sha;
-    }
-
-    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + FILEPATH, {
-      method: 'PUT',
-      headers: {
-        Authorization: 'token ' + authToken,
-        Accept:        'application/vnd.github.v3+json',
-        'Content-Type':'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update translations via admin editor',
-        content: encoded,
-        sha:     fileSHA
-      })
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.message || 'HTTP ' + resp.status);
-    }
-
-    const result = await resp.json();
-    fileSHA = result.content.sha;
-    setStatus('Saved ✓ — live in ~1 minute', 'ok');
+    fileSHA = await commitViaPR(
+      FILEPATH,
+      buildLangJs(),
+      'Update translations via admin editor',
+      'Translation updates'
+    );
+    setStatus(canMerge
+      ? 'Saved ✓ — publish it below to put it live'
+      : 'Saved ✓ — sent for review', 'ok');
 
   } catch (e) {
     setStatus('Save failed: ' + e.message, 'err');
@@ -1428,32 +1576,16 @@ async function saveInflation() {
       `(Dec 2004 – ${MONTH_NAMES_SHORT[last.m-1]} ${last.y})`
     );
 
-    const encoded = btoa(unescape(encodeURIComponent(newRaw)));
-
-    // Re-fetch SHA
-    const checkResp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + INF_FILEPATH, {
-      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (checkResp.ok) infSHA = (await checkResp.json()).sha;
-
-    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + INF_FILEPATH, {
-      method: 'PUT',
-      headers: {
-        Authorization: 'token ' + authToken,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update Cambodia CPI data via admin editor (latest: ' + latestStr + ')',
-        content: encoded,
-        sha: infSHA
-      })
-    });
-    if (!resp.ok) { const e = await resp.json(); throw new Error(e.message || 'HTTP ' + resp.status); }
-    const result = await resp.json();
-    infSHA = result.content.sha;
+    infSHA = await commitViaPR(
+      INF_FILEPATH,
+      newRaw,
+      'Update Cambodia CPI data via admin editor (latest: ' + latestStr + ')',
+      'Cambodia CPI data update'
+    );
     infRaw = newRaw;
-    setInfStatus('Saved ✓ — live in ~1 minute', 'ok');
+    setInfStatus(canMerge
+      ? 'Saved ✓ — publish it below to put it live'
+      : 'Saved ✓ — sent for review', 'ok');
   } catch(e) {
     setInfStatus('Save failed: ' + e.message, 'err');
   } finally {
@@ -1624,31 +1756,15 @@ async function saveHolidays() {
                   + '// Last updated: ' + today + '\n'
                   + '// Total: ' + sorted.length + ' holiday dates\n'
                   + "window.WFC_HOLIDAYS = new Set('" + dateStr + "'.split(','));\n";
-    const encoded = btoa(unescape(encodeURIComponent(content)));
-
-    // Re-fetch SHA
-    const checkResp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + HOL_FILEPATH, {
-      headers: { Authorization: 'token ' + authToken, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (checkResp.ok) holSHA = (await checkResp.json()).sha;
-
-    const resp = await fetch(API_BASE + '/repos/' + REPO + '/contents/' + HOL_FILEPATH, {
-      method: 'PUT',
-      headers: {
-        Authorization: 'token ' + authToken,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update Cambodia holidays via admin editor',
-        content: encoded,
-        sha: holSHA
-      })
-    });
-    if (!resp.ok) { const e = await resp.json(); throw new Error(e.message || 'HTTP ' + resp.status); }
-    const result = await resp.json();
-    holSHA = result.content.sha;
-    setHolStatus('Saved ✓ — live in ~1 minute', 'ok');
+    holSHA = await commitViaPR(
+      HOL_FILEPATH,
+      content,
+      'Update Cambodia holidays via admin editor',
+      'Cambodia holiday updates'
+    );
+    setHolStatus(canMerge
+      ? 'Saved ✓ — publish it below to put it live'
+      : 'Saved ✓ — sent for review', 'ok');
   } catch (e) {
     setHolStatus('Save failed: ' + e.message, 'err');
   } finally {
@@ -1670,6 +1786,10 @@ function logout() {
   holSHA    = '';
   strings   = { en: {}, km: {} };
   pristine  = { en: {}, km: {} };
+  currentPR = null;
+  canMerge  = false;
+  viewerLogin = '';
+  renderPRBanner();
   holDates  = new Set();
   sessionStorage.removeItem('wfc-pat');
   document.getElementById('loginSection').style.display  = 'flex';
