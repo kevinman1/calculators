@@ -85,7 +85,36 @@ pull request, so Kevin can read the change before real people see it.
 A **pull request** is just a saved change with a "please check this" note
 attached.
 
-### Making the change
+There are three ways to make one. Pick the easiest one that does the job.
+
+### Way 1: on the GitHub website — nothing to install
+
+Best for fixing a small thing in a page.
+
+1. Open the file on <https://github.com/kevinman1/calculators>
+2. Click the **pencil** icon (top right of the file)
+3. Make your change
+4. At the bottom, choose **"Create a new branch for this commit and start a
+   pull request"**
+5. Click **Propose changes**, then **Create pull request**
+6. Tell Kevin
+
+That is a complete contribution. No Git, no terminal.
+
+### Way 2: the browser editor — for bigger changes
+
+Best for making a whole new calculator, or changing several files.
+
+1. Open <https://github.com/kevinman1/calculators>
+2. Press the **`.`** key (full stop). A code editor opens in your browser.
+3. Make your changes. Follow the checklist below.
+4. Use the **Source Control** panel on the left to create a branch and commit
+5. It offers to open a pull request when you are done
+
+### Way 3: Git on your computer — for testing before you send
+
+Only needed when you want to run the site and try the calculator yourself
+first.
 
 ```bash
 git clone https://github.com/kevinman1/calculators.git
@@ -93,7 +122,7 @@ cd calculators
 git checkout -b my-new-calculator
 ```
 
-Then:
+### The checklist, whichever way you chose
 
 1. Copy an existing page as your starting point. `emergency-fund.html` is a good
    simple one.
@@ -111,15 +140,18 @@ Then:
    `lang.js?v=17` to `lang.js?v=18`. Forget this, and people who visited before
    will not see your new text.
 
-Check it on your own computer before sending it:
+### If you used Way 3: check it, then send it
+
+Try it on your own computer first:
 
 ```bash
 npx serve -p 3000 .
 ```
 
-Then open <http://localhost:3000> in your browser and try the calculator.
+Open <http://localhost:3000> in your browser and use the calculator. Check the
+numbers are right, and switch to Khmer to see the text still fits.
 
-### Sending it for review
+Then send it:
 
 ```bash
 git add .
@@ -128,6 +160,16 @@ git push -u origin my-new-calculator
 ```
 
 GitHub prints a link. Open it, click **Create pull request**, then tell Kevin.
+
+### What happens next
+
+Kevin reads your change and either **approves and merges** it — live about a
+minute later — or leaves a comment asking for something to be fixed. If he asks
+for a change, just make it the same way you made the first one; it joins the
+same pull request automatically.
+
+Please wait for Kevin to merge it, even though GitHub would let you do it
+yourself.
 
 ---
 
