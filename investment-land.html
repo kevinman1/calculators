@@ -92,10 +92,10 @@
     <div class="breadcrumb">
       <a href="index.html" data-i18n="nav.all">All Calculators</a>
       &rsaquo; <span data-i18n="nav.savings">Savings</span>
-      &rsaquo; Investment Evaluation
+      &rsaquo; <span data-i18n="invest.bread">Investment Evaluation</span>
     </div>
-    <h2>Investment Evaluation</h2>
-    <p>Did your land or property investment beat inflation? Enter the purchase price, year bought, and current value to find out.</p>
+    <h2 data-i18n="invest.page_title">Investment Evaluation</h2>
+    <p data-i18n="invest.page_desc">Did your land or property investment beat inflation? Enter the purchase price, year bought, and current value to find out.</p>
   </div>
 </div>
 
@@ -104,7 +104,7 @@
   <!-- Rough-tool note -->
   <div class="rough-note">
     <span class="note-icon">📐</span>
-    <span>
+    <span data-i18n-html="invest.note">
       <strong>Approximate tool:</strong> Years are calculated by subtracting the purchase year from the current year — no exact dates.
       Results are a useful guide but should be treated as rough estimates, especially for short holding periods.
     </span>
@@ -112,26 +112,26 @@
 
   <!-- Currency toggle -->
   <div class="currency-bar" style="margin-bottom:1rem">
-    <span class="currency-label">Currency:</span>
-    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">USD $</button>
-    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')">KHR &#6107;</button>
+    <span class="currency-label" data-i18n="invest.currency_label">Currency:</span>
+    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="invest.cur.usd">USD $</button>
+    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="invest.cur.khr">KHR &#6107;</button>
     <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
-      <span style="color:var(--text-medium)">1 USD =</span>
+      <span style="color:var(--text-medium)" data-i18n="invest.exrate_prefix">1 USD =</span>
       <input type="number" id="exchangeRate" value="4100" min="100" step="100"
         style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem"
         oninput="calculate()">
-      <span style="color:var(--text-medium)">KHR</span>
+      <span style="color:var(--text-medium)" data-i18n="currency.khr_code">KHR</span>
     </span>
   </div>
 
   <!-- Inputs -->
   <div class="card" style="margin-bottom:1rem">
-    <div class="card-header">Investment Details</div>
+    <div class="card-header" data-i18n="invest.card.details">Investment Details</div>
     <div class="card-body">
       <div class="input-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem 1.25rem">
 
         <div class="input-group">
-          <label class="input-label">Purchase Price</label>
+          <label class="input-label" data-i18n="invest.input.purchase">Purchase Price</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfxPurchase">$</span>
             <input type="number" id="purchasePrice" value="3000" min="0" step="100" oninput="calculate()">
@@ -139,19 +139,19 @@
         </div>
 
         <div class="input-group">
-          <label class="input-label">Year Bought</label>
+          <label class="input-label" data-i18n="invest.input.year">Year Bought</label>
           <div class="input-wrapper" style="padding-left:0">
             <input type="number" id="yearBought" value="2020" min="1950" max="2100" step="1"
               style="text-align:left;padding-left:.65rem" oninput="calculate()">
           </div>
           <div style="font-size:.71rem;color:var(--text-light);margin-top:.2rem">
-            Years from now = <strong id="yearsDisplay">—</strong>
-            <span style="color:#d97706"> ≈ rounded to whole years</span>
+            <span data-i18n="invest.years_from_now">Years from now =</span> <strong id="yearsDisplay">—</strong>
+            <span style="color:#d97706" data-i18n="invest.rounded_note"> ≈ rounded to whole years</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label class="input-label">Current Value</label>
+          <label class="input-label" data-i18n="invest.input.current">Current Value</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfxCurrent">$</span>
             <input type="number" id="currentPrice" value="3300" min="0" step="100" oninput="calculate()">
@@ -159,14 +159,14 @@
         </div>
 
         <div class="input-group">
-          <label class="input-label">Average Yearly Inflation</label>
+          <label class="input-label" data-i18n="invest.input.inflation">Average Yearly Inflation</label>
           <div class="input-wrapper">
             <input type="number" id="inflationRate" value="2.8" min="0" max="100" step="0.1"
               style="text-align:left;padding-left:.65rem">
             <span class="input-suffix">%</span>
           </div>
           <div style="font-size:.71rem;color:var(--text-light);margin-top:.2rem">
-            Cambodia avg. ≈ 2–5%/yr
+            <span data-i18n="invest.inflation_hint">Cambodia avg. ≈ 2–5%/yr</span>
           </div>
         </div>
 
@@ -181,75 +181,75 @@
     <div id="ratingBanner" class="rating-banner good" style="margin-bottom:1rem">
       <div class="rating-icon" id="ratingIcon">✅</div>
       <div>
-        <div class="rating-label">Investment Rating</div>
-        <div class="rating-text" id="ratingText">Good Investment</div>
-        <div class="rating-sub" id="ratingSub">Your asset is growing faster than inflation.</div>
+        <div class="rating-label" data-i18n="invest.rating.label">Investment Rating</div>
+        <div class="rating-text" id="ratingText" data-i18n="invest.rating.good">Good Investment</div>
+        <div class="rating-sub" id="ratingSub" data-i18n="invest.rating.good_sub">Your asset is growing faster than inflation — you are building real purchasing power.</div>
       </div>
     </div>
 
     <!-- Key stats -->
     <div class="stats-grid">
       <div class="stat-box" id="statGain">
-        <div class="s-label">Gain / Loss</div>
+        <div class="s-label" data-i18n="invest.stat.gain">Gain / Loss</div>
         <div class="s-value" id="valGain">—</div>
         <div class="s-sub" id="valGainPct">—</div>
       </div>
       <div class="stat-box" id="statYears">
-        <div class="s-label">Years Held</div>
+        <div class="s-label" data-i18n="invest.stat.years">Years Held</div>
         <div class="s-value" id="valYears">—</div>
-        <div class="s-sub">rounded to whole years</div>
+        <div class="s-sub" data-i18n="invest.stat.years_sub">rounded to whole years</div>
       </div>
       <div class="stat-box" id="statCagr">
-        <div class="s-label">CAGR (per year)</div>
+        <div class="s-label" data-i18n="invest.stat.cagr">CAGR (per year)</div>
         <div class="s-value" id="valCagr">—</div>
-        <div class="s-sub">Compound annual growth rate</div>
+        <div class="s-sub" data-i18n="invest.stat.cagr_sub">Compound annual growth rate</div>
       </div>
       <div class="stat-box" id="statInflation">
-        <div class="s-label">Inflation Rate</div>
+        <div class="s-label" data-i18n="invest.stat.inflation">Inflation Rate</div>
         <div class="s-value" id="valInflation">—</div>
-        <div class="s-sub">Average per year</div>
+        <div class="s-sub" data-i18n="invest.stat.inflation_sub">Average per year</div>
       </div>
       <div class="stat-box" id="statSpread">
-        <div class="s-label">CAGR vs Inflation</div>
+        <div class="s-label" data-i18n="invest.stat.spread">CAGR vs Inflation</div>
         <div class="s-value" id="valSpread">—</div>
-        <div class="s-sub">Positive = beating inflation</div>
+        <div class="s-sub" data-i18n="invest.stat.spread_sub">Positive = beating inflation</div>
       </div>
       <div class="stat-box" id="statSimple">
-        <div class="s-label">Simple Avg (per year)</div>
+        <div class="s-label" data-i18n="invest.stat.simple">Simple Avg (per year)</div>
         <div class="s-value" id="valSimple">—</div>
-        <div class="s-sub">Overstates growth (no compounding)</div>
+        <div class="s-sub" data-i18n="invest.stat.simple_sub">Overstates growth (no compounding)</div>
       </div>
     </div>
 
     <!-- Formula explanation -->
     <div class="card" style="margin-bottom:1rem">
-      <div class="card-header">Why We Use CAGR, Not Simple Average</div>
+      <div class="card-header" data-i18n="invest.formula.title">Why We Use CAGR, Not Simple Average</div>
       <div class="card-body" style="padding:.5rem .75rem .75rem">
         <table class="formula-table">
           <thead>
             <tr>
-              <th style="width:38%">Method</th>
-              <th>Formula</th>
-              <th style="width:18%;text-align:center">Accounts for<br>Compounding?</th>
-              <th style="width:18%;text-align:center">Overstates<br>Growth?</th>
+              <th style="width:38%" data-i18n="invest.formula.method">Method</th>
+              <th data-i18n="invest.formula.formula">Formula</th>
+              <th style="width:18%;text-align:center" data-i18n-html="invest.formula.compounding">Accounts for<br>Compounding?</th>
+              <th style="width:18%;text-align:center" data-i18n-html="invest.formula.overstates">Overstates<br>Growth?</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Simple Average</strong><br><span style="font-size:.75rem;color:var(--text-light)">(Gain ÷ Years) ÷ Cost</span></td>
+              <td><strong data-i18n="invest.formula.simple_name">Simple Average</strong><br><span style="font-size:.75rem;color:var(--text-light)" data-i18n="invest.formula.simple_expr">(Gain ÷ Years) ÷ Cost</span></td>
               <td id="formulaSimple" style="font-family:monospace;font-size:.8rem">—</td>
-              <td style="text-align:center"><span class="cross">✗ No</span></td>
-              <td style="text-align:center"><span class="cross">✗ Yes</span></td>
+              <td style="text-align:center"><span class="cross" data-i18n="invest.formula.simple_compounding">✗ No</span></td>
+              <td style="text-align:center"><span class="cross" data-i18n="invest.formula.simple_overstates">✗ Yes</span></td>
             </tr>
             <tr>
-              <td><strong>CAGR</strong><br><span style="font-size:.75rem;color:var(--text-light)">(End ÷ Start)^(1/n) − 1</span></td>
+              <td><strong data-i18n="invest.formula.cagr_name">CAGR</strong><br><span style="font-size:.75rem;color:var(--text-light)" data-i18n="invest.formula.cagr_expr">(End ÷ Start)^(1/n) − 1</span></td>
               <td id="formulaCagr" style="font-family:monospace;font-size:.8rem">—</td>
-              <td style="text-align:center"><span class="check">✓ Yes</span></td>
-              <td style="text-align:center"><span class="check">✓ No</span></td>
+              <td style="text-align:center"><span class="check" data-i18n="invest.formula.cagr_compounding">✓ Yes</span></td>
+              <td style="text-align:center"><span class="check" data-i18n="invest.formula.cagr_overstates">✓ No</span></td>
             </tr>
           </tbody>
         </table>
-        <div style="font-size:.75rem;color:var(--text-light);margin-top:.6rem;line-height:1.6">
+        <div style="font-size:.75rem;color:var(--text-light);margin-top:.6rem;line-height:1.6" data-i18n-html="invest.formula.note">
           <strong>CAGR</strong> is the preferred measure because it reflects the true compounding effect of holding an asset over time.
           Simple average inflates the apparent annual return, especially over longer periods.
         </div>
@@ -258,30 +258,30 @@
 
     <!-- Rating guide -->
     <div class="card">
-      <div class="card-header">Rating Scale</div>
+      <div class="card-header" data-i18n="invest.scale.title">Rating Scale</div>
       <div class="card-body" style="padding:.5rem .75rem .75rem">
         <table style="width:100%;border-collapse:collapse;font-size:.83rem">
           <tr style="border-bottom:1px solid var(--green-100)">
             <td style="padding:.45rem .5rem .45rem 0;width:150px;vertical-align:top">
-              <strong style="color:#065f46">✅ Good Investment</strong>
+              <strong style="color:#065f46" data-i18n="invest.scale.good">✅ Good Investment</strong>
             </td>
-            <td style="padding:.45rem 0">
+            <td style="padding:.45rem 0" data-i18n-html="invest.scale.good_desc">
               CAGR is more than <strong>1% above inflation</strong> — you are meaningfully growing purchasing power.
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--green-100)">
             <td style="padding:.45rem .5rem .45rem 0;vertical-align:top">
-              <strong style="color:#92400e">⚠️ Average Investment</strong>
+              <strong style="color:#92400e" data-i18n="invest.scale.average">⚠️ Average Investment</strong>
             </td>
-            <td style="padding:.45rem 0">
+            <td style="padding:.45rem 0" data-i18n-html="invest.scale.average_desc">
               CAGR is within <strong>±1% of inflation</strong> — roughly keeping pace with rising prices, but not growing real value.
             </td>
           </tr>
           <tr>
             <td style="padding:.45rem .5rem .45rem 0;vertical-align:top">
-              <strong style="color:#991b1b">❌ Bad Investment</strong>
+              <strong style="color:#991b1b" data-i18n="invest.scale.bad">❌ Bad Investment</strong>
             </td>
-            <td style="padding:.45rem 0">
+            <td style="padding:.45rem 0" data-i18n-html="invest.scale.bad_desc">
               CAGR is more than <strong>1% below inflation</strong> — your purchasing power is shrinking.
             </td>
           </tr>
@@ -301,6 +301,8 @@
 <script src="lang.js?v=17"></script>
 <script src="i18n.js?v=2"></script>
 <script>
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
 // ── State ─────────────────────────────────────────────────────────────────────
 let currency = 'USD';
 function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4100); }
@@ -350,7 +352,7 @@ function calculate() {
   const years       = currentYear - yearBought;
 
   // Update year display
-  document.getElementById('yearsDisplay').textContent = years > 0 ? years + ' yr' + (years !== 1 ? 's' : '') : '0 (same year)';
+  document.getElementById('yearsDisplay').textContent = years > 0 ? years + ' ' + T(years === 1 ? 'invest.js.yr_one' : 'invest.js.yr_many') : T('invest.js.same_year');
 
   if (purchaseUSD <= 0 || currentUSD <= 0 || years <= 0) {
     document.getElementById('resultsSection').style.opacity = '0.35';
@@ -370,18 +372,18 @@ function calculate() {
   if (spread > 1) {
     ratingClass = 'good';
     ratingIcon  = '✅';
-    ratingText  = 'Good Investment';
-    ratingSub   = 'Your asset is growing faster than inflation — you are building real purchasing power.';
+    ratingText  = T('invest.rating.good');
+    ratingSub   = T('invest.rating.good_sub');
   } else if (spread >= -1) {
     ratingClass = 'average';
     ratingIcon  = '⚠️';
-    ratingText  = 'Average Investment';
-    ratingSub   = 'Your asset is roughly keeping pace with inflation — not losing but not gaining real value.';
+    ratingText  = T('invest.rating.average');
+    ratingSub   = T('invest.rating.average_sub');
   } else {
     ratingClass = 'bad';
     ratingIcon  = '❌';
-    ratingText  = 'Bad Investment';
-    ratingSub   = 'Your asset is losing purchasing power — inflation is eating into its real value.';
+    ratingText  = T('invest.rating.bad');
+    ratingSub   = T('invest.rating.bad_sub');
   }
 
   // ── Render ──
@@ -395,9 +397,9 @@ function calculate() {
   const gainEl = document.getElementById('statGain');
   gainEl.className = 'stat-box ' + (gain >= 0 ? 'pos' : 'neg');
   document.getElementById('valGain').innerHTML = fmt(gain);
-  document.getElementById('valGainPct').textContent = (totalGrowth * 100).toFixed(1) + '% total';
+  document.getElementById('valGainPct').textContent = (totalGrowth * 100).toFixed(1) + '% ' + T('invest.js.total');
 
-  document.getElementById('valYears').textContent = years + ' year' + (years !== 1 ? 's' : '');
+  document.getElementById('valYears').textContent = years + ' ' + T(years === 1 ? 'invest.js.year_one' : 'invest.js.year_many');
 
   // CAGR
   const cagrEl = document.getElementById('statCagr');
@@ -409,7 +411,7 @@ function calculate() {
   // Spread
   const spreadEl = document.getElementById('statSpread');
   spreadEl.className = 'stat-box ' + (spread > 1 ? 'pos' : spread >= -1 ? 'neutral' : 'neg');
-  document.getElementById('valSpread').textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2) + ' pp';
+  document.getElementById('valSpread').textContent = (spread >= 0 ? '+' : '') + spread.toFixed(2) + ' ' + T('invest.js.pp');
 
   // Simple avg
   document.getElementById('valSimple').textContent = (simpleAvg * 100).toFixed(2) + '%';
