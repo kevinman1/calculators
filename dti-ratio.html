@@ -145,7 +145,7 @@
   <div class="breadcrumb-inner">
     <a href="index.html" data-i18n="bread.calculators">Calculators</a>
     &rsaquo; <span data-i18n="nav.loans">Loans</span>
-    &rsaquo; <span>DTI Ratio</span>
+    &rsaquo; <span data-i18n="dti.bread">DTI Ratio</span>
   </div>
 </div>
 
@@ -155,13 +155,13 @@
     <img src="assets/logo.png" alt="Wise Financial Cambodia">
     <div class="print-header-text">
       <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
-      <p>Debt-to-Income Ratio Calculator &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+      <p><span data-i18n="dti.print_title">Debt-to-Income Ratio Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
     </div>
   </div>
 
   <div class="page-title">
-    <h2>Debt-to-Income (DTI) Ratio</h2>
-    <p>See what percentage of your monthly income goes toward debt payments — and how much room you have to take on a new loan.</p>
+    <h2 data-i18n="dti.heading">Debt-to-Income (DTI) Ratio</h2>
+    <p data-i18n="dti.page_desc">See what percentage of your monthly income goes toward debt payments — and how much room you have to take on a new loan.</p>
   </div>
 
   <!-- ── SECTION 1: Current DTI ─────────────────────────────────────────── -->
@@ -169,24 +169,24 @@
 
     <!-- LEFT: Inputs -->
     <div class="card">
-      <div class="card-header">Your Current DTI</div>
+      <div class="card-header" data-i18n="dti.card.current">Your Current DTI</div>
       <div class="card-body">
 
         <!-- Currency toggle -->
         <div class="currency-toggle" style="margin-bottom:.85rem">
-          <button class="currency-btn active" data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
-          <button class="currency-btn" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+          <button class="currency-btn active" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr">&#6107; KHR</button>
+          <button class="currency-btn" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd">$ USD</button>
         </div>
         <div class="input-group" id="exrateGroup" style="margin-bottom:.6rem">
           <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
           <div class="input-wrapper">
             <input type="number" id="exchangeRate" value="4000" min="1" step="100">
-            <span class="input-suffix">KHR</span>
+            <span class="input-suffix" data-i18n="currency.khr_code">KHR</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Monthly Income</label>
+          <label data-i18n="dti.input.income">Monthly Income</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="currPrefix">&#6107;</span>
             <input type="number" id="income" value="4100000" min="0" step="10000">
@@ -194,10 +194,10 @@
         </div>
 
         <hr class="section-divider">
-        <div class="section-label">Monthly Debt Payments</div>
+        <div class="section-label" data-i18n="dti.section.debts">Monthly Debt Payments</div>
 
         <div class="input-group">
-          <label>Housing / Rent</label>
+          <label data-i18n="dti.input.housing">Housing / Rent</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="p2">&#6107;</span>
             <input type="number" id="housing" value="820000" min="0" step="10000">
@@ -205,7 +205,7 @@
         </div>
 
         <div class="input-group">
-          <label>Utilities</label>
+          <label data-i18n="dti.input.utilities">Utilities</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="p3">&#6107;</span>
             <input type="number" id="utilities" value="205000" min="0" step="5000">
@@ -213,7 +213,7 @@
         </div>
 
         <div class="input-group">
-          <label>Existing Loan Payments</label>
+          <label data-i18n="dti.input.loans">Existing Loan Payments</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="p4">&#6107;</span>
             <input type="number" id="loanPayments" value="410000" min="0" step="10000">
@@ -228,11 +228,11 @@
     <!-- RIGHT: DTI Result -->
     <div>
       <div class="card">
-        <div class="card-header dark">Your DTI Result</div>
+        <div class="card-header dark" data-i18n="dti.card.result">Your DTI Result</div>
         <div class="card-body" style="padding-bottom:.5rem">
 
           <div class="dti-hero">
-            <div class="dh-label">Debt-to-Income Ratio</div>
+            <div class="dh-label" data-i18n="dti.result.ratio">Debt-to-Income Ratio</div>
             <div class="dti-pct" id="dtiPct">—</div>
             <div><span class="dti-rating" id="dtiRating">—</span></div>
 
@@ -253,19 +253,19 @@
 
           <div class="results-grid">
             <div class="result-item">
-              <div class="r-label">Total Debt Payments</div>
+              <div class="r-label" data-i18n="dti.result.total_debt">Total Debt Payments</div>
               <div class="r-value" id="r-totalDebt">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Monthly Income</div>
+              <div class="r-label" data-i18n="dti.result.income">Monthly Income</div>
               <div class="r-value" id="r-income">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Available for Spending</div>
+              <div class="r-label" data-i18n="dti.result.available">Available for Spending</div>
               <div class="r-value" id="r-available">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Housing Share of Income</div>
+              <div class="r-label" data-i18n="dti.result.housing_share">Housing Share of Income</div>
               <div class="r-value" id="r-housingPct">—</div>
             </div>
           </div>
@@ -281,24 +281,24 @@
 
     <!-- LEFT: Loan capacity inputs -->
     <div class="card">
-      <div class="card-header">Loan Capacity Analysis</div>
+      <div class="card-header" data-i18n="dti.card.capacity">Loan Capacity Analysis</div>
       <div class="card-body">
 
         <div class="input-group">
-          <label>DTI Maximum (lender cap)</label>
+          <label data-i18n="dti.input.dti_max">DTI Maximum (lender cap)</label>
           <div class="input-wrapper">
             <input type="number" id="dtiMax" value="40" min="1" max="100" step="1">
             <span class="input-suffix">%</span>
           </div>
         </div>
-        <div class="input-hint">Most Cambodian lenders prefer ≤40%. International lenders often use 36–43%.</div>
+        <div class="input-hint" data-i18n="dti.hint.lender_cap">Most Cambodian lenders prefer ≤40%. International lenders often use 36–43%.</div>
 
         <hr class="section-divider">
-        <div class="section-label">Ongoing Monthly Obligations</div>
-        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.6rem">Enter your current commitments that would continue if you took a new loan.</div>
+        <div class="section-label" data-i18n="dti.section.obligations">Ongoing Monthly Obligations</div>
+        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.6rem" data-i18n="dti.hint.obligations">Enter your current commitments that would continue if you took a new loan.</div>
 
         <div class="input-group">
-          <label>Housing / Rent</label>
+          <label data-i18n="dti.input.housing">Housing / Rent</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="p5">&#6107;</span>
             <input type="number" id="lcHousing" value="820000" min="0" step="10000">
@@ -306,7 +306,7 @@
         </div>
 
         <div class="input-group">
-          <label>Utilities</label>
+          <label data-i18n="dti.input.utilities">Utilities</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="p6">&#6107;</span>
             <input type="number" id="lcUtilities" value="205000" min="0" step="5000">
@@ -314,7 +314,7 @@
         </div>
 
         <div class="input-group">
-          <label>Other Loan Payments</label>
+          <label data-i18n="dti.input.other_loans">Other Loan Payments</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="p7">&#6107;</span>
             <input type="number" id="lcLoans" value="410000" min="0" step="10000">
@@ -327,30 +327,30 @@
     <!-- RIGHT: Loan capacity result -->
     <div>
       <div class="card">
-        <div class="card-header dark">How Much Can I Borrow?</div>
+        <div class="card-header dark" data-i18n="dti.card.borrow">How Much Can I Borrow?</div>
         <div class="card-body" style="padding:.5rem .75rem .65rem">
 
           <div class="loan-cap-hero">
-            <div class="lc-label">Maximum New Monthly Payment</div>
+            <div class="lc-label" data-i18n="dti.result.max_payment">Maximum New Monthly Payment</div>
             <div class="lc-value" id="r-loanCap">—</div>
             <div class="lc-sub" id="r-loanCapSub">—</div>
           </div>
 
           <div class="results-grid">
             <div class="result-item">
-              <div class="r-label">DTI Max in $</div>
+              <div class="r-label" data-i18n="dti.result.dti_max_amt">DTI Max in $</div>
               <div class="r-value" id="r-dtiMaxAmt">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Current Obligations</div>
+              <div class="r-label" data-i18n="dti.result.obligations">Current Obligations</div>
               <div class="r-value" id="r-lcOblig">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Available for Spending</div>
+              <div class="r-label" data-i18n="dti.result.available">Available for Spending</div>
               <div class="r-value" id="r-lcAvail">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">DTI Cap Used</div>
+              <div class="r-label" data-i18n="dti.result.cap_used">DTI Cap Used</div>
               <div class="r-value" id="r-lcCapUsed">—</div>
             </div>
           </div>
@@ -365,14 +365,14 @@
   <div class="charts-row">
 
     <div class="card chart-card">
-      <div class="card-header">Income Breakdown</div>
+      <div class="card-header" data-i18n="dti.chart.income_breakdown">Income Breakdown</div>
       <div class="chart-container-sq">
         <canvas id="pieChart"></canvas>
       </div>
     </div>
 
     <div class="card chart-card">
-      <div class="card-header">How Much Can I Loan?</div>
+      <div class="card-header" data-i18n="dti.chart.loan_capacity">How Much Can I Loan?</div>
       <div class="chart-container-sq">
         <canvas id="barChart"></canvas>
       </div>
@@ -382,38 +382,38 @@
 
   <!-- ── DTI REFERENCE TABLE ────────────────────────────────────────────────── -->
   <div class="card" style="margin-top:1.25rem">
-    <div class="card-header">Understanding Your DTI Ratio</div>
+    <div class="card-header" data-i18n="dti.table.title">Understanding Your DTI Ratio</div>
     <div class="card-body" style="padding:.5rem 0 0">
       <p style="padding:0 1rem .65rem;font-size:.82rem;color:var(--text-medium)">
-        Your DTI ratio shows what percentage of your monthly income goes toward debt payments. Lenders use this to assess your ability to take on new loans.
+        <span data-i18n="dti.table.intro">Your DTI ratio shows what percentage of your monthly income goes toward debt payments. Lenders use this to assess your ability to take on new loans.</span>
       </p>
       <table class="rating-table">
         <thead>
           <tr>
-            <th>DTI Range</th>
-            <th>Status</th>
-            <th>What It Means</th>
+            <th data-i18n="dti.table.range">DTI Range</th>
+            <th data-i18n="dti.table.status">Status</th>
+            <th data-i18n="dti.table.meaning">What It Means</th>
           </tr>
         </thead>
         <tbody>
           <tr id="row-healthy">
             <td><strong>0% – 36%</strong></td>
-            <td><span class="band-badge band-healthy">✓ Healthy</span></td>
-            <td>Good position for new loans. Most lenders prefer this range.</td>
+            <td><span class="band-badge band-healthy" data-i18n="dti.band.healthy">✓ Healthy</span></td>
+            <td data-i18n="dti.band.healthy_desc">Good position for new loans. Most lenders prefer this range.</td>
           </tr>
           <tr id="row-caution">
             <td><strong>36% – 43%</strong></td>
-            <td><span class="band-badge band-caution">⚠ Caution</span></td>
-            <td>Some lenders may still approve, but options are limited.</td>
+            <td><span class="band-badge band-caution" data-i18n="dti.band.caution">⚠ Caution</span></td>
+            <td data-i18n="dti.band.caution_desc">Some lenders may still approve, but options are limited.</td>
           </tr>
           <tr id="row-highrisk">
-            <td><strong>Over 43%</strong></td>
-            <td><span class="band-badge band-highrisk">✕ High Risk</span></td>
-            <td>Most lenders will decline. Focus on paying down existing debt.</td>
+            <td><strong data-i18n="dti.band.over43">Over 43%</strong></td>
+            <td><span class="band-badge band-highrisk" data-i18n="dti.band.highrisk">✕ High Risk</span></td>
+            <td data-i18n="dti.band.highrisk_desc">Most lenders will decline. Focus on paying down existing debt.</td>
           </tr>
         </tbody>
       </table>
-      <div style="padding:.65rem 1rem .85rem;font-size:.76rem;color:var(--text-light)">
+      <div style="padding:.65rem 1rem .85rem;font-size:.76rem;color:var(--text-light)" data-i18n-html="dti.tip">
         💡 <strong>Tip:</strong> Adjust your monthly debt payments or income above to see how your DTI changes in real time.
       </div>
     </div>
@@ -435,6 +435,8 @@
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
 
 let pieChartInst = null;
 let barChartInst = null;
@@ -481,9 +483,9 @@ function dtiClass(ratio) {
   return 'highrisk';
 }
 function dtiLabel(ratio) {
-  if (ratio <= 0.36) return '✓ Healthy';
-  if (ratio <= 0.43) return '⚠ Caution';
-  return '✕ High Risk';
+  if (ratio <= 0.36) return T('dti.band.healthy');
+  if (ratio <= 0.43) return T('dti.band.caution');
+  return T('dti.band.highrisk');
 }
 
 // ── Main calculate ────────────────────────────────────────────────────────────
@@ -545,12 +547,12 @@ function calculate() {
   lcCapEl.innerHTML  = fmt(Math.max(0, loanCap));
   lcCapEl.className  = 'lc-value' + (loanCap < 0 ? ' negative' : '');
   document.getElementById('r-loanCapSub').textContent = loanCap < 0
-    ? 'Over capacity — reduce current obligations'
-    : 'Additional monthly payment capacity';
+    ? T('dti.js.over_capacity')
+    : T('dti.js.additional_capacity');
   document.getElementById('r-dtiMaxAmt').innerHTML  = fmt(dtiMaxAmt);
   document.getElementById('r-lcOblig').innerHTML    = fmt(lcOblig);
   document.getElementById('r-lcAvail').innerHTML    = fmt(lcAvail);
-  document.getElementById('r-lcCapUsed').textContent = lcCapUsed.toFixed(1) + '% used';
+  document.getElementById('r-lcCapUsed').textContent = lcCapUsed.toFixed(1) + '% ' + T('dti.js.used');
 
   document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-GB',
     { day: '2-digit', month: 'short', year: 'numeric' });
@@ -570,7 +572,7 @@ function renderPieChart(debtKHR, availKHR) {
   pieChartInst = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Debt Payments', 'Available for Spending'],
+      labels: [T('dti.chart.debt_payments'), T('dti.result.available')],
       datasets: [{
         data: [debt, avail],
         backgroundColor: ['#dc2626', '#059669'],
@@ -606,22 +608,22 @@ function renderBarChart(obligKHR, capKHR, availKHR) {
   barChartInst = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Monthly Income'],
+      labels: [T('dti.result.income')],
       datasets: [
         {
-          label: 'Current Obligations',
+          label: T('dti.result.obligations'),
           data: [oblig],
           backgroundColor: 'rgba(220,38,38,.75)',
           borderRadius: 3
         },
         {
-          label: 'Loan Capacity',
+          label: T('dti.chart.loan_cap_series'),
           data: [cap],
           backgroundColor: 'rgba(245,158,11,.75)',
           borderRadius: 3
         },
         {
-          label: 'Available for Spending',
+          label: T('dti.result.available'),
           data: [avail],
           backgroundColor: 'rgba(5,150,105,.75)',
           borderRadius: 3
