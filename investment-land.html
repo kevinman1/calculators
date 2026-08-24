@@ -112,11 +112,11 @@
 
   <!-- Currency toggle -->
   <div class="currency-bar" style="margin-bottom:1rem">
-    <span class="currency-label" data-i18n="invest.currency_label">Currency:</span>
-    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="invest.cur.usd">USD $</button>
-    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="invest.cur.khr">KHR &#6107;</button>
+    <span class="currency-label" data-i18n="currency.label">Currency:</span>
+    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd_alt">USD $</button>
+    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr_alt">KHR &#6107;</button>
     <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
-      <span style="color:var(--text-medium)" data-i18n="invest.exrate_prefix">1 USD =</span>
+      <span style="color:var(--text-medium)" data-i18n="currency.exrate_prefix">1 USD =</span>
       <input type="number" id="exchangeRate" value="4100" min="100" step="100"
         style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem"
         oninput="calculate()">
