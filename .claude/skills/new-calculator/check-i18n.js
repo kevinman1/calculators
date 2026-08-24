@@ -46,8 +46,11 @@ function loadStrings() {
 function auditPage(file, strings) {
   const raw = fs.readFileSync(path.join(ROOT, file), 'utf8');
 
-  /* Only look at markup — inline <script>/<style> are not user-visible text. */
+  /* Only look at the body's markup. <head> is excluded because the one string
+     in it that matters — <title> — is driven by data-title-key on <html>,
+     which is checked separately below. */
   let markup = raw
+    .replace(/<head[\s\S]*?<\/head>/i, '')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<!--[\s\S]*?-->/g, '');
@@ -62,15 +65,20 @@ function auditPage(file, strings) {
      they are deliberately never translated. */
   markup = markup.replace(/<button\b[^>]*\bdata-lang="[^"]*"[^>]*>[\s\S]*?<\/button>/gi, '');
 
+  /* Scan text nodes rather than whole elements. Element-based matching misses
+     text that sits alongside a child element — e.g.
+        <div class="scen-title">Rate Sensitivity <span>(ages …)</span></div>
+     where "Rate Sensitivity" needs its own wrapper to be translatable. */
   const untagged = [];
-  const re = new RegExp('<(' + TEXT_TAGS + ')\\b([^>]*)>([^<>]{1,200}?)</\\1>', 'gi');
+  const nodeRe = /(<([a-zA-Z][\w-]*)\b[^>]*>|^)([^<>]+)/g;
   let m;
-  while ((m = re.exec(markup))) {
-    const attrs = m[2];
-    const text  = m[3].replace(/\s+/g, ' ').trim();
-    if (/data-i18n/.test(attrs)) continue;
+  while ((m = nodeRe.exec(markup))) {
+    const openTag = m[1] || '';
+    const tagName = (m[2] || 'text').toLowerCase();
+    const text    = m[3].replace(/\s+/g, ' ').trim();
+    if (/data-i18n/.test(openTag)) continue;   // this element is handled
     if (isNoise(text)) continue;
-    untagged.push({ tag: m[1].toLowerCase(), text });
+    untagged.push({ tag: tagName, text });
   }
 
   /* Deduplicate — the same label often appears in several places. */
@@ -99,7 +107,10 @@ function auditPage(file, strings) {
 
   const ver = (raw.match(/lang\.js\?v=(\d+)/) || [])[1] || null;
 
-  return { file, untagged: uniqueUntagged, missingEn, missingKm, referenced: referenced.size, ver };
+  /* <head> is not scanned, so confirm the tab title is wired up. */
+  const hasTitleKey = /data-title-key="/.test(raw);
+
+  return { file, untagged: uniqueUntagged, missingEn, missingKm, referenced: referenced.size, ver, hasTitleKey };
 }
 
 /* ── Run ─────────────────────────────────────────────────────────────────── */
@@ -117,10 +128,11 @@ for (const file of files) {
   totalMissing  += r.missingEn.length;
   if (r.ver) versions.set(r.ver, (versions.get(r.ver) || 0) + 1);
 
-  const clean = !r.untagged.length && !r.missingEn.length;
+  const clean = !r.untagged.length && !r.missingEn.length && r.hasTitleKey;
   console.log('\n' + (clean ? 'OK  ' : '••  ') + r.file +
               '   (' + r.referenced + ' keys referenced)');
 
+  if (!r.hasTitleKey) console.log('    no data-title-key on <html> — the browser tab title will not translate');
   if (r.untagged.length) {
     console.log('    ' + r.untagged.length + ' visible string(s) with no data-i18n:');
     r.untagged.forEach(u => console.log('      [' + u.tag + '] ' + u.text));
