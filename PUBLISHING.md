@@ -14,7 +14,7 @@ They work differently. This is the most important thing on this page.
 | | Changing text | Changing calculators |
 |---|---|---|
 | What it is | Khmer or English wording, holidays, CPI numbers | New calculators, or changes to how one works |
-| Where you do it | The web editor | On your computer, with Git |
+| Where you do it | The web editor | With Claude, or by hand in GitHub |
 | Needs approval? | **No** | **Yes — Kevin reviews first** |
 | How long until live | About one minute | After Kevin merges it |
 
@@ -85,11 +85,44 @@ pull request, so Kevin can read the change before real people see it.
 A **pull request** is just a saved change with a "please check this" note
 attached.
 
-There are three ways to make one. Pick the easiest one that does the job.
+There are a few ways to make one. Pick the easiest that does the job.
 
-### Way 1: on the GitHub website — nothing to install
+### Way 1: ask Claude to build it
 
-Best for fixing a small thing in a page.
+This is Cheanath's normal way of working. Claude is connected to the repository,
+so it can write the calculator and open the pull request for you.
+
+**You do not need to explain the project rules.** There is a `CLAUDE.md` file in
+the repository, and Claude reads it automatically. It already knows to work on a
+branch, to mark every label for translation, to leave the Khmer empty for the
+translator, and to raise the `lang.js` version number.
+
+What Claude *cannot* guess is the maths. Be specific about:
+
+- **What goes in** — every input, and its unit. "Loan amount in USD", "annual
+  interest rate as a percent", "term in months".
+- **What comes out** — every number you want shown, and what it means.
+- **How it is calculated** — the formula, or a worked example with real numbers.
+  If you have a spreadsheet that already does it, describe how it works.
+- **Anything Cambodia-specific** — tax rates, whether payments skip Sundays and
+  public holidays, KHR or USD.
+
+A useful thing to say at the end:
+
+> Work on a branch and open a pull request. Do not commit to master.
+> Check the page in both English and Khmer before you finish.
+
+When Claude is done it gives you a pull request link. Open it, look it over, then
+tell Kevin. He reviews the numbers and merges it.
+
+> Claude is good at building the page and wiring up the translations. It cannot
+> know whether the interest formula matches how Cambodian lenders actually work.
+> That is why Kevin reviews it, and why a worked example in your instructions is
+> worth more than a long description.
+
+### Way 2: on the GitHub website — nothing to install
+
+Best for fixing a small thing in a page by hand.
 
 1. Open the file on <https://github.com/kevinman1/calculators>
 2. Click the **pencil** icon (top right of the file)
@@ -101,7 +134,7 @@ Best for fixing a small thing in a page.
 
 That is a complete contribution. No Git, no terminal.
 
-### Way 2: the browser editor — for bigger changes
+### Way 3: the browser editor — for bigger changes
 
 Best for making a whole new calculator, or changing several files.
 
@@ -111,7 +144,7 @@ Best for making a whole new calculator, or changing several files.
 4. Use the **Source Control** panel on the left to create a branch and commit
 5. It offers to open a pull request when you are done
 
-### Way 3: Git on your computer — for testing before you send
+### Way 4: Git on your computer — for testing before you send
 
 Only needed when you want to run the site and try the calculator yourself
 first.
@@ -140,7 +173,7 @@ git checkout -b my-new-calculator
    `lang.js?v=17` to `lang.js?v=18`. Forget this, and people who visited before
    will not see your new text.
 
-### If you used Way 3: check it, then send it
+### If you used Way 4: check it, then send it
 
 Try it on your own computer first:
 
