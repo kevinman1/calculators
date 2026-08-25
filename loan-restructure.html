@@ -8,6 +8,47 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
+    /* ── One colour per pathway ──────────────────────────────────────────────
+       These five are the single source of truth: the input groups below, the
+       comparison-table swatches and the chart lines all read them, so an input
+       can never drift out of step with the option it drives. */
+    :root {
+      --sc-current: #1f2937;
+      --sc-io:      #d97706;
+      --sc-extended:#7c3aed;
+      --sc-reduced: #0284c7;
+      --sc-extra:   #15803d;
+    }
+
+    /* An input group tied to one pathway. --opt-color is set per option below;
+       the tint is derived from it rather than hand-picked. */
+    .opt {
+      --opt-color: var(--green-700);
+      border-left: 4px solid var(--opt-color);
+      background: #fff;
+      background: color-mix(in srgb, var(--opt-color) 6%, #fff);
+      border-radius: 0 5px 5px 0;
+      padding: .55rem .7rem .6rem;
+      margin-bottom: .7rem;
+    }
+    .opt > label { color: var(--opt-color); }
+    .opt .input-hint { color: var(--text-medium); }
+
+    /* Names the option this input feeds, matching the comparison table */
+    .opt-tags { display:flex; flex-wrap:wrap; gap:.15rem .55rem; margin-bottom:.4rem; }
+    .opt-tag {
+      display:inline-flex; align-items:center; gap:.3rem;
+      font-size:.64rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.05em; color:var(--tag-color, var(--opt-color));
+    }
+    .opt-dot { width:9px; height:9px; border-radius:2px; background:var(--tag-color, var(--opt-color)); flex:none; }
+
+    .opt-baseline { --opt-color: var(--sc-current); }
+    .opt-io       { --opt-color: var(--sc-io); }
+    .opt-extended { --opt-color: var(--sc-extended); }
+    .opt-reduced  { --opt-color: var(--sc-reduced); }
+    .opt-extra    { --opt-color: var(--sc-extra); }
+
     /* ── Currency toggle ── */
     .currency-bar { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
     .currency-label { font-size:.8rem; color:var(--text-medium); margin-right:.15rem; }
@@ -28,8 +69,8 @@
     .derived {
       background:var(--green-50); border:1px solid var(--green-200); border-radius:5px;
       padding:.55rem .7rem; margin-top:.75rem;
-      display:flex; justify-content:space-between; align-items:baseline; gap:.5rem;
     }
+    .derived.opt-baseline { border-left:4px solid var(--opt-color); border-radius:0 5px 5px 0; }
     .derived-label { font-size:.78rem; color:var(--text-medium); }
     .derived-value { font-size:1.05rem; font-weight:700; color:var(--green-800); }
 
@@ -172,15 +213,25 @@
           </div>
         </div>
 
-        <div class="derived">
-          <span class="derived-label" data-i18n="lrs.derived.payment">Your monthly payment now</span>
-          <span class="derived-value" id="currentPayment">—</span>
+        <!-- This figure is exactly what the "Keep current terms" row shows, so
+             it carries that row's colour. -->
+        <div class="derived opt-baseline">
+          <div class="opt-tags" style="margin-bottom:.25rem">
+            <span class="opt-tag"><span class="opt-dot"></span><span data-i18n="lrs.scenario.current">Keep current terms</span></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:.5rem">
+            <span class="derived-label" data-i18n="lrs.derived.payment">Your monthly payment now</span>
+            <span class="derived-value" id="currentPayment">—</span>
+          </div>
         </div>
 
         <hr class="section-divider">
         <div class="section-label" data-i18n="lrs.section.options">What the lender is offering</div>
 
-        <div class="input-group">
+        <div class="input-group opt opt-io">
+          <div class="opt-tags">
+            <span class="opt-tag"><span class="opt-dot"></span><span data-i18n="lrs.scenario.io">Interest-only period</span></span>
+          </div>
           <label data-i18n="lrs.input.io_months">Interest-Only Months</label>
           <div class="input-wrapper">
             <input type="number" id="ioMonths" value="6" min="0" max="120" step="1"
@@ -190,17 +241,25 @@
           <div class="input-hint" data-i18n="lrs.hint.io_months">Pay only interest for this many months, then go back to the normal payment.</div>
         </div>
 
-        <div class="input-group">
+        <!-- The extra months feed two options, so this one carries both tags -->
+        <div class="input-group opt opt-extended">
+          <div class="opt-tags">
+            <span class="opt-tag"><span class="opt-dot"></span><span data-i18n="lrs.scenario.extended">Longer term</span></span>
+            <span class="opt-tag" style="--tag-color:var(--sc-reduced)"><span class="opt-dot"></span><span data-i18n="lrs.scenario.reduced">Lower rate + longer term</span></span>
+          </div>
           <label data-i18n="lrs.input.ext_months">Extra Months Added to the Term</label>
           <div class="input-wrapper">
             <input type="number" id="extMonths" value="24" min="0" max="480" step="1"
               style="text-align:left;padding-left:.65rem" oninput="calculate()">
             <span class="input-suffix" data-i18n="lrs.unit.months">months</span>
           </div>
-          <div class="input-hint" data-i18n="lrs.hint.ext_months">Stretching the loan lowers each payment but adds interest.</div>
+          <div class="input-hint" data-i18n="lrs.hint.ext_months">Stretching the loan lowers each payment but adds interest. It applies to both options above.</div>
         </div>
 
-        <div class="input-group">
+        <div class="input-group opt opt-reduced">
+          <div class="opt-tags">
+            <span class="opt-tag"><span class="opt-dot"></span><span data-i18n="lrs.scenario.reduced">Lower rate + longer term</span></span>
+          </div>
           <label data-i18n="lrs.input.new_rate">Reduced Interest Rate</label>
           <div class="input-wrapper">
             <input type="number" id="newRate" value="10" min="0" max="200" step="0.1"
@@ -210,7 +269,10 @@
           <div class="input-hint" data-i18n="lrs.hint.new_rate">Applied together with the extra months above.</div>
         </div>
 
-        <div class="input-group">
+        <div class="input-group opt opt-extra">
+          <div class="opt-tags">
+            <span class="opt-tag"><span class="opt-dot"></span><span data-i18n="lrs.scenario.extra">Pay extra each month</span></span>
+          </div>
           <label data-i18n="lrs.input.extra">Extra Payment You Could Add</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfxExtra">$</span>
@@ -328,13 +390,19 @@ let lastResults = [];
 
 const MAX_MONTHS = 600;   // matches the source spreadsheet's schedule limit
 
+// Colours come from the --sc-* CSS variables so the inputs on the left, the
+// table swatches and the chart lines can never fall out of step.
+function scColor(key) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--sc-' + key).trim();
+  return v || '#666';
+}
 const SCENARIOS = [
-  { key: 'current',  nameKey: 'lrs.scenario.current',  color: '#1f2937' },
-  { key: 'io',       nameKey: 'lrs.scenario.io',       color: '#d97706' },
-  { key: 'extended', nameKey: 'lrs.scenario.extended', color: '#7c3aed' },
-  { key: 'reduced',  nameKey: 'lrs.scenario.reduced',  color: '#0284c7' },
-  { key: 'extra',    nameKey: 'lrs.scenario.extra',    color: '#15803d' },
-];
+  { key: 'current',  nameKey: 'lrs.scenario.current'  },
+  { key: 'io',       nameKey: 'lrs.scenario.io'       },
+  { key: 'extended', nameKey: 'lrs.scenario.extended' },
+  { key: 'reduced',  nameKey: 'lrs.scenario.reduced'  },
+  { key: 'extra',    nameKey: 'lrs.scenario.extra'    },
+].map(s => Object.assign(s, { get color() { return scColor(s.key); } }));
 
 // ── Currency ──────────────────────────────────────────────────────────────────
 function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
