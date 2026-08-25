@@ -177,7 +177,7 @@
       &rsaquo; <span data-i18n="calc.debt_payoff.name">Debt Pay-Off Strategies</span>
     </div>
     <h2 data-i18n="calc.debt_payoff.name">Debt Pay-Off Strategies</h2>
-    <p>Compare all five pay-off strategies side by side — enter your debts, set your monthly budget, and instantly see which approach gets you debt-free fastest and cheapest.</p>
+    <p data-i18n="dp.page_desc">Compare all five pay-off strategies side by side — enter your debts, set your monthly budget, and instantly see which approach gets you debt-free fastest and cheapest.</p>
   </div>
 </div>
 
@@ -185,27 +185,27 @@
 
   <!-- ── CURRENCY TOGGLE ── -->
   <div class="currency-bar" style="margin-bottom:1rem">
-    <span class="currency-label">Currency:</span>
-    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">USD $</button>
-    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')">KHR &#6107;</button>
+    <span class="currency-label" data-i18n="currency.label">Currency:</span>
+    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd_alt">USD $</button>
+    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr_alt">KHR &#6107;</button>
     <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
-      <span style="color:var(--text-medium)">1 USD =</span>
+      <span style="color:var(--text-medium)" data-i18n="currency.exrate_prefix">1 USD =</span>
       <input type="number" id="exchangeRate" value="4000" min="100" step="100"
         style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem">
-      <span style="color:var(--text-medium)">KHR</span>
+      <span style="color:var(--text-medium)" data-i18n="currency.khr_code">KHR</span>
     </span>
   </div>
 
   <!-- ── BUDGET ── -->
   <div class="card" style="margin-bottom:1rem">
-    <div class="card-header">Monthly Budget for Debt Payments</div>
+    <div class="card-header" data-i18n="dp.card.budget">Monthly Budget for Debt Payments</div>
     <div class="card-body" style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
       <div class="input-wrapper" style="max-width:210px">
         <span class="input-prefix" id="budgetPfx">$</span>
         <input type="number" id="monthlyBudget" value="300" min="1" step="10"
           style="font-size:1.1rem;font-weight:700" oninput="calculate()">
       </div>
-      <div style="font-size:.82rem;color:var(--text-medium)">
+      <div style="font-size:.82rem;color:var(--text-medium)" data-i18n-html="dp.budget_note">
         per month — total available for <strong>all</strong> debts combined
       </div>
     </div>
@@ -214,9 +214,9 @@
   <!-- ── LOAN TABLE ── -->
   <div class="card" style="margin-bottom:1rem">
     <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
-      <span>Your Debts</span>
+      <span data-i18n="dp.card.debts">Your Debts</span>
       <span style="font-size:.72rem;font-weight:400;color:#a7f3d0">
-        ☰ drag rows · ▲▼ move · Custom order = 🎯 strategy
+        <span data-i18n="dp.debts_hint">☰ drag rows · ▲▼ move · Custom order = 🎯 strategy</span>
       </span>
     </div>
     <div class="card-body" style="padding:.5rem .75rem .75rem">
@@ -227,20 +227,20 @@
               <th style="width:24px">#</th>
               <th style="width:24px">☰</th>
               <th style="width:22px"></th>
-              <th style="width:88px">Debt Name</th>
-              <th style="width:105px">Balance</th>
-              <th style="width:72px">Rate/yr</th>
-              <th style="width:95px">Int. Type</th>
-              <th style="width:95px">Min. Payment <span style="font-weight:400;opacity:.7">/mo</span></th>
-              <th style="width:58px">Penalty <span style="font-weight:400;opacity:.7">/mo</span></th>
+              <th style="width:88px" data-i18n="dp.th.name">Debt Name</th>
+              <th style="width:105px" data-i18n="dp.th.balance">Balance</th>
+              <th style="width:72px" data-i18n="dp.th.rate">Rate/yr</th>
+              <th style="width:95px" data-i18n="dp.th.int_type">Int. Type</th>
+              <th style="width:95px"><span data-i18n="dp.th.min_payment">Min. Payment</span> <span style="font-weight:400;opacity:.7" data-i18n="dp.th.per_mo">/mo</span></th>
+              <th style="width:58px"><span data-i18n="dp.th.penalty">Penalty</span> <span style="font-weight:400;opacity:.7" data-i18n="dp.th.per_mo">/mo</span></th>
               <th style="width:24px"></th>
             </tr>
           </thead>
           <tbody id="loanTableBody"></tbody>
         </table>
       </div>
-      <button class="add-loan-btn" onclick="addLoan()">+ Add Another Debt</button>
-      <div style="font-size:.71rem;color:var(--text-light);margin-top:.45rem;line-height:1.5">
+      <button class="add-loan-btn" onclick="addLoan()" data-i18n="dp.add_debt">+ Add Another Debt</button>
+      <div style="font-size:.71rem;color:var(--text-light);margin-top:.45rem;line-height:1.5" data-i18n-html="dp.legend">
         <strong>Simple interest</strong> = fixed charge on original balance each month.&nbsp;
         <strong>Compound</strong> = interest on current balance (most loans).&nbsp;
         <strong>Penalty /mo</strong> = monthly % charged on the shortfall if you pay less than the minimum.&nbsp;
@@ -251,7 +251,7 @@
   </div>
 
   <!-- ── BUDGET WARNING ── -->
-  <div class="budget-warning" id="budgetWarning">
+  <div class="budget-warning" id="budgetWarning" data-i18n-html="dp.js.warn_budget_low">
     ⚠️ <strong>Budget is less than total minimum payments</strong> — strategies may stall.
     Increase your monthly budget or reduce minimum payments.
   </div>
@@ -261,16 +261,16 @@
 
     <!-- Strategy comparison table -->
     <div class="card" style="margin-bottom:1.25rem">
-      <div class="card-header">All Strategies Compared</div>
+      <div class="card-header" data-i18n="dp.card.compare">All Strategies Compared</div>
       <div class="card-body" style="padding:0">
         <table class="compare-table">
           <thead>
             <tr>
-              <th>Strategy</th>
-              <th>Pay-off Order</th>
-              <th>Months</th>
-              <th>Total Interest</th>
-              <th>Total Paid</th>
+              <th data-i18n="dp.th.strategy">Strategy</th>
+              <th data-i18n="dp.th.payoff_order">Pay-off Order</th>
+              <th data-i18n="dp.th.months">Months</th>
+              <th data-i18n="dp.th.total_interest">Total Interest</th>
+              <th data-i18n="dp.th.total_paid">Total Paid</th>
             </tr>
           </thead>
           <tbody id="compareBody"></tbody>
@@ -280,7 +280,7 @@
 
     <!-- Chart -->
     <div class="card" style="margin-bottom:1.25rem">
-      <div class="card-header">Remaining Debt Over Time</div>
+      <div class="card-header" data-i18n="dp.chart.title">Remaining Debt Over Time</div>
       <div class="card-body" style="padding:.5rem 1rem .75rem">
         <div class="chart-wrap">
           <canvas id="debtChart"></canvas>
@@ -291,17 +291,17 @@
     <!-- Payment Schedule -->
     <div class="card" style="margin-bottom:1.25rem">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
-        <span>Monthly Payment Schedule</span>
+        <span data-i18n="dp.card.schedule">Monthly Payment Schedule</span>
         <div style="display:flex;align-items:center;gap:.5rem">
           <select id="schedStrategy" onchange="renderScheduleIfOpen()"
             style="font-size:.8rem;padding:.25rem .4rem;border:1px solid #d1d5db;border-radius:4px;background:#fff">
-            <option value="snowball">⛄ Snowball</option>
-            <option value="avalanche">🏔 Avalanche</option>
-            <option value="stairstepper">🪜 Stairstepper</option>
-            <option value="highPayment">💰 High Payment</option>
-            <option value="custom">🎯 Custom</option>
+            <option value="snowball" data-i18n="dp.strategy.snowball">⛄ Snowball</option>
+            <option value="avalanche" data-i18n="dp.strategy.avalanche">🏔 Avalanche</option>
+            <option value="stairstepper" data-i18n="dp.strategy.stairstepper">🪜 Stairstepper</option>
+            <option value="highPayment" data-i18n="dp.strategy.high_payment">💰 High Payment</option>
+            <option value="custom" data-i18n="dp.strategy.custom">🎯 Custom</option>
           </select>
-          <button class="btn-secondary" id="schedToggle" onclick="toggleSchedule()">Show Schedule</button>
+          <button class="btn-secondary" id="schedToggle" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
         </div>
       </div>
       <div id="scheduleWrapper" style="display:none">
@@ -312,55 +312,54 @@
           </table>
         </div>
         <div style="font-size:.71rem;color:var(--text-light);padding:.45rem .75rem .6rem;line-height:1.6">
-          <span style="display:inline-block;background:#e8f5e2;border-radius:3px;padding:.05rem .4rem;color:#2d5a1b;font-weight:700;margin-right:.3rem">highlighted</span>
-          = focus debt getting the extra payment that month.
-          Each row shows exactly how much to pay each lender.
+          <span style="display:inline-block;background:#e8f5e2;border-radius:3px;padding:.05rem .4rem;color:#2d5a1b;font-weight:700;margin-right:.3rem" data-i18n="dp.sched.highlighted">highlighted</span>
+          <span data-i18n="dp.sched.note">= focus debt getting the extra payment that month. Each row shows exactly how much to pay each lender.</span>
         </div>
       </div>
     </div>
 
     <!-- How-to explainer -->
     <div class="card">
-      <div class="card-header">Strategy Guide</div>
+      <div class="card-header" data-i18n="dp.guide.title">Strategy Guide</div>
       <div class="card-body" style="font-size:.82rem;color:var(--text-medium);line-height:1.7">
         <table style="width:100%;border-collapse:collapse">
           <tr style="border-bottom:1px solid var(--green-100)">
             <td style="padding:.5rem .6rem .5rem 0;width:130px;vertical-align:top">
-              <strong style="color:var(--c-snowball)">⛄ Snowball</strong>
+              <strong style="color:var(--c-snowball)" data-i18n="dp.strategy.snowball">⛄ Snowball</strong>
             </td>
-            <td style="padding:.5rem 0">
+            <td style="padding:.5rem 0" data-i18n-html="dp.guide.snowball_desc">
               Pay off the <strong>smallest balance</strong> first. Builds momentum with quick wins. Best for motivation.
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--green-100)">
             <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
-              <strong style="color:var(--c-avalanche)">🏔 Avalanche</strong>
+              <strong style="color:var(--c-avalanche)" data-i18n="dp.strategy.avalanche">🏔 Avalanche</strong>
             </td>
-            <td style="padding:.5rem 0">
+            <td style="padding:.5rem 0" data-i18n-html="dp.guide.avalanche_desc">
               Pay off the <strong>highest interest rate</strong> first. Mathematically minimises total interest. Best if disciplined.
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--green-100)">
             <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
-              <strong style="color:var(--c-stairstepper)">🪜 Stairstepper</strong>
+              <strong style="color:var(--c-stairstepper)" data-i18n="dp.strategy.stairstepper">🪜 Stairstepper</strong>
             </td>
-            <td style="padding:.5rem 0">
+            <td style="padding:.5rem 0" data-i18n-html="dp.guide.stairstepper_desc">
               Pay off whichever debt will be eliminated <strong>soonest</strong> with your available extra budget. Frees up cash flow the fastest — re-evaluated after each payoff. A balance between snowball and avalanche.
             </td>
           </tr>
           <tr style="border-bottom:1px solid var(--green-100)">
             <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
-              <strong style="color:var(--c-highpayment)">💰 High Payment</strong>
+              <strong style="color:var(--c-highpayment)" data-i18n="dp.strategy.high_payment">💰 High Payment</strong>
             </td>
-            <td style="padding:.5rem 0">
+            <td style="padding:.5rem 0" data-i18n-html="dp.guide.high_payment_desc">
               Pay off the debt with the <strong>highest minimum payment</strong> first. Frees up the largest monthly cash amount when paid off — good if your goal is maximising future cash flow.
             </td>
           </tr>
           <tr>
             <td style="padding:.5rem .6rem .5rem 0;vertical-align:top">
-              <strong style="color:var(--c-custom)">🎯 Custom</strong>
+              <strong style="color:var(--c-custom)" data-i18n="dp.strategy.custom">🎯 Custom</strong>
             </td>
-            <td style="padding:.5rem 0">
+            <td style="padding:.5rem 0" data-i18n-html="dp.guide.custom_desc">
               <strong>Your own order</strong>. Drag the rows or use ▲▼ to arrange debts in the order you want to pay them off. The custom strategy follows the table order from top to bottom.
             </td>
           </tr>
@@ -382,10 +381,12 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=18"></script>
+<script src="lang.js?v=19"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
 
 let debtChartInst = null;
 let currency = 'USD';
@@ -393,11 +394,11 @@ let loanId    = 0;
 
 // ── Strategy config ───────────────────────────────────────────────────────────
 const STRATEGIES = [
-  { key: 'snowball',     emoji: '⛄', name: 'Snowball',     desc: 'Smallest balance first',       color: '#059669' },
-  { key: 'avalanche',   emoji: '🏔', name: 'Avalanche',   desc: 'Highest rate first',            color: '#3b82f6' },
-  { key: 'stairstepper',emoji: '🪜', name: 'Stairstepper',desc: 'Quickest payoff first',         color: '#9333ea' },
-  { key: 'highPayment', emoji: '💰', name: 'High Payment', desc: 'Highest minimum payment first', color: '#d97706' },
-  { key: 'custom',      emoji: '🎯', name: 'Custom',       desc: 'Your order (top → bottom)',     color: '#dc2626' },
+  { key: 'snowball',     name: 'dp.strategy.snowball',     desc: 'dp.desc.snowball',     color: '#059669' },
+  { key: 'avalanche',    name: 'dp.strategy.avalanche',    desc: 'dp.desc.avalanche',    color: '#3b82f6' },
+  { key: 'stairstepper', name: 'dp.strategy.stairstepper', desc: 'dp.desc.stairstepper', color: '#9333ea' },
+  { key: 'highPayment',  name: 'dp.strategy.high_payment', desc: 'dp.desc.high_payment', color: '#d97706' },
+  { key: 'custom',       name: 'dp.strategy.custom',       desc: 'dp.desc.custom',       color: '#dc2626' },
 ];
 
 // ── Currency helpers ──────────────────────────────────────────────────────────
@@ -474,8 +475,8 @@ function addLoan(data) {
       <span style="font-size:.73rem;color:var(--text-light)">%</span>
     </div></td>
     <td><select class="int-type" style="width:auto;min-width:88px" onchange="calculate()">
-      <option value="compound"${d.type==='compound'?' selected':''}>Compound</option>
-      <option value="simple"${d.type==='simple'?' selected':''}>Simple</option>
+      <option value="compound"${d.type==='compound'?' selected':''}>${T('dp.js.compound')}</option>
+      <option value="simple"${d.type==='simple'?' selected':''}>${T('dp.js.simple')}</option>
     </select></td>
     <td><div style="display:flex;align-items:center;gap:2px">
       <span class="cur-pfx" style="font-size:.8rem;color:var(--text-medium)">${sym}</span>
@@ -567,7 +568,7 @@ function getLoans() {
     const type    = row.querySelector('.int-type').value;
     const min     = toUSD(parseFloat(row.querySelector('.min-input').value) || 0);
     const penalty = parseFloat(row.querySelector('.penalty-input').value)  || 0;
-    const name    = row.querySelector('.name-input').value.trim() || ('Debt ' + (i + 1));
+    const name    = row.querySelector('.name-input').value.trim() || (T('dp.js.debt_n') + ' ' + (i + 1));
     if (balance > 0) loans.push({ id: i, name, balance, origBalance: balance, rate, type, min, penalty, tableOrder: i });
   });
   return loans;
@@ -707,10 +708,12 @@ function calculate() {
     .reduce((s, l) => s + l.balance * l.rate / 12 / 100, 0);
   const warnEl = document.getElementById('budgetWarning');
   if (budget < totalMin) {
-    warnEl.innerHTML = '⚠️ <strong>Budget is less than total minimum payments</strong> — strategies may stall. Increase your monthly budget or reduce minimum payments.';
+    warnEl.innerHTML = T('dp.js.warn_budget_low');
     warnEl.style.display = 'block';
   } else if (totalCompoundInterest > budget) {
-    warnEl.innerHTML = `⚠️ <strong>Monthly interest on compound loans (${fmt(totalCompoundInterest)}) exceeds your budget (${fmt(budget)})</strong> — these debts cannot be paid off. Increase your budget or check that rates are per-month (not per-year).`;
+    warnEl.innerHTML = T('dp.js.warn_interest_exceeds')
+      .replace('{interest}', fmt(totalCompoundInterest))
+      .replace('{budget}', fmt(budget));
     warnEl.style.display = 'block';
   } else {
     warnEl.style.display = 'none';
@@ -753,24 +756,24 @@ function renderCompareTable(results, bestKey, loans) {
 
     const saving = !r.hitMax && bestInterest < r.totalInterest
       ? '<span style="font-size:.72rem;color:var(--text-light)">+' + fmt(r.totalInterest - bestInterest) + '</span>'
-      : (!r.hitMax && isBest ? '<span style="font-size:.72rem;color:#059669">★ Best</span>' : '');
+      : (!r.hitMax && isBest ? '<span style="font-size:.72rem;color:#059669">' + T('dp.js.best_star') + '</span>' : '');
 
-    const intCell  = r.hitMax ? '<span style="color:#dc2626;font-size:.8rem">Cannot pay off</span>' : fmt(r.totalInterest) + ' ' + saving;
+    const intCell  = r.hitMax ? '<span style="color:#dc2626;font-size:.8rem">' + T('dp.js.cannot_pay') + '</span>' : fmt(r.totalInterest) + ' ' + saving;
     const paidCell = r.hitMax ? '—' : fmt(r.totalPaid);
 
     tr.innerHTML = `
       <td>
         <div class="strategy-name">
           <span class="strategy-dot" style="background:${s.color}"></span>
-          ${s.emoji} ${s.name}${isBest && !r.hitMax ? '<span class="best-badge">✓ Best</span>' : ''}
+          ${T(s.name)}${isBest && !r.hitMax ? '<span class="best-badge">' + T('dp.js.best_badge') + '</span>' : ''}
         </div>
-        <div style="font-size:.71rem;color:var(--text-light);margin-top:.1rem;padding-left:1.1rem">${s.desc}</div>
+        <div style="font-size:.71rem;color:var(--text-light);margin-top:.1rem;padding-left:1.1rem">${T(s.desc)}</div>
       </td>
       <td>
         <div class="payoff-order">${orderHtml}</div>
-        ${r.payoffOrder.length ? '<button class="detail-btn" onclick="toggleDetail(' + si + ')">▼ details</button>' : ''}
+        ${r.payoffOrder.length ? '<button class="detail-btn" onclick="toggleDetail(' + si + ')">' + T('dp.js.details') + '</button>' : ''}
       </td>
-      <td>${r.hitMax ? '<strong style="color:#dc2626">⚠️ 600+</strong> <span style="font-size:.72rem;color:#dc2626">mo (unpayable)</span>' : '<strong>' + r.months + '</strong> mo'}</td>
+      <td>${r.hitMax ? '<strong style="color:#dc2626">⚠️ 600+</strong> <span style="font-size:.72rem;color:#dc2626">' + T('dp.js.mo_unpayable') + '</span>' : '<strong>' + r.months + '</strong> ' + T('dp.js.mo')}</td>
       <td>${intCell}</td>
       <td>${paidCell}</td>
     `;
@@ -788,9 +791,9 @@ function renderCompareTable(results, bestKey, loans) {
         <div style="display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid #e5e7eb;font-size:.8rem">
           <span style="font-weight:600">${loan.name}</span>
           <span style="display:flex;gap:1.5rem">
-            <span style="color:var(--text-medium)">Paid off: <strong>${dLoan && dLoan.paidOffMonth ? 'mo.' + dLoan.paidOffMonth : '—'}</strong></span>
-            <span style="color:var(--text-medium)">Interest: <strong>${dLoan ? fmt(dLoan.interestPaid) : '—'}</strong></span>
-            <span style="color:var(--text-medium)">Total paid: <strong>${dLoan ? fmt(dLoan.totalPaid) : '—'}</strong></span>
+            <span style="color:var(--text-medium)">${T('dp.js.paid_off')} <strong>${dLoan && dLoan.paidOffMonth ? T('dp.js.mo_prefix') + dLoan.paidOffMonth : '—'}</strong></span>
+            <span style="color:var(--text-medium)">${T('dp.js.interest')} <strong>${dLoan ? fmt(dLoan.interestPaid) : '—'}</strong></span>
+            <span style="color:var(--text-medium)">${T('dp.js.total_paid')} <strong>${dLoan ? fmt(dLoan.totalPaid) : '—'}</strong></span>
           </span>
         </div>
       `;
@@ -808,19 +811,19 @@ function toggleDetail(idx) {
   row.style.display = isOpen ? 'none' : '';
   // Update button text
   const btns = document.querySelectorAll('.detail-btn');
-  if (btns[idx]) btns[idx].textContent = isOpen ? '▼ details' : '▲ hide';
+  if (btns[idx]) btns[idx].textContent = isOpen ? T('dp.js.details') : T('dp.js.hide');
 }
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
 function renderChart(results) {
   const maxLen = Math.max(...STRATEGIES.map(s => results[s.key].history.length));
-  const labels = Array.from({ length: maxLen }, (_, i) => i === 0 ? 'Start' : 'Mo.' + i);
+  const labels = Array.from({ length: maxLen }, (_, i) => i === 0 ? T('dp.js.start') : T('dp.js.mo_short') + i);
 
   const datasets = STRATEGIES.map((s, i) => {
     const hist = [...results[s.key].history];
     while (hist.length < maxLen) hist.push(0);
     return {
-      label: s.emoji + ' ' + s.name,
+      label: T(s.name),
       data: hist.map(v => Math.round(v)),
       borderColor: s.color,
       backgroundColor: s.color + '10',
@@ -861,7 +864,7 @@ function renderChart(results) {
             callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0)+'k' : v),
           },
           grid: { color: 'rgba(0,0,0,0.05)' },
-          title: { display: true, text: 'Remaining Debt', font: { size: 11 } },
+          title: { display: true, text: T('dp.js.axis_remaining'), font: { size: 11 } },
         },
       },
     },
@@ -923,9 +926,9 @@ function buildAndRenderSchedule() {
 
   // Header
   document.getElementById('schedHead').innerHTML =
-    '<tr><th style="text-align:center">Month</th>' +
+    '<tr><th style="text-align:center">' + T('dp.js.sched_month') + '</th>' +
     loans.map(l => `<th>${l.name}</th>`).join('') +
-    '<th style="text-align:right">Total</th></tr>';
+    '<th style="text-align:right">' + T('dp.js.sched_total') + '</th></tr>';
 
   // Body
   const tbody = document.getElementById('schedBody');
@@ -973,7 +976,8 @@ function toggleSchedule() {
   const btn     = document.getElementById('schedToggle');
   const isHidden = wrapper.style.display === 'none';
   wrapper.style.display = isHidden ? 'block' : 'none';
-  btn.textContent = isHidden ? 'Hide Schedule' : 'Show Schedule';
+  btn.textContent = isHidden ? T('schedule.hide') : T('schedule.show');
+  btn.setAttribute('data-i18n', isHidden ? 'schedule.hide' : 'schedule.show');
   if (isHidden) buildAndRenderSchedule();
 }
 

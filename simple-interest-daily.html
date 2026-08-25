@@ -65,8 +65,8 @@
           <label data-i18n="simple_daily.input.currency">Currency</label>
           <div class="input-wrapper">
             <select id="currency">
-              <option value="USD">USD ($)</option>
-              <option value="KHR" selected>KHR (&#x17DB;)</option>
+              <option value="USD" data-i18n="currency.opt_usd">USD ($)</option>
+              <option value="KHR" selected data-i18n="currency.opt_khr">KHR (&#x17DB;)</option>
             </select>
           </div>
         </div>
@@ -215,9 +215,9 @@
           <tr>
             <th data-i18n="simple_daily.sched.day">Day</th>
             <th data-i18n="simple_daily.sched.date">Date</th>
-            <th id="sched-h1">Option 1</th>
-            <th id="sched-h2">Option 2</th>
-            <th id="sched-h3">Option 3</th>
+            <th id="sched-h1" data-i18n="simple_daily.input.opt1">Option 1</th>
+            <th id="sched-h2" data-i18n="simple_daily.input.opt2">Option 2</th>
+            <th id="sched-h3" data-i18n="simple_daily.input.opt3">Option 3</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -241,7 +241,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=18"></script>
+<script src="lang.js?v=19"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 let balanceChart = null;

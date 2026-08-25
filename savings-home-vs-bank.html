@@ -168,7 +168,7 @@
   <div class="breadcrumb-inner">
     <a href="index.html" data-i18n="bread.calculators">Calculators</a>
     &rsaquo; <span data-i18n="bread.savings">Savings</span>
-    &rsaquo; <span>Home vs Bank Savings</span>
+    &rsaquo; <span data-i18n="hvb.bread">Home vs Bank Savings</span>
   </div>
 </div>
 
@@ -179,13 +179,13 @@
     <img src="assets/logo.png" alt="Wise Financial Cambodia">
     <div class="print-header-text">
       <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
-      <p>Home vs Bank Savings Calculator &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+      <p><span data-i18n="hvb.print_title">Home vs Bank Savings Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
     </div>
   </div>
 
   <div class="page-title">
-    <h2>Home vs Bank Savings</h2>
-    <p>Does starting early matter more than saving longer? Compare an Early Saver, a Late Saver, and keeping cash at home — see which strategy wins over time.</p>
+    <h2 data-i18n="hvb.heading">Home vs Bank Savings</h2>
+    <p data-i18n="hvb.page_desc">Does starting early matter more than saving longer? Compare an Early Saver, a Late Saver, and keeping cash at home — see which strategy wins over time.</p>
   </div>
 
   <div class="calc-grid">
@@ -197,19 +197,19 @@
 
         <!-- Currency toggle -->
         <div class="currency-toggle" style="margin-bottom:.85rem">
-          <button class="currency-btn active" data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
-          <button class="currency-btn" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
+          <button class="currency-btn active" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr">&#6107; KHR</button>
+          <button class="currency-btn" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd">$ USD</button>
         </div>
         <div class="input-group" id="exrateGroup" style="margin-bottom:.6rem">
           <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
           <div class="input-wrapper">
             <input type="number" id="exchangeRate" value="4000" min="1" step="100">
-            <span class="input-suffix">KHR</span>
+            <span class="input-suffix" data-i18n="currency.khr_code">KHR</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Monthly Contribution</label>
+          <label data-i18n="hvb.input.contribution">Monthly Contribution</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="currPrefix">&#6107;</span>
             <input type="number" id="monthlyPMT" value="200000" min="0" step="1000">
@@ -225,18 +225,18 @@
         </div>
 
         <hr class="section-divider">
-        <div class="section-label">Age Range</div>
+        <div class="section-label" data-i18n="hvb.section.age_range">Age Range</div>
 
         <div class="input-row">
           <div class="input-group">
-            <label>Starting Age</label>
+            <label data-i18n="hvb.input.start_age">Starting Age</label>
             <div class="input-wrapper">
               <input type="number" id="startAge" value="18" min="1" max="80" step="1">
               <span class="input-suffix" data-i18n="input.years">yrs</span>
             </div>
           </div>
           <div class="input-group">
-            <label>Ending Age</label>
+            <label data-i18n="hvb.input.end_age">Ending Age</label>
             <div class="input-wrapper">
               <input type="number" id="endAge" value="60" min="2" max="100" step="1">
               <span class="input-suffix" data-i18n="input.years">yrs</span>
@@ -245,20 +245,20 @@
         </div>
 
         <hr class="section-divider">
-        <div class="section-label">Early Saver Settings</div>
+        <div class="section-label" data-i18n="hvb.section.early_settings">Early Saver Settings</div>
 
         <div class="input-group">
-          <label>Years of Active Saving</label>
+          <label data-i18n="hvb.input.active_years">Years of Active Saving</label>
           <div class="input-wrapper">
             <input type="number" id="activeYears" value="8" min="1" max="60" step="1">
             <span class="input-suffix" data-i18n="input.years">yrs</span>
           </div>
         </div>
-        <div class="input-hint">Early saver saves for this many years, then stops and lets interest grow.</div>
+        <div class="input-hint" data-i18n="hvb.hint.active_years">Early saver saves for this many years, then stops and lets interest grow.</div>
 
         <button class="btn-primary" style="margin-top:1rem" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
 
-        <div class="how-box">
+        <div class="how-box" data-i18n-html="hvb.explain">
           <strong>🏦 Early Saver</strong> — contributes monthly for the first X years, then <em>stops</em> and lets compound interest do the rest.<br>
           <strong>⏳ Late Saver</strong> — waits X years (saves nothing), then contributes monthly until retirement.<br>
           <strong>🏠 At Home</strong> — saves the same monthly amount as cash with no interest earned.
@@ -269,43 +269,43 @@
     <!-- ── RESULTS ────────────────────────────────────────────────────────── -->
     <div>
       <div class="card">
-        <div class="card-header dark">Results</div>
+        <div class="card-header dark" data-i18n="hvb.card.results">Results</div>
         <div class="card-body">
 
           <div class="strategy-grid">
 
             <div class="strategy-card" id="card-early">
               <div class="s-icon">🏦</div>
-              <div class="s-name">Early Saver</div>
+              <div class="s-name" data-i18n="hvb.strategy.early">Early Saver</div>
               <div class="s-balance" id="r-earlyBal">—</div>
               <div id="r-earlyWinner"></div>
               <div class="s-detail">
-                <span class="s-dl">Contributed</span><span class="s-dv" id="r-earlyContrib">—</span>
-                <span class="s-dl">Interest</span><span class="s-dv" id="r-earlyInt">—</span>
-                <span class="s-dl">Active months</span><span class="s-dv" id="r-earlyMo">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.contributed">Contributed</span><span class="s-dv" id="r-earlyContrib">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.interest">Interest</span><span class="s-dv" id="r-earlyInt">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.active_months">Active months</span><span class="s-dv" id="r-earlyMo">—</span>
               </div>
             </div>
 
             <div class="strategy-card" id="card-late">
               <div class="s-icon">⏳</div>
-              <div class="s-name">Late Saver</div>
+              <div class="s-name" data-i18n="hvb.strategy.late">Late Saver</div>
               <div class="s-balance" id="r-lateBal">—</div>
               <div id="r-lateWinner"></div>
               <div class="s-detail">
-                <span class="s-dl">Contributed</span><span class="s-dv" id="r-lateContrib">—</span>
-                <span class="s-dl">Interest</span><span class="s-dv" id="r-lateInt">—</span>
-                <span class="s-dl">Active months</span><span class="s-dv" id="r-lateMo">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.contributed">Contributed</span><span class="s-dv" id="r-lateContrib">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.interest">Interest</span><span class="s-dv" id="r-lateInt">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.active_months">Active months</span><span class="s-dv" id="r-lateMo">—</span>
               </div>
             </div>
 
             <div class="strategy-card athome" id="card-home">
               <div class="s-icon">🏠</div>
-              <div class="s-name">At Home</div>
+              <div class="s-name" data-i18n="hvb.strategy.home">At Home</div>
               <div class="s-balance" id="r-homeBal">—</div>
-              <div style="font-size:.67rem;color:var(--text-light);margin:.15rem 0 .1rem">No interest earned</div>
+              <div style="font-size:.67rem;color:var(--text-light);margin:.15rem 0 .1rem" data-i18n="hvb.home.no_interest">No interest earned</div>
               <div class="s-detail">
-                <span class="s-dl">Contributed</span><span class="s-dv" id="r-homeContrib">—</span>
-                <span class="s-dl">Active months</span><span class="s-dv" id="r-homeMo">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.contributed">Contributed</span><span class="s-dv" id="r-homeContrib">—</span>
+                <span class="s-dl" data-i18n="hvb.detail.active_months">Active months</span><span class="s-dv" id="r-homeMo">—</span>
               </div>
             </div>
 
@@ -315,19 +315,19 @@
 
           <div class="results-grid">
             <div class="result-item">
-              <div class="r-label">Total Years</div>
+              <div class="r-label" data-i18n="hvb.result.total_years">Total Years</div>
               <div class="r-value" id="r-totalYrs">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Monthly Rate</div>
+              <div class="r-label" data-i18n="hvb.result.monthly_rate">Monthly Rate</div>
               <div class="r-value" id="r-moRate">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Early: Contributes</div>
+              <div class="r-label" data-i18n="hvb.result.early_contributes">Early: Contributes</div>
               <div class="r-value" id="r-earlyPhase">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label">Late: Contributes</div>
+              <div class="r-label" data-i18n="hvb.result.late_contributes">Late: Contributes</div>
               <div class="r-value" id="r-latePhase">—</div>
             </div>
           </div>
@@ -340,7 +340,7 @@
 
   <!-- ── CHART ─────────────────────────────────────────────────────────────── -->
   <div class="card chart-card" style="margin-top:1.25rem">
-    <div class="card-header">Balance Growth Over Time</div>
+    <div class="card-header" data-i18n="hvb.chart.title">Balance Growth Over Time</div>
     <div class="chart-legend">
       <span><span class="leg-line" style="background:#2d5a1b"></span>Early Saver</span>
       <span><span class="leg-line" style="background:#1a6b5c"></span>Late Saver</span>
@@ -354,26 +354,26 @@
   <!-- ── YEAR-BY-YEAR TABLE ─────────────────────────────────────────────────── -->
   <div class="card schedule-card" style="margin-top:1.25rem">
     <div class="schedule-controls">
-      <strong style="font-size:.82rem">Year-by-Year Breakdown</strong>
+      <strong style="font-size:.82rem" data-i18n="hvb.sched.title">Year-by-Year Breakdown</strong>
       <button class="btn-secondary" id="toggleBtn" onclick="toggleTable()" data-i18n="schedule.show">Show Schedule</button>
     </div>
     <div class="schedule-wrapper" id="tableWrapper" style="display:none">
       <table class="hvb-table">
         <thead>
           <tr>
-            <th rowspan="2">Yr</th>
-            <th rowspan="2">Age</th>
-            <th class="th-early" colspan="2">🏦 Early Saver</th>
-            <th class="th-late"  colspan="2">⏳ Late Saver</th>
-            <th class="th-home"  colspan="2">🏠 At Home</th>
+            <th rowspan="2" data-i18n="hvb.sched.yr">Yr</th>
+            <th rowspan="2" data-i18n="hvb.sched.age">Age</th>
+            <th class="th-early" colspan="2" data-i18n="hvb.head.early">🏦 Early Saver</th>
+            <th class="th-late"  colspan="2" data-i18n="hvb.head.late">⏳ Late Saver</th>
+            <th class="th-home"  colspan="2" data-i18n="hvb.head.home">🏠 At Home</th>
           </tr>
           <tr>
-            <th class="th-early">Contrib.</th>
-            <th class="th-early">Balance</th>
-            <th class="th-late">Contrib.</th>
-            <th class="th-late">Balance</th>
-            <th class="th-home">Contrib.</th>
-            <th class="th-home">Balance</th>
+            <th class="th-early" data-i18n="hvb.sched.contrib">Contrib.</th>
+            <th class="th-early" data-i18n="hvb.sched.balance">Balance</th>
+            <th class="th-late" data-i18n="hvb.sched.contrib">Contrib.</th>
+            <th class="th-late" data-i18n="hvb.sched.balance">Balance</th>
+            <th class="th-home" data-i18n="hvb.sched.contrib">Contrib.</th>
+            <th class="th-home" data-i18n="hvb.sched.balance">Balance</th>
           </tr>
         </thead>
         <tbody id="hvbTableBody"></tbody>
@@ -383,21 +383,21 @@
 
   <!-- ── SCENARIO SENSITIVITY ─────────────────────────────────────────────── -->
   <div class="card" style="margin-top:1.25rem">
-    <div class="card-header">Scenario Sensitivity</div>
+    <div class="card-header" data-i18n="hvb.sens.title">Scenario Sensitivity</div>
     <div class="card-body">
       <div class="scen-grid">
 
         <div>
           <div class="scen-title">
-            Interest Rate Sensitivity
-            <span>(ages <span id="s-ages1">18–60</span>, <span id="s-ay1">8</span> active yrs)</span>
+            <span data-i18n="hvb.sens.rate_title">Interest Rate Sensitivity</span>
+            <span><span data-i18n="hvb.sens.ages_prefix">(ages</span> <span id="s-ages1">18–60</span>, <span id="s-ay1">8</span> <span data-i18n="hvb.sens.active_yrs_suffix">active yrs)</span></span>
           </div>
           <table class="scen-table">
             <thead><tr>
-              <th>Rate</th>
-              <th>Early Saver</th>
-              <th>Late Saver</th>
-              <th>Winner</th>
+              <th data-i18n="hvb.sens.rate">Rate</th>
+              <th data-i18n="hvb.strategy.early">Early Saver</th>
+              <th data-i18n="hvb.strategy.late">Late Saver</th>
+              <th data-i18n="hvb.sens.winner">Winner</th>
             </tr></thead>
             <tbody id="rateScenBody"></tbody>
           </table>
@@ -405,15 +405,15 @@
 
         <div>
           <div class="scen-title">
-            Active Years Sensitivity
-            <span>(ages <span id="s-ages2">18–60</span>, rate <span id="s-rate2">5%</span>)</span>
+            <span data-i18n="hvb.sens.years_title">Active Years Sensitivity</span>
+            <span><span data-i18n="hvb.sens.ages_prefix">(ages</span> <span id="s-ages2">18–60</span><span data-i18n="hvb.sens.rate_mid">, rate</span> <span id="s-rate2">5%</span>)</span>
           </div>
           <table class="scen-table">
             <thead><tr>
-              <th>Active Yrs</th>
-              <th>Early Saver</th>
-              <th>Late Saver</th>
-              <th>Winner</th>
+              <th data-i18n="hvb.sens.active_yrs">Active Yrs</th>
+              <th data-i18n="hvb.strategy.early">Early Saver</th>
+              <th data-i18n="hvb.strategy.late">Late Saver</th>
+              <th data-i18n="hvb.sens.winner">Winner</th>
             </tr></thead>
             <tbody id="ayScenBody"></tbody>
           </table>
@@ -439,10 +439,12 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=18"></script>
+<script src="lang.js?v=19"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
 
 let hvbChart = null;
 let currency = 'KHR';
@@ -576,14 +578,14 @@ function calculate() {
   // Winner styling
   document.getElementById('card-early').classList.toggle('winner', earlyWins);
   document.getElementById('card-late').classList.toggle('winner', lateWins);
-  document.getElementById('r-earlyWinner').innerHTML = earlyWins ? '<span class="winner-badge">★ Winner</span>' : '';
-  document.getElementById('r-lateWinner').innerHTML  = lateWins  ? '<span class="winner-badge">★ Winner</span>' : '';
+  document.getElementById('r-earlyWinner').innerHTML = earlyWins ? '<span class="winner-badge">' + T('hvb.js.winner_badge') + '</span>' : '';
+  document.getElementById('r-lateWinner').innerHTML  = lateWins  ? '<span class="winner-badge">' + T('hvb.js.winner_badge') + '</span>' : '';
 
   // Advantage bar
-  const winName = earlyWins ? '🏦 Early Saver' : lateWins ? '⏳ Late Saver' : '🏠 At Home';
+  const winName = earlyWins ? T('hvb.head.early') : lateWins ? T('hvb.head.late') : T('hvb.head.home');
   const winBal  = earlyWins ? eF : lateWins ? lF : hF;
   document.getElementById('advantageBar').innerHTML =
-    `<strong>${winName} wins</strong> — <span>` + fmtKHR(winBal - hF) + ' more than saving at home</span>';
+    `<strong>${winName} ${T('hvb.js.wins')}</strong> — <span>` + fmtKHR(winBal - hF) + ' ' + T('hvb.js.more_than_home') + '</span>';
 
   // Scenario labels
   const ageLabel = startAge + '–' + endAge;
@@ -621,7 +623,7 @@ function renderChart(pmt, r, startAge, totalYears, actYrs) {
       labels: ages,
       datasets: [
         {
-          label: 'Early Saver',
+          label: T('hvb.strategy.early'),
           data: eVals,
           borderColor: '#2d5a1b',
           backgroundColor: 'rgba(45,90,27,.07)',
@@ -631,7 +633,7 @@ function renderChart(pmt, r, startAge, totalYears, actYrs) {
           fill: false
         },
         {
-          label: 'Late Saver',
+          label: T('hvb.strategy.late'),
           data: lVals,
           borderColor: '#1a6b5c',
           backgroundColor: 'rgba(26,107,92,.06)',
@@ -641,7 +643,7 @@ function renderChart(pmt, r, startAge, totalYears, actYrs) {
           fill: false
         },
         {
-          label: 'At Home',
+          label: T('hvb.strategy.home'),
           data: hVals,
           borderColor: '#b45309',
           backgroundColor: 'rgba(180,83,9,.04)',
@@ -662,7 +664,7 @@ function renderChart(pmt, r, startAge, totalYears, actYrs) {
           mode: 'index',
           intersect: false,
           callbacks: {
-            title: c => 'Age ' + c[0].label,
+            title: c => T('hvb.sched.age') + ' ' + c[0].label,
             label: c => '  ' + c.dataset.label + ': ' +
               (currency === 'KHR' ? '៛' : '$') + c.parsed.y.toLocaleString('en-US')
           }
@@ -670,7 +672,7 @@ function renderChart(pmt, r, startAge, totalYears, actYrs) {
       },
       scales: {
         x: {
-          title: { display: true, text: 'Age', font: { size: 10 } },
+          title: { display: true, text: T('hvb.sched.age'), font: { size: 10 } },
           ticks: { font: { size: 10 } },
           grid: { display: false }
         },
@@ -706,7 +708,7 @@ function buildRateScenarios(pmt, currentRate, totalYrs, actYrs) {
       <td>${(rate * 100).toFixed(0)}%</td>
       <td>${fmtKHR(eF)}</td>
       <td>${fmtKHR(lF)}</td>
-      <td style="font-weight:700;color:${eWins ? '#2d5a1b' : '#1a6b5c'}">${eWins ? '🏦 Early' : '⏳ Late'}</td>
+      <td style="font-weight:700;color:${eWins ? '#2d5a1b' : '#1a6b5c'}">${eWins ? T('hvb.js.early_short') : T('hvb.js.late_short')}</td>
     </tr>`;
   }
   document.getElementById('rateScenBody').innerHTML = html;
@@ -728,7 +730,7 @@ function buildActiveYrScenarios(pmt, annualRate, totalYrs, currentActYrs) {
       <td>${ay} yrs</td>
       <td>${fmtKHR(eF)}</td>
       <td>${fmtKHR(lF)}</td>
-      <td style="font-weight:700;color:${eWins ? '#2d5a1b' : '#1a6b5c'}">${eWins ? '🏦 Early' : '⏳ Late'}</td>
+      <td style="font-weight:700;color:${eWins ? '#2d5a1b' : '#1a6b5c'}">${eWins ? T('hvb.js.early_short') : T('hvb.js.late_short')}</td>
     </tr>`;
   }
   document.getElementById('ayScenBody').innerHTML = html;
