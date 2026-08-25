@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="lrs.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Restructure Comparison – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Currency toggle ── */
+    .currency-bar { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+    .currency-label { font-size:.8rem; color:var(--text-medium); margin-right:.15rem; }
+    .currency-btn {
+      padding:.25rem .65rem; border:1.5px solid var(--green-200); background:#fff;
+      border-radius:4px; cursor:pointer; font-size:.8rem; font-weight:600;
+      color:var(--text-medium); font-family:inherit;
+    }
+    .currency-btn.active { background:var(--green-700); color:#fff; border-color:var(--green-700); }
+
+    .section-label {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+      color:var(--green-700); margin:.9rem 0 .5rem;
+    }
+    .section-divider { border:none; border-top:1px solid var(--green-100); margin:1rem 0 0; }
+    .input-hint { font-size:.71rem; color:var(--text-light); margin-top:.2rem; line-height:1.5; }
+
+    .derived {
+      background:var(--green-50); border:1px solid var(--green-200); border-radius:5px;
+      padding:.55rem .7rem; margin-top:.75rem;
+      display:flex; justify-content:space-between; align-items:baseline; gap:.5rem;
+    }
+    .derived-label { font-size:.78rem; color:var(--text-medium); }
+    .derived-value { font-size:1.05rem; font-weight:700; color:var(--green-800); }
+
+    /* ── Comparison table ── */
+    .cmp-wrap { overflow-x:auto; }
+    .cmp-table { width:100%; border-collapse:collapse; font-size:.85rem; min-width:640px; }
+    .cmp-table th, .cmp-table td { padding:.5rem .6rem; border-bottom:1px solid var(--green-100); text-align:right; }
+    .cmp-table th:first-child, .cmp-table td:first-child { text-align:left; }
+    .cmp-table thead th {
+      background:var(--green-100); color:var(--green-800); font-size:.7rem;
+      text-transform:uppercase; letter-spacing:.04em; font-weight:700;
+    }
+    .cmp-table tbody tr.current-row { background:var(--green-50); font-weight:600; }
+    .cmp-table td { font-variant-numeric:tabular-nums; }
+    .scen-name { display:flex; align-items:center; gap:.4rem; }
+    .swatch { width:11px; height:11px; border-radius:2px; flex:none; }
+    .impact-up   { color:#b91c1c; font-weight:600; }
+    .impact-down { color:#15803d; font-weight:600; }
+    .impact-flat { color:var(--text-light); }
+    .warn-cell   { color:#b45309; font-size:.78rem; }
+
+    .chart-wrap { position:relative; height:320px; }
+    @media (max-width:640px) { .chart-wrap { height:260px; } }
+
+    /* ── Schedule ── */
+    .sched-bar {
+      display:flex; justify-content:space-between; align-items:center;
+      gap:.5rem; flex-wrap:wrap;
+    }
+    .sched-bar select {
+      font-size:.8rem; padding:.25rem .4rem; border:1px solid var(--border);
+      border-radius:4px; background:#fff; font-family:inherit;
+    }
+    .sched-wrap { overflow-x:auto; max-height:460px; overflow-y:auto; }
+    .sched-table { width:100%; border-collapse:collapse; font-size:.79rem; min-width:520px; }
+    .sched-table th, .sched-table td { padding:.35rem .55rem; border-bottom:1px solid var(--green-50); text-align:right; }
+    .sched-table th:first-child, .sched-table td:first-child { text-align:center; }
+    .sched-table thead th {
+      position:sticky; top:0; background:var(--green-700); color:#fff;
+      font-size:.68rem; text-transform:uppercase; letter-spacing:.04em;
+    }
+    .sched-table td { font-variant-numeric:tabular-nums; }
+    .sched-table tbody tr:nth-child(even) { background:var(--green-50); }
+    .io-row td { color:#b45309; }
+
+    .note-list { margin:0; padding-left:1.15rem; font-size:.82rem; line-height:1.75; color:var(--text-medium); }
+    .note-list li { margin-bottom:.3rem; }
+    .note-list strong { color:var(--text-dark); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" class="active" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.loans">Loans</span>
+    &rsaquo; <span data-i18n="lrs.bread">Loan Restructure</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Print-only header -->
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="lrs.print_title">Loan Restructure Comparison</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="lrs.page_title">Loan Restructure Comparison</h2>
+    <p data-i18n="lrs.page_desc">Your lender has offered to change your loan. Compare the options side by side — a lower monthly payment usually means paying more interest overall.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── INPUTS ─────────────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header" data-i18n="lrs.card.inputs">Your Loan Today</div>
+      <div class="card-body">
+
+        <div class="currency-bar" style="margin-bottom:.85rem">
+          <span class="currency-label" data-i18n="currency.label">Currency:</span>
+          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd_alt">USD $</button>
+          <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr_alt">KHR &#6107;</button>
+          <span id="exrateGroup" style="display:none;align-items:center;gap:.35rem;margin-left:.4rem;font-size:.8rem">
+            <span style="color:var(--text-medium)" data-i18n="currency.exrate_prefix">1 USD =</span>
+            <input type="number" id="exchangeRate" value="4000" min="100" step="100"
+              style="width:74px;padding:.2rem .4rem;border:1px solid var(--border);border-radius:4px;font-size:.82rem"
+              oninput="calculate()">
+            <span style="color:var(--text-medium)" data-i18n="currency.khr_code">KHR</span>
+          </span>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lrs.input.principal">Remaining Principal</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxPrincipal">$</span>
+            <input type="number" id="principal" value="5000" min="0" step="100" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lrs.input.months">Remaining Months</label>
+          <div class="input-wrapper">
+            <input type="number" id="months" value="24" min="1" max="600" step="1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="lrs.unit.months">months</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lrs.input.rate">Current Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="rate" value="15" min="0" max="200" step="0.1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="lrs.unit.per_year">% / yr</span>
+          </div>
+        </div>
+
+        <div class="derived">
+          <span class="derived-label" data-i18n="lrs.derived.payment">Your monthly payment now</span>
+          <span class="derived-value" id="currentPayment">—</span>
+        </div>
+
+        <hr class="section-divider">
+        <div class="section-label" data-i18n="lrs.section.options">What the lender is offering</div>
+
+        <div class="input-group">
+          <label data-i18n="lrs.input.io_months">Interest-Only Months</label>
+          <div class="input-wrapper">
+            <input type="number" id="ioMonths" value="6" min="0" max="120" step="1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="lrs.unit.months">months</span>
+          </div>
+          <div class="input-hint" data-i18n="lrs.hint.io_months">Pay only interest for this many months, then go back to the normal payment.</div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lrs.input.ext_months">Extra Months Added to the Term</label>
+          <div class="input-wrapper">
+            <input type="number" id="extMonths" value="24" min="0" max="480" step="1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="lrs.unit.months">months</span>
+          </div>
+          <div class="input-hint" data-i18n="lrs.hint.ext_months">Stretching the loan lowers each payment but adds interest.</div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lrs.input.new_rate">Reduced Interest Rate</label>
+          <div class="input-wrapper">
+            <input type="number" id="newRate" value="10" min="0" max="200" step="0.1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="lrs.unit.per_year">% / yr</span>
+          </div>
+          <div class="input-hint" data-i18n="lrs.hint.new_rate">Applied together with the extra months above.</div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="lrs.input.extra">Extra Payment You Could Add</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxExtra">$</span>
+            <input type="number" id="extra" value="50" min="0" step="5" oninput="calculate()">
+          </div>
+          <div class="input-hint" data-i18n="lrs.hint.extra">Paying more each month is the only option here that saves you money.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── COMPARISON ─────────────────────────────────────────────────────── -->
+    <div>
+      <div class="card">
+        <div class="card-header dark" data-i18n="lrs.card.compare">All Options Compared</div>
+        <div class="card-body" style="padding:0">
+          <div class="cmp-wrap">
+            <table class="cmp-table">
+              <thead>
+                <tr>
+                  <th data-i18n="lrs.th.scenario">Option</th>
+                  <th data-i18n="lrs.th.term">Term</th>
+                  <th data-i18n="lrs.th.payment">Monthly Payment</th>
+                  <th data-i18n="lrs.th.total_interest">Total Interest</th>
+                  <th data-i18n="lrs.th.total_paid">Total Paid</th>
+                  <th data-i18n="lrs.th.impact">Impact on Interest</th>
+                </tr>
+              </thead>
+              <tbody id="cmpBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1.25rem">
+        <div class="card-header" data-i18n="lrs.chart.title">What You Still Owe Over Time</div>
+        <div class="card-body">
+          <div class="chart-wrap"><canvas id="balanceChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── SCHEDULE ─────────────────────────────────────────────────────────── -->
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-header sched-bar">
+      <span data-i18n="lrs.sched.title">Month-by-Month Schedule</span>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <select id="schedScenario" onchange="renderSchedule()"></select>
+        <button class="btn-secondary" id="schedToggle" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+      </div>
+    </div>
+    <div id="schedWrapper" style="display:none">
+      <div class="sched-wrap">
+        <table class="sched-table">
+          <thead>
+            <tr>
+              <th data-i18n="lrs.sched.no">No.</th>
+              <th data-i18n="lrs.sched.payment">Total Payment</th>
+              <th data-i18n="lrs.sched.principal">Principal</th>
+              <th data-i18n="lrs.sched.interest">Interest</th>
+              <th data-i18n="lrs.sched.balance">Outstanding Balance</th>
+            </tr>
+          </thead>
+          <tbody id="schedBody"></tbody>
+        </table>
+      </div>
+      <div class="input-hint" style="padding:.5rem .75rem .75rem" data-i18n="lrs.sched.note">Rows shown in amber are interest-only months — the balance does not go down.</div>
+    </div>
+  </div>
+
+  <!-- ── EXPLAINER ────────────────────────────────────────────────────────── -->
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-header" data-i18n="lrs.guide.title">How to Read This</div>
+    <div class="card-body">
+      <ul class="note-list">
+        <li data-i18n-html="lrs.guide.current"><strong>Keep current terms</strong> — nothing changes. Every other row is measured against this one.</li>
+        <li data-i18n-html="lrs.guide.io"><strong>Interest-only period</strong> — your payment drops to just the interest for a while. The balance does not fall at all during those months, so the loan takes longer and costs more.</li>
+        <li data-i18n-html="lrs.guide.ext"><strong>Longer term</strong> — the same debt spread over more months. The monthly payment drops the most here, and the total interest rises the most.</li>
+        <li data-i18n-html="lrs.guide.reduced"><strong>Lower rate + longer term</strong> — the rate falls but the term also stretches. Usually still costs more overall, because the extra months outweigh the cheaper rate.</li>
+        <li data-i18n-html="lrs.guide.extra"><strong>Pay extra each month</strong> — the only option here that reduces what you pay. The loan finishes early and interest stops sooner.</li>
+      </ul>
+      <div class="input-hint" style="margin-top:.75rem" data-i18n-html="lrs.guide.warning">⚠️ <strong>A smaller monthly payment is not the same as a cheaper loan.</strong> Compare the <em>Total Interest</em> column, not the payment.</div>
+    </div>
+  </div>
+
+  <!-- ── PRINT BAR ─────────────────────────────────────────────────────────── -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#128424; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=18"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currency   = 'USD';
+let chartInst  = null;
+let lastResults = [];
+
+const MAX_MONTHS = 600;   // matches the source spreadsheet's schedule limit
+
+const SCENARIOS = [
+  { key: 'current',  nameKey: 'lrs.scenario.current',  color: '#1f2937' },
+  { key: 'io',       nameKey: 'lrs.scenario.io',       color: '#d97706' },
+  { key: 'extended', nameKey: 'lrs.scenario.extended', color: '#7c3aed' },
+  { key: 'reduced',  nameKey: 'lrs.scenario.reduced',  color: '#0284c7' },
+  { key: 'extra',    nameKey: 'lrs.scenario.extra',    color: '#15803d' },
+];
+
+// ── Currency ──────────────────────────────────────────────────────────────────
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
+
+function setCurrency(next) {
+  if (currency === next) return;
+  const xr = getXR();
+  ['principal', 'extra'].forEach(id => {
+    const el = document.getElementById(id);
+    const v  = parseFloat(el.value) || 0;
+    el.value = next === 'KHR' ? Math.round(v * xr) : +(v / xr).toFixed(2);
+    el.step  = next === 'KHR' ? 10000 : 10;
+  });
+  currency = next;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === next));
+  const sym = next === 'KHR' ? '&#6107;' : '$';
+  ['pfxPrincipal', 'pfxExtra'].forEach(id => document.getElementById(id).innerHTML = sym);
+  document.getElementById('exrateGroup').style.display = next === 'KHR' ? 'inline-flex' : 'none';
+  calculate();
+}
+
+function fmt(v) {
+  const sym = currency === 'KHR' ? '៛' : '$';
+  const dp  = currency === 'KHR' ? 0 : 2;
+  const num = isFinite(v) ? v : 0;
+  return sym + num.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+}
+
+// ── Amortisation ──────────────────────────────────────────────────────────────
+// Level payment for `pv` over `n` months at monthly rate `r` (Excel PMT).
+function pmt(r, n, pv) {
+  if (n <= 0) return 0;
+  if (r === 0) return pv / n;
+  return pv * r / (1 - Math.pow(1 + r, -n));
+}
+
+/**
+ * Run a schedule. Mirrors the source spreadsheet row-for-row:
+ *   interest  = balance * rate
+ *   payment   = MIN(basePayment, balance + interest)   (or interest only)
+ *   principal = payment - interest
+ *   balance   = MAX(0, balance - principal)
+ */
+function runSchedule(opts) {
+  const { principal, rate, basePayment, term, ioMonths = 0, extra = 0, untilPaid = false } = opts;
+  const rows = [];
+  let bal = principal, totalInterest = 0, totalPaid = 0;
+  const limit = untilPaid ? MAX_MONTHS : Math.min(term, MAX_MONTHS);
+
+  for (let i = 1; i <= limit; i++) {
+    if (untilPaid && bal <= 0) break;
+    const interest = bal * rate;
+    let principalPart, addPay = 0, payment;
+
+    if (i <= ioMonths) {
+      payment = interest;                 // interest-only: balance untouched
+      principalPart = 0;
+    } else {
+      payment = Math.min(basePayment, bal + interest);
+      principalPart = payment - interest;
+      if (extra > 0) {
+        addPay = Math.min(extra, Math.max(0, bal - principalPart));
+        payment += addPay;
+      }
+    }
+
+    bal = Math.max(0, bal - principalPart - addPay);
+    totalInterest += interest;
+    totalPaid     += payment;
+    rows.push({ n: i, payment, principal: principalPart + addPay, interest, balance: bal, io: i <= ioMonths });
+    if (bal <= 0) break;
+  }
+
+  const paidOff = bal <= 0.005;
+  return { rows, totalInterest, totalPaid, months: rows.length, paidOff, remaining: bal };
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+function calculate() {
+  const P     = Math.max(0, parseFloat(document.getElementById('principal').value) || 0);
+  const n     = Math.max(1, Math.round(parseFloat(document.getElementById('months').value) || 0));
+  const rAnn  = Math.max(0, parseFloat(document.getElementById('rate').value) || 0) / 100;
+  const io    = Math.max(0, Math.round(parseFloat(document.getElementById('ioMonths').value) || 0));
+  const ext   = Math.max(0, Math.round(parseFloat(document.getElementById('extMonths').value) || 0));
+  const rNew  = Math.max(0, parseFloat(document.getElementById('newRate').value) || 0) / 100;
+  const extra = Math.max(0, parseFloat(document.getElementById('extra').value) || 0);
+
+  const r        = rAnn / 12;
+  const rNewMo   = rNew / 12;
+  const basePmt  = pmt(r, n, P);
+
+  document.getElementById('currentPayment').textContent = P > 0 ? fmt(basePmt) : '—';
+
+  const results = [];
+
+  results.push(Object.assign({ key: 'current', term: n, payment: basePmt },
+    runSchedule({ principal: P, rate: r, basePayment: basePmt, term: n })));
+
+  results.push(Object.assign({ key: 'io', term: n + io, payment: basePmt, ioPayment: P * r },
+    runSchedule({ principal: P, rate: r, basePayment: basePmt, term: n + io, ioMonths: io })));
+
+  const extPmt = pmt(r, n + ext, P);
+  results.push(Object.assign({ key: 'extended', term: n + ext, payment: extPmt },
+    runSchedule({ principal: P, rate: r, basePayment: extPmt, term: n + ext })));
+
+  // Reduced rate applies together with the extended term, and the schedule is
+  // run to completion so the balance actually reaches zero.
+  const redTerm = n + ext;
+  const redPmt  = pmt(rNewMo, redTerm, P);
+  results.push(Object.assign({ key: 'reduced', term: redTerm, payment: redPmt },
+    runSchedule({ principal: P, rate: rNewMo, basePayment: redPmt, term: redTerm })));
+
+  const extraRun = runSchedule({ principal: P, rate: r, basePayment: basePmt, term: MAX_MONTHS, extra, untilPaid: true });
+  results.push(Object.assign({ key: 'extra', term: extraRun.months, payment: basePmt + extra }, extraRun));
+
+  lastResults = results;
+  renderComparison(results);
+  renderChart(results);
+  buildScenarioSelect();
+  renderSchedule();
+
+  document.getElementById('printDate').textContent =
+    new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function renderComparison(results) {
+  const base = results[0].totalInterest;
+  const body = document.getElementById('cmpBody');
+  body.innerHTML = '';
+
+  results.forEach(res => {
+    const meta = SCENARIOS.find(s => s.key === res.key);
+    const tr = document.createElement('tr');
+    if (res.key === 'current') tr.className = 'current-row';
+
+    let impact;
+    if (res.key === 'current') {
+      impact = '<span class="impact-flat">' + T('lrs.impact.baseline') + '</span>';
+    } else if (base <= 0) {
+      impact = '<span class="impact-flat">—</span>';
+    } else {
+      const diff = (res.totalInterest - base) / base * 100;
+      const cls  = diff > 0.05 ? 'impact-up' : diff < -0.05 ? 'impact-down' : 'impact-flat';
+      const word = diff > 0.05 ? T('lrs.impact.more') : diff < -0.05 ? T('lrs.impact.less') : T('lrs.impact.same');
+      impact = '<span class="' + cls + '">' + Math.abs(diff).toFixed(1) + '% ' + word + '</span>';
+    }
+
+    const payCell = res.key === 'io'
+      ? fmt(res.ioPayment) + ' <span style="font-size:.72rem;color:var(--text-light)">' +
+        T('lrs.then') + ' ' + fmt(res.payment) + '</span>'
+      : fmt(res.payment);
+
+    const termCell = res.paidOff
+      ? res.months + ' ' + T('lrs.unit.months')
+      : '<span class="warn-cell">' + T('lrs.never_paid') + '</span>';
+
+    tr.innerHTML =
+      '<td><span class="scen-name"><span class="swatch" style="background:' + meta.color + '"></span>' +
+        T(meta.nameKey) + '</span></td>' +
+      '<td>' + termCell + '</td>' +
+      '<td>' + payCell + '</td>' +
+      '<td>' + (res.paidOff ? fmt(res.totalInterest) : '—') + '</td>' +
+      '<td>' + (res.paidOff ? fmt(res.totalPaid) : '—') + '</td>' +
+      '<td>' + (res.paidOff ? impact : '<span class="warn-cell">' + T('lrs.check_inputs') + '</span>') + '</td>';
+    body.appendChild(tr);
+  });
+}
+
+function renderChart(results) {
+  const maxLen = Math.max(...results.map(r => r.rows.length));
+  const labels = Array.from({ length: maxLen + 1 }, (_, i) => i === 0 ? T('lrs.chart.start') : String(i));
+
+  const datasets = results.map(res => {
+    const meta = SCENARIOS.find(s => s.key === res.key);
+    const start = res.rows.length ? res.rows[0].balance + res.rows[0].principal : 0;
+    const data = [start].concat(res.rows.map(r => r.balance));
+    return {
+      label: T(meta.nameKey),
+      data: data,
+      borderColor: meta.color,
+      backgroundColor: meta.color,
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: .15,
+      spanGaps: false
+    };
+  });
+
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(document.getElementById('balanceChart'), {
+    type: 'line',
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12, padding: 12 } },
+        tooltip: {
+          callbacks: {
+            title: c => T('lrs.chart.month') + ' ' + c[0].label,
+            label: c => '  ' + c.dataset.label + ': ' + fmt(c.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: T('lrs.chart.month'), font: { size: 10 } },
+             ticks: { maxTicksLimit: 12, font: { size: 10 } }, grid: { display: false } },
+        y: { title: { display: true, text: T('lrs.chart.balance'), font: { size: 10 } },
+             beginAtZero: true, ticks: { font: { size: 10 },
+               callback: v => currency === 'KHR' ? (v / 1000000).toFixed(1) + 'M' : '$' + v.toLocaleString('en-US') },
+             grid: { color: 'rgba(0,0,0,.05)' } }
+      }
+    }
+  });
+}
+
+// ── Schedule ──────────────────────────────────────────────────────────────────
+function buildScenarioSelect() {
+  const sel = document.getElementById('schedScenario');
+  const keep = sel.value;
+  sel.innerHTML = '';
+  SCENARIOS.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.key;
+    o.text  = T(s.nameKey);
+    sel.appendChild(o);
+  });
+  if (keep) sel.value = keep;
+}
+
+function renderSchedule() {
+  const key = document.getElementById('schedScenario').value || 'current';
+  const res = lastResults.find(r => r.key === key);
+  const body = document.getElementById('schedBody');
+  if (!body || !res) return;
+  body.innerHTML = res.rows.map(row =>
+    '<tr' + (row.io ? ' class="io-row"' : '') + '>' +
+      '<td>' + row.n + '</td>' +
+      '<td>' + fmt(row.payment) + '</td>' +
+      '<td>' + fmt(row.principal) + '</td>' +
+      '<td>' + fmt(row.interest) + '</td>' +
+      '<td>' + fmt(row.balance) + '</td>' +
+    '</tr>').join('');
+}
+
+function toggleSchedule() {
+  const wrap = document.getElementById('schedWrapper');
+  const btn  = document.getElementById('schedToggle');
+  const hidden = wrap.style.display === 'none';
+  wrap.style.display = hidden ? 'block' : 'none';
+  btn.setAttribute('data-i18n', hidden ? 'schedule.hide' : 'schedule.show');
+  btn.textContent = hidden ? T('schedule.hide') : T('schedule.show');
+  if (hidden) renderSchedule();
+}
+
+window.addEventListener('DOMContentLoaded', calculate);
+</script>
+
+</body>
+</html>

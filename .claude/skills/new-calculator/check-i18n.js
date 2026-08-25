@@ -24,7 +24,7 @@ const SKIP   = new Set(['admin.html', 'index.html']);
 const argv   = process.argv.slice(2);
 
 /* Elements whose text a reader sees. */
-const TEXT_TAGS = 'h1|h2|h3|h4|h5|label|span|div|th|td|option|button|p|legend|summary|strong|em|small|a|caption';
+const TEXT_TAGS = 'h1|h2|h3|h4|h5|h6|label|span|div|th|td|option|button|p|legend|summary|strong|em|b|i|small|a|caption|li|dt|dd|figcaption';
 
 /* Text we should not flag: symbols, bare numbers, template literals, entities. */
 function isNoise(text) {
