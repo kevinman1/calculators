@@ -106,6 +106,10 @@ function auditPage(file, strings) {
   const tRe = /\bT\(\s*['"]([^'"]+)['"]\s*\)/g;
   while ((k = tRe.exec(raw))) referenced.add(k[1]);
 
+  /* Keys built at render time — data-i18n="${item.key}" inside a template
+     literal — are resolved in the browser, not here. Skip them. */
+  for (const k of [...referenced]) if (k.includes('${')) referenced.delete(k);
+
   const missingEn = [...referenced].filter(x => strings.en[x] === undefined);
   const missingKm = [...referenced].filter(
     x => strings.en[x] !== undefined && !strings.km[x]
