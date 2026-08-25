@@ -75,6 +75,38 @@ nav a:hover, nav a.active {
 .breadcrumb a { color: rgba(255,255,255,.8); text-decoration: none; }
 .breadcrumb a:hover { color: white; }
 
+/* Header on small screens.
+   The header row is logo + title + nav, and every nav link is nowrap, so on a
+   phone the nav alone is wider than the viewport and pushes the whole page
+   sideways. Let the row wrap and give nav its own line underneath, wrapping
+   rather than scrolling so the EN / ខ្មែរ buttons stay reachable. */
+@media (max-width: 680px) {
+  .header-inner {
+    flex-wrap: wrap;
+    padding: .55rem 1rem;
+    gap: .5rem .75rem;
+    min-height: 0;
+  }
+  .header-logo { width: 38px; height: 38px; }
+  .header-title { flex: 1 1 auto; min-width: 0; }
+  .header-title h1 { font-size: 1rem; }
+  .header-title span { font-size: .66rem; }
+
+  nav {
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .2rem .1rem;
+  }
+  nav a { padding: .35rem .55rem; font-size: .8rem; }
+
+  /* the divider reads as clutter once the switcher can land on its own line */
+  .lang-switch { margin-left: auto; border-left: none; padding-left: 0; }
+
+  .breadcrumb { padding: .45rem 1rem; }
+  .container { padding: 1rem; }
+}
+
 /* ── LAYOUT ── */
 .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
 
@@ -89,6 +121,10 @@ nav a:hover, nav a.active {
   gap: 1.25rem;
   align-items: start;
 }
+/* Grid items default to min-width:auto, so a wide table inside a card sets the
+   column's minimum to the table's width and pushes the page sideways instead of
+   scrolling inside its own overflow wrapper. */
+.calc-grid > * { min-width: 0; }
 @media (max-width: 780px) { .calc-grid { grid-template-columns: 1fr; } }
 
 /* ── CARDS ── */
