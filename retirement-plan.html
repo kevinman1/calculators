@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="ret.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retirement Plan – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .currency-bar { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+    .currency-label { font-size:.8rem; color:var(--text-medium); margin-right:.15rem; }
+    .currency-btn {
+      padding:.25rem .65rem; border:1.5px solid var(--green-200); background:#fff;
+      border-radius:4px; cursor:pointer; font-size:.8rem; font-weight:600;
+      color:var(--text-medium); font-family:inherit;
+    }
+    .currency-btn.active { background:var(--green-700); color:#fff; border-color:var(--green-700); }
+
+    .phase-badge {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:1.35rem; height:1.35rem; border-radius:50%;
+      background:rgba(255,255,255,.25); font-size:.78rem; margin-right:.5rem;
+    }
+    .section-label {
+      font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+      color:var(--green-700); margin:1rem 0 .5rem;
+    }
+    .section-divider { border:none; border-top:1px solid var(--green-100); margin:1rem 0 0; }
+    .input-hint { font-size:.71rem; color:var(--text-light); margin-top:.2rem; line-height:1.5; }
+
+    .derived {
+      background:var(--green-50); border:1px solid var(--green-200); border-radius:5px;
+      padding:.55rem .7rem; margin-top:.75rem;
+      display:flex; justify-content:space-between; align-items:baseline; gap:.5rem;
+    }
+    .derived-label { font-size:.78rem; color:var(--text-medium); }
+    .derived-value { font-size:1.05rem; font-weight:700; color:var(--green-800); }
+
+    /* model switch */
+    .model-switch { display:flex; gap:.4rem; margin-bottom:.9rem; flex-wrap:wrap; }
+    .model-btn {
+      flex:1 1 9rem; padding:.5rem .7rem; border:1.5px solid var(--green-200);
+      background:#fff; border-radius:5px; cursor:pointer; font-family:inherit;
+      font-size:.82rem; font-weight:600; color:var(--text-medium); text-align:left;
+    }
+    .model-btn small { display:block; font-weight:400; font-size:.71rem; color:var(--text-light); margin-top:.1rem; }
+    .model-btn.active { border-color:var(--green-700); background:var(--green-50); color:var(--green-800); }
+    .model-btn.active small { color:var(--green-700); }
+
+    /* verdict */
+    .verdict {
+      border-radius:7px; padding:.9rem 1.1rem; margin-bottom:1.1rem;
+      display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;
+    }
+    .verdict.ok   { background:#e6f4ea; border:1.5px solid #86c79b; }
+    .verdict.warn { background:#fdecea; border:1.5px solid #e8a49c; }
+    .verdict-icon { font-size:1.6rem; line-height:1; }
+    .verdict-title { font-size:1.1rem; font-weight:800; }
+    .verdict.ok   .verdict-title { color:#1b5e37; }
+    .verdict.warn .verdict-title { color:#922b21; }
+    .verdict-sub { font-size:.86rem; color:var(--text-medium); margin-top:.15rem; }
+
+    .stat-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:.65rem; margin-bottom:1.1rem;
+    }
+    .stat-box { background:var(--green-50); border-radius:6px; padding:.6rem .8rem; text-align:center; }
+    .stat-box .s-label {
+      font-size:.68rem; color:var(--text-light); text-transform:uppercase; letter-spacing:.05em;
+    }
+    .stat-box .s-value {
+      font-size:1.05rem; font-weight:700; color:var(--green-800); margin-top:.2rem;
+      font-variant-numeric:tabular-nums;
+    }
+    .stat-box .s-sub { font-size:.68rem; color:var(--text-light); margin-top:.15rem; }
+    .stat-box.neg .s-value { color:#b91c1c; }
+
+    .chart-wrap { position:relative; height:320px; }
+    @media (max-width:640px) { .chart-wrap { height:250px; } }
+
+    .sched-bar { display:flex; justify-content:space-between; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .sched-wrap { overflow-x:auto; max-height:440px; overflow-y:auto; }
+    .sched-table { width:100%; border-collapse:collapse; font-size:.78rem; min-width:560px; }
+    .sched-table th, .sched-table td {
+      padding:.35rem .55rem; border-bottom:1px solid var(--green-50); text-align:right;
+    }
+    .sched-table th:first-child, .sched-table td:first-child { text-align:center; }
+    .sched-table thead th {
+      position:sticky; top:0; background:var(--green-700); color:#fff;
+      font-size:.67rem; text-transform:uppercase; letter-spacing:.04em;
+    }
+    .sched-table td { font-variant-numeric:tabular-nums; }
+    .sched-table tbody tr:nth-child(even) { background:var(--green-50); }
+    .broke-row td { color:#b45309; }
+    .short-row td { color:#b91c1c; font-weight:600; }
+
+    .note-list { margin:0; padding-left:1.15rem; font-size:.82rem; line-height:1.75; color:var(--text-medium); }
+    .note-list li { margin-bottom:.35rem; }
+    .note-list strong { color:var(--text-dark); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" class="active" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html" data-i18n="bread.calculators">Calculators</a>
+    &rsaquo; <span data-i18n="bread.savings">Savings</span>
+    &rsaquo; <span data-i18n="ret.bread">Retirement Plan</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="ret.print_title">Retirement Plan</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <div class="page-title">
+    <h2 data-i18n="ret.page_title">Retirement Plan</h2>
+    <p data-i18n="ret.page_desc">Two questions in one place: how much will you have saved by the time you retire, and will it last for the rest of your life?</p>
+  </div>
+
+  <div class="currency-bar" style="margin-bottom:1rem">
+    <span class="currency-label" data-i18n="currency.label">Currency:</span>
+    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd_alt">USD $</button>
+    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr_alt">KHR &#6107;</button>
+    <span id="exrateGroup" style="display:none;align-items:center;gap:.35rem;margin-left:.4rem;font-size:.8rem">
+      <span style="color:var(--text-medium)" data-i18n="currency.exrate_prefix">1 USD =</span>
+      <input type="number" id="exchangeRate" value="4000" min="100" step="100"
+        style="width:74px;padding:.2rem .4rem;border:1px solid var(--border);border-radius:4px;font-size:.82rem"
+        oninput="calculate()">
+      <span style="color:var(--text-medium)" data-i18n="currency.khr_code">KHR</span>
+    </span>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── PHASE 1: SAVING UP ───────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header">
+        <span class="phase-badge">1</span><span data-i18n="ret.card.saving">While You Are Still Working</span>
+      </div>
+      <div class="card-body">
+
+        <div class="input-group">
+          <label data-i18n="ret.input.current_age">Your Age Now</label>
+          <div class="input-wrapper">
+            <input type="number" id="currentAge" value="30" min="15" max="80" step="1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="ret.unit.years">years</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="ret.input.retire_age">Age You Want to Retire</label>
+          <div class="input-wrapper">
+            <input type="number" id="retireAge" value="60" min="30" max="90" step="1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="ret.unit.years">years</span>
+          </div>
+          <div class="input-hint" id="yearsHint"></div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="ret.input.current_savings">Money You Have Saved Already</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxSavings">$</span>
+            <input type="number" id="currentSavings" value="1000" min="0" step="100" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="ret.input.monthly_saving">Amount You Save Each Month</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxMonthly">$</span>
+            <input type="number" id="monthlySaving" value="50" min="0" step="10" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="ret.input.save_return">Interest Rate While Saving</label>
+          <div class="input-wrapper">
+            <input type="number" id="saveReturn" value="5" min="0" max="30" step="0.1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="ret.unit.per_year">% / yr</span>
+          </div>
+        </div>
+
+        <div class="derived">
+          <span class="derived-label" data-i18n="ret.derived.balance">Savings when you retire</span>
+          <span class="derived-value" id="retireBalance">—</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PHASE 2: LIVING OFF IT ───────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header dark">
+        <span class="phase-badge">2</span><span data-i18n="ret.card.spending">After You Retire</span>
+      </div>
+      <div class="card-body">
+
+        <div class="model-switch">
+          <button class="model-btn active" id="modeSimple" onclick="setModel('simple')">
+            <span data-i18n="ret.model.simple">One Savings Pot</span>
+            <small data-i18n="ret.model.simple_sub">All your money in one account</small>
+          </button>
+          <button class="model-btn" id="modeFd" onclick="setModel('fd')">
+            <span data-i18n="ret.model.fd">Two Fixed Deposits</span>
+            <small data-i18n="ret.model.fd_sub">Live on the interest first</small>
+          </button>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="ret.input.life_expectancy">Plan Until Age</label>
+          <div class="input-wrapper">
+            <input type="number" id="lifeExpectancy" value="80" min="40" max="120" step="1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="ret.unit.years">years</span>
+          </div>
+          <div class="input-hint" id="retiredHint"></div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="ret.input.monthly_spend">Money You Need Each Month</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxSpend">$</span>
+            <input type="number" id="monthlySpend" value="150" min="0" step="10" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="ret.input.inflation">Prices Go Up By</label>
+          <div class="input-wrapper">
+            <input type="number" id="inflation" value="3" min="0" max="30" step="0.1"
+              style="text-align:left;padding-left:.65rem" oninput="calculate()">
+            <span class="input-suffix" data-i18n="ret.unit.per_year">% / yr</span>
+          </div>
+          <div class="input-hint" data-i18n="ret.hint.inflation">Your monthly spending grows at this rate, so later years cost more.</div>
+        </div>
+
+        <!-- Simple model -->
+        <div id="simpleFields">
+          <div class="input-group">
+            <label data-i18n="ret.input.spend_return">Interest Rate After Retiring</label>
+            <div class="input-wrapper">
+              <input type="number" id="spendReturn" value="3" min="0" max="30" step="0.1"
+                style="text-align:left;padding-left:.65rem" oninput="calculate()">
+              <span class="input-suffix" data-i18n="ret.unit.per_year">% / yr</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fixed-deposit model -->
+        <div id="fdFields" style="display:none">
+          <hr class="section-divider">
+          <div class="section-label" data-i18n="ret.section.deposits">Your Two Fixed Deposits</div>
+          <div class="input-hint" style="margin-bottom:.6rem" data-i18n="ret.hint.fd_split">Your retirement savings are split evenly between the two. Change the amounts if you plan differently.</div>
+
+          <div class="input-group">
+            <label data-i18n="ret.input.fd1_amount">Deposit 1 Amount</label>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="pfxFd1">$</span>
+              <input type="number" id="fd1Amount" value="0" min="0" step="100" oninput="onFdEdit()">
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="ret.input.fd1_rate">Deposit 1 Interest Rate</label>
+            <div class="input-wrapper">
+              <input type="number" id="fd1Rate" value="5" min="0" max="30" step="0.1"
+                style="text-align:left;padding-left:.65rem" oninput="calculate()">
+              <span class="input-suffix" data-i18n="ret.unit.per_year">% / yr</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="ret.input.fd2_amount">Deposit 2 Amount</label>
+            <div class="input-wrapper">
+              <span class="input-prefix" id="pfxFd2">$</span>
+              <input type="number" id="fd2Amount" value="0" min="0" step="100" oninput="onFdEdit()">
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="ret.input.fd2_rate">Deposit 2 Interest Rate</label>
+            <div class="input-wrapper">
+              <input type="number" id="fd2Rate" value="5" min="0" max="30" step="0.1"
+                style="text-align:left;padding-left:.65rem" oninput="calculate()">
+              <span class="input-suffix" data-i18n="ret.unit.per_year">% / yr</span>
+            </div>
+          </div>
+          <div class="input-group">
+            <label data-i18n="ret.input.easy_rate">Rate After Breaking a Deposit</label>
+            <div class="input-wrapper">
+              <input type="number" id="easyRate" value="1" min="0" max="30" step="0.1"
+                style="text-align:left;padding-left:.65rem" oninput="calculate()">
+              <span class="input-suffix" data-i18n="ret.unit.per_year">% / yr</span>
+            </div>
+            <div class="input-hint" data-i18n="ret.hint.easy_rate">If you take money out early, the bank usually drops you to an ordinary savings rate.</div>
+          </div>
+          <button class="btn-secondary" onclick="resplitDeposits()" style="margin-top:.4rem" data-i18n="ret.btn.resplit">↺ Split evenly again</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end calc-grid -->
+
+  <!-- ── RESULTS ──────────────────────────────────────────────────────────── -->
+  <div id="verdictBox" class="verdict ok" style="margin-top:1.25rem">
+    <span class="verdict-icon" id="verdictIcon">✅</span>
+    <div>
+      <div class="verdict-title" id="verdictTitle" data-i18n="ret.verdict.enough">Your savings last</div>
+      <div class="verdict-sub" id="verdictSub">—</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="s-label" data-i18n="ret.stat.balance">Savings at Retirement</div>
+      <div class="s-value" id="statBalance">—</div>
+      <div class="s-sub" id="statBalanceSub">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="s-label" data-i18n="ret.stat.contributed">You Put In</div>
+      <div class="s-value" id="statContrib">—</div>
+      <div class="s-sub" data-i18n="ret.stat.contributed_sub">your own money</div>
+    </div>
+    <div class="stat-box">
+      <div class="s-label" data-i18n="ret.stat.interest">Bank Interest</div>
+      <div class="s-value" id="statInterest">—</div>
+      <div class="s-sub" data-i18n="ret.stat.interest_sub">earned while saving</div>
+    </div>
+    <div class="stat-box">
+      <div class="s-label" data-i18n="ret.stat.withdrawn">You Take Out</div>
+      <div class="s-value" id="statWithdrawn">—</div>
+      <div class="s-sub" data-i18n="ret.stat.withdrawn_sub">across retirement</div>
+    </div>
+    <div class="stat-box" id="statLeftBox">
+      <div class="s-label" data-i18n="ret.stat.left">Left at the End</div>
+      <div class="s-value" id="statLeft">—</div>
+      <div class="s-sub" id="statLeftSub">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" data-i18n="ret.chart.title">Your Money Over a Lifetime</div>
+    <div class="card-body">
+      <div class="input-hint" style="margin-bottom:.4rem" data-i18n="ret.chart.note">The line rises while you are saving, then falls once you retire and start spending.</div>
+      <div class="chart-wrap"><canvas id="retChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-header sched-bar">
+      <span data-i18n="ret.sched.title">Year-by-Year Detail</span>
+      <button class="btn-secondary" id="schedToggle" onclick="toggleSchedule()" data-i18n="schedule.show">Show Schedule</button>
+    </div>
+    <div id="schedWrapper" style="display:none">
+      <div class="sched-wrap">
+        <table class="sched-table">
+          <thead><tr id="schedHead"></tr></thead>
+          <tbody id="schedBody"></tbody>
+        </table>
+      </div>
+      <div class="input-hint" style="padding:.5rem .75rem .75rem" id="schedNote"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.25rem">
+    <div class="card-header" data-i18n="ret.guide.title">How This Works</div>
+    <div class="card-body">
+      <ul class="note-list">
+        <li data-i18n-html="ret.guide.phase1"><strong>While you are working</strong> — each month the bank adds interest to your balance, then you add your saving on top. Small amounts add up over many years.</li>
+        <li data-i18n-html="ret.guide.phase2"><strong>After you retire</strong> — you stop adding money and start taking it out. Your spending grows every year because prices rise.</li>
+        <li data-i18n-html="ret.guide.simple"><strong>One savings pot</strong> — all your money sits in one account earning interest, and you withdraw what you need each month.</li>
+        <li data-i18n-html="ret.guide.fd"><strong>Two fixed deposits</strong> — you live on the interest for as long as it covers your spending. Only when it falls short do you break into the first deposit, and the bank then pays you a lower rate on it.</li>
+      </ul>
+      <div class="input-hint" style="margin-top:.75rem" data-i18n-html="ret.guide.warning">⚠️ <strong>This is an estimate, not a promise.</strong> Interest rates and prices change. Review your plan every year rather than trusting one number.</div>
+    </div>
+  </div>
+
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">
+      Click <strong>Print / Save as PDF</strong> to export results.
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      &#128424; <span data-i18n="print.btn">Print / Save as PDF</span>
+    </button>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=20"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currency  = 'USD';
+let model     = 'simple';
+let chartInst = null;
+let fdEdited  = false;     // once the user edits a deposit, stop auto-splitting
+let lastRun   = null;
+
+// ── Currency ──────────────────────────────────────────────────────────────────
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
+
+function setCurrency(next) {
+  if (currency === next) return;
+  const xr = getXR();
+  ['currentSavings', 'monthlySaving', 'monthlySpend', 'fd1Amount', 'fd2Amount'].forEach(id => {
+    const el = document.getElementById(id);
+    const v  = parseFloat(el.value) || 0;
+    el.value = next === 'KHR' ? Math.round(v * xr) : +(v / xr).toFixed(2);
+    el.step  = next === 'KHR' ? 10000 : 10;
+  });
+  currency = next;
+  document.querySelectorAll('.currency-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.currency === next));
+  const sym = next === 'KHR' ? '&#6107;' : '$';
+  ['pfxSavings', 'pfxMonthly', 'pfxSpend', 'pfxFd1', 'pfxFd2']
+    .forEach(id => document.getElementById(id).innerHTML = sym);
+  document.getElementById('exrateGroup').style.display = next === 'KHR' ? 'inline-flex' : 'none';
+  calculate();
+}
+
+function fmt(v) {
+  const sym = currency === 'KHR' ? '៛' : '$';
+  const dp  = currency === 'KHR' ? 0 : 2;
+  const n   = isFinite(v) ? v : 0;
+  return sym + n.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+}
+function fmt0(v) {
+  const sym = currency === 'KHR' ? '៛' : '$';
+  return sym + Math.round(isFinite(v) ? v : 0).toLocaleString('en-US');
+}
+
+// ── Model switch ──────────────────────────────────────────────────────────────
+function setModel(m) {
+  model = m;
+  document.getElementById('modeSimple').classList.toggle('active', m === 'simple');
+  document.getElementById('modeFd').classList.toggle('active', m === 'fd');
+  document.getElementById('simpleFields').style.display = m === 'simple' ? '' : 'none';
+  document.getElementById('fdFields').style.display     = m === 'fd' ? '' : 'none';
+  calculate();
+}
+function onFdEdit() { fdEdited = true; calculate(); }
+function resplitDeposits() { fdEdited = false; calculate(); }
+
+// ── Phase 1: saving up ────────────────────────────────────────────────────────
+// Matches both workbooks: interest is applied to the opening balance, then the
+// month's contribution is added on top.
+function accumulate(start, monthly, annualRate, months) {
+  const rows = [];
+  let bal = start, contributions = 0, interest = 0;
+  for (let i = 1; i <= months; i++) {
+    const int = bal * (annualRate / 12);
+    bal = bal + int + monthly;
+    contributions += monthly;
+    interest += int;
+    rows.push({ i, balance: bal, added: monthly, interest: int });
+  }
+  return { rows, balance: bal, contributions, interest };
+}
+
+// ── Phase 2a: one pot ─────────────────────────────────────────────────────────
+// Withdraw the month's spending, then the remainder earns interest.
+function drawdownSimple(start, annualReturn, spend0, inflation, months) {
+  const rows = [];
+  let bal = start, spend = spend0, withdrawn = 0, ranOut = null;
+  for (let i = 1; i <= months; i++) {
+    if (i > 1) spend = spend * (1 + inflation / 12);
+    const taken = Math.min(spend, Math.max(0, bal));
+    withdrawn += taken;
+    bal = (bal - taken) * (1 + annualReturn / 12);
+    if (bal <= 0 && ranOut === null) { bal = 0; ranOut = i; }
+    rows.push({ i, spend: taken, balance: bal, short: taken < spend - 0.005 });
+  }
+  return { rows, final: bal, withdrawn, ranOut };
+}
+
+// ── Phase 2b: two fixed deposits ──────────────────────────────────────────────
+// From the Master plan workbook: live on the interest; draw principal only when
+// interest falls short, and a broken deposit drops to the easy-savings rate.
+function drawdownFd(o) {
+  const { fd1, fd1Rate, fd2, fd2Rate, easyRate, spend0, inflation, months } = o;
+  const rows = [];
+  let b1 = fd1, b2 = fd2, spend = spend0, s1 = 0, s2 = 0;
+  let withdrawn = 0, unmetTotal = 0, brokeAt = null, ranOut = null;
+
+  for (let i = 1; i <= months; i++) {
+    if (i > 1) spend = spend * (1 + inflation / 12);
+    const int1 = b1 * (s1 === 1 ? easyRate : fd1Rate) / 12;
+    const int2 = b2 * (s2 === 1 ? easyRate : fd2Rate) / 12;
+    const bothInt = int1 + int2;
+
+    const newS1 = (s1 === 1 || spend > bothInt) ? 1 : 0;
+    const newS2 = (s2 === 1 || Math.max(spend - bothInt - b1, 0) > 0) ? 1 : 0;
+
+    const draw1 = Math.min(Math.max(spend - bothInt, 0), b1);
+    const draw2 = Math.min(Math.max(spend - bothInt - b1, 0), b2);
+    const unmet = Math.max(spend - bothInt - b1 - b2, 0);
+
+    b1 -= draw1; b2 -= draw2;
+    withdrawn  += Math.min(spend, bothInt + draw1 + draw2);
+    unmetTotal += unmet;
+
+    if (newS1 === 1 && brokeAt === null) brokeAt = i;
+    if (unmet > 0.005 && ranOut === null) ranOut = i;
+
+    rows.push({ i, spend, interest: bothInt, balance: b1 + b2, fd1: b1, fd2: b2,
+                broke: newS1 === 1, short: unmet > 0.005 });
+    s1 = newS1; s2 = newS2;
+  }
+  return { rows, final: b1 + b2, withdrawn, unmetTotal, brokeAt, ranOut };
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+function calculate() {
+  const ageNow   = Math.max(1, Math.round(+document.getElementById('currentAge').value || 0));
+  const ageRet   = Math.max(ageNow + 1, Math.round(+document.getElementById('retireAge').value || 0));
+  const ageEnd   = Math.max(ageRet + 1, Math.round(+document.getElementById('lifeExpectancy').value || 0));
+  const start    = Math.max(0, +document.getElementById('currentSavings').value || 0);
+  const monthly  = Math.max(0, +document.getElementById('monthlySaving').value || 0);
+  const saveRate = Math.max(0, +document.getElementById('saveReturn').value || 0) / 100;
+  const spend0   = Math.max(0, +document.getElementById('monthlySpend').value || 0);
+  const infl     = Math.max(0, +document.getElementById('inflation').value || 0) / 100;
+
+  const saveYears  = ageRet - ageNow;
+  const saveMonths = saveYears * 12;
+  const retYears   = ageEnd - ageRet;
+  const retMonths  = retYears * 12;
+
+  document.getElementById('yearsHint').textContent =
+    T('ret.hint.years_until').replace('{years}', saveYears);
+  document.getElementById('retiredHint').textContent =
+    T('ret.hint.years_retired').replace('{years}', retYears);
+
+  const acc = accumulate(start, monthly, saveRate, saveMonths);
+  document.getElementById('retireBalance').textContent = fmt0(acc.balance);
+
+  // Split the retirement pot across the two deposits until the user edits them
+  if (!fdEdited) {
+    const half = acc.balance / 2;
+    document.getElementById('fd1Amount').value = Math.round(half * 100) / 100;
+    document.getElementById('fd2Amount').value = Math.round((acc.balance - half) * 100) / 100;
+  }
+
+  let draw;
+  if (model === 'simple') {
+    const spendRate = Math.max(0, +document.getElementById('spendReturn').value || 0) / 100;
+    draw = drawdownSimple(acc.balance, spendRate, spend0, infl, retMonths);
+  } else {
+    draw = drawdownFd({
+      fd1: Math.max(0, +document.getElementById('fd1Amount').value || 0),
+      fd2: Math.max(0, +document.getElementById('fd2Amount').value || 0),
+      fd1Rate:  Math.max(0, +document.getElementById('fd1Rate').value || 0) / 100,
+      fd2Rate:  Math.max(0, +document.getElementById('fd2Rate').value || 0) / 100,
+      easyRate: Math.max(0, +document.getElementById('easyRate').value || 0) / 100,
+      spend0: spend0, inflation: infl, months: retMonths
+    });
+  }
+
+  lastRun = { acc, draw, ageNow, ageRet, ageEnd, saveMonths, retMonths };
+
+  renderVerdict(draw, ageRet, ageEnd);
+  renderStats(acc, draw);
+  renderChart(acc, draw, ageNow, ageRet);
+  renderSchedule();
+
+  document.getElementById('printDate').textContent =
+    new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function renderVerdict(draw, ageRet, ageEnd) {
+  const box   = document.getElementById('verdictBox');
+  const icon  = document.getElementById('verdictIcon');
+  const title = document.getElementById('verdictTitle');
+  const sub   = document.getElementById('verdictSub');
+
+  if (draw.ranOut === null) {
+    box.className = 'verdict ok';
+    icon.textContent = '✅';
+    title.textContent = T('ret.verdict.enough');
+    sub.textContent = T('ret.verdict.enough_sub')
+      .replace('{age}', ageEnd)
+      .replace('{amount}', fmt0(draw.final));
+  } else {
+    box.className = 'verdict warn';
+    icon.textContent = '⚠️';
+    const ageOut = ageRet + Math.floor((draw.ranOut - 1) / 12);
+    title.textContent = T('ret.verdict.short');
+    sub.textContent = T('ret.verdict.short_sub')
+      .replace('{age}', ageOut)
+      .replace('{years}', Math.max(0, ageEnd - ageOut));
+  }
+}
+
+function renderStats(acc, draw) {
+  document.getElementById('statBalance').textContent    = fmt0(acc.balance);
+  document.getElementById('statBalanceSub').textContent = T('ret.stat.balance_sub');
+  document.getElementById('statContrib').textContent    = fmt0(acc.contributions + (+document.getElementById('currentSavings').value || 0));
+  document.getElementById('statInterest').textContent   = fmt0(acc.interest);
+  document.getElementById('statWithdrawn').textContent  = fmt0(draw.withdrawn);
+  document.getElementById('statLeft').textContent       = fmt0(draw.final);
+  document.getElementById('statLeftBox').classList.toggle('neg', draw.ranOut !== null);
+  document.getElementById('statLeftSub').textContent =
+    draw.ranOut === null ? T('ret.stat.left_ok') : T('ret.stat.left_none');
+}
+
+function renderChart(acc, draw, ageNow, ageRet) {
+  // One line across the whole lifetime, sampled yearly
+  const labels = [], data = [];
+  labels.push(String(ageNow));
+  data.push(+document.getElementById('currentSavings').value || 0);
+  for (let i = 12; i <= acc.rows.length; i += 12) {
+    labels.push(String(ageNow + i / 12));
+    data.push(acc.rows[i - 1].balance);
+  }
+  for (let i = 12; i <= draw.rows.length; i += 12) {
+    labels.push(String(ageRet + i / 12));
+    data.push(draw.rows[i - 1].balance);
+  }
+
+  const retireIdx = acc.rows.length / 12;
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(document.getElementById('retChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: T('ret.chart.series'),
+        data: data,
+        borderColor: '#2d5a1b',
+        backgroundColor: 'rgba(45,90,27,.08)',
+        borderWidth: 2, pointRadius: 0, fill: true, tension: .15,
+        segment: { borderColor: c => c.p0DataIndex >= retireIdx ? '#b45309' : '#2d5a1b' }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: c => T('ret.chart.age') + ' ' + c[0].label,
+            label: c => '  ' + fmt0(c.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: T('ret.chart.age'), font: { size: 10 } },
+             ticks: { maxTicksLimit: 12, font: { size: 10 } }, grid: { display: false } },
+        y: { beginAtZero: true,
+             title: { display: true, text: T('ret.chart.balance'), font: { size: 10 } },
+             ticks: { font: { size: 10 },
+               callback: v => currency === 'KHR' ? (v / 1000000).toFixed(1) + 'M' : '$' + v.toLocaleString('en-US') },
+             grid: { color: 'rgba(0,0,0,.05)' } }
+      }
+    }
+  });
+}
+
+// ── Schedule ──────────────────────────────────────────────────────────────────
+function renderSchedule() {
+  if (!lastRun) return;
+  const head = document.getElementById('schedHead');
+  const body = document.getElementById('schedBody');
+  const note = document.getElementById('schedNote');
+  if (!head || !body) return;
+
+  const { acc, draw, ageNow, ageRet } = lastRun;
+  const isFd = model === 'fd';
+
+  head.innerHTML =
+    '<th>' + T('ret.sched.age') + '</th>' +
+    '<th>' + T('ret.sched.phase') + '</th>' +
+    '<th>' + T('ret.sched.in_out') + '</th>' +
+    (isFd ? '<th>' + T('ret.sched.interest') + '</th>' : '') +
+    '<th>' + T('ret.sched.balance') + '</th>';
+
+  const out = [];
+  for (let i = 12; i <= acc.rows.length; i += 12) {
+    out.push('<tr><td>' + (ageNow + i / 12) + '</td>' +
+      '<td>' + T('ret.sched.saving') + '</td>' +
+      '<td>+' + fmt0(acc.rows[i - 1].added * 12) + '</td>' +
+      (isFd ? '<td>—</td>' : '') +
+      '<td>' + fmt0(acc.rows[i - 1].balance) + '</td></tr>');
+  }
+  for (let i = 12; i <= draw.rows.length; i += 12) {
+    const r = draw.rows[i - 1];
+    const yearSpend = draw.rows.slice(Math.max(0, i - 12), i).reduce((s, x) => s + x.spend, 0);
+    const yearInt   = isFd ? draw.rows.slice(Math.max(0, i - 12), i).reduce((s, x) => s + x.interest, 0) : 0;
+    const cls = r.short ? ' class="short-row"' : (isFd && r.broke ? ' class="broke-row"' : '');
+    out.push('<tr' + cls + '><td>' + (ageRet + i / 12) + '</td>' +
+      '<td>' + T('ret.sched.retired') + '</td>' +
+      '<td>−' + fmt0(yearSpend) + '</td>' +
+      (isFd ? '<td>' + fmt0(yearInt) + '</td>' : '') +
+      '<td>' + fmt0(r.balance) + '</td></tr>');
+  }
+  body.innerHTML = out.join('');
+  note.textContent = isFd ? T('ret.sched.note_fd') : T('ret.sched.note_simple');
+}
+
+function toggleSchedule() {
+  const wrap = document.getElementById('schedWrapper');
+  const btn  = document.getElementById('schedToggle');
+  const hidden = wrap.style.display === 'none';
+  wrap.style.display = hidden ? 'block' : 'none';
+  btn.setAttribute('data-i18n', hidden ? 'schedule.hide' : 'schedule.show');
+  btn.textContent = hidden ? T('schedule.hide') : T('schedule.show');
+  if (hidden) renderSchedule();
+}
+
+window.addEventListener('DOMContentLoaded', calculate);
+</script>
+
+</body>
+</html>
