@@ -147,7 +147,7 @@
       &rsaquo; <span data-i18n="calc.rent_vs_buy.name">Renting vs. Financing</span>
     </div>
     <h2 data-i18n="calc.rent_vs_buy.name">Renting vs. Financing</h2>
-    <p>Compare the true long-term cost of buying a home versus renting — including mortgage, taxes, maintenance, and the opportunity cost of your down payment.</p>
+    <p data-i18n="rvb.page_desc">Compare the true long-term cost of buying a home versus renting — including mortgage, taxes, maintenance, and the opportunity cost of your down payment.</p>
   </div>
 </div>
 
@@ -155,14 +155,14 @@
 
   <!-- ── CURRENCY TOGGLE ── -->
   <div class="currency-bar" style="margin-bottom:1rem">
-    <span class="currency-label">Currency:</span>
-    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">USD $</button>
-    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')">KHR &#6107;</button>
+    <span class="currency-label" data-i18n="currency.label">Currency:</span>
+    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd_alt">USD $</button>
+    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr_alt">KHR &#6107;</button>
     <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
       <span style="color:var(--text-medium)" data-i18n="loan.exrate">1 USD =</span>
       <input type="number" id="exchangeRate" value="4000" min="100" step="100"
         style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem">
-      <span style="color:var(--text-medium)">KHR</span>
+      <span style="color:var(--text-medium)" data-i18n="currency.khr_code">KHR</span>
     </span>
   </div>
 
@@ -171,11 +171,11 @@
 
     <!-- BUY SIDE -->
     <div class="card">
-      <div class="card-header">🏠 Home Purchase</div>
+      <div class="card-header" data-i18n="rvb.card.buy">🏠 Home Purchase</div>
       <div class="card-body">
 
         <div class="input-group">
-          <label>Home Price</label>
+          <label data-i18n="rvb.input.price">Home Price</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfx1">$</span>
             <input type="number" id="homePrice" value="500000" min="0" step="1000">
@@ -183,92 +183,92 @@
         </div>
 
         <div class="input-group">
-          <label>Down Payment</label>
+          <label data-i18n="rvb.input.down">Down Payment</label>
           <div class="input-wrapper">
             <input type="number" id="downPct" value="10" min="1" max="100" step="0.5">
-            <span class="input-suffix">%</span>
+            <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
           </div>
         </div>
         <div class="input-hint" id="downAmtHint">= $50,000</div>
 
         <div class="input-group">
-          <label>Interest Rate</label>
+          <label data-i18n="rvb.input.rate">Interest Rate</label>
           <div class="input-wrapper">
             <input type="number" id="interestRate" value="7.5" min="0.1" max="50" step="0.1">
-            <span class="input-suffix">% / yr</span>
+            <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Loan Term</label>
+          <label data-i18n="rvb.input.term">Loan Term</label>
           <div class="input-wrapper">
             <input type="number" id="loanTerm" value="25" min="1" max="30" step="1">
-            <span class="input-suffix">yrs (max 30)</span>
+            <span class="input-suffix" data-i18n="rvb.unit.yrs_max">yrs (max 30)</span>
           </div>
         </div>
 
         <hr class="section-divider">
-        <div class="section-label">Annual Costs</div>
+        <div class="section-label" data-i18n="rvb.section.annual">Annual Costs</div>
 
         <div class="input-group">
-          <label>Buying Closing Costs</label>
+          <label data-i18n="rvb.input.buy_closing">Buying Closing Costs</label>
           <div class="input-wrapper">
             <input type="number" id="buyClosing" value="2" min="0" max="20" step="0.1">
-            <span class="input-suffix">%</span>
+            <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
           </div>
         </div>
-        <div class="input-hint">Financed into the loan</div>
+        <div class="input-hint" data-i18n="rvb.hint.financed">Financed into the loan</div>
 
         <div class="input-group">
-          <label>Property Tax</label>
+          <label data-i18n="rvb.input.property_tax">Property Tax</label>
           <div class="input-wrapper">
             <input type="number" id="propTax" value="1.5" min="0" max="10" step="0.1">
-            <span class="input-suffix">% / yr</span>
+            <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Home Insurance</label>
+          <label data-i18n="rvb.input.home_ins">Home Insurance</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfx2">$</span>
             <input type="number" id="homeIns" value="2500" min="0" step="100">
-            <span class="input-suffix">/ yr</span>
+            <span class="input-suffix" data-i18n="rvb.unit.per_yr">/ yr</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label>HOA Fee</label>
+          <label data-i18n="rvb.input.hoa">HOA Fee</label>
           <div class="input-wrapper">
             <span class="input-prefix" id="pfx3">$</span>
             <input type="number" id="hoaFee" value="0" min="0" step="100">
-            <span class="input-suffix">/ yr</span>
+            <span class="input-suffix" data-i18n="rvb.unit.per_yr">/ yr</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Maintenance Cost</label>
+          <label data-i18n="rvb.input.maintenance">Maintenance Cost</label>
           <div class="input-wrapper">
             <input type="number" id="maintCost" value="2" min="0" max="20" step="0.1">
-            <span class="input-suffix">% / yr</span>
+            <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
           </div>
         </div>
 
         <hr class="section-divider">
-        <div class="section-label">Sale</div>
+        <div class="section-label" data-i18n="rvb.section.sale">Sale</div>
 
         <div class="input-group">
-          <label>Home Value Appreciation</label>
+          <label data-i18n="rvb.input.appreciation">Home Value Appreciation</label>
           <div class="input-wrapper">
             <input type="number" id="appreciation" value="3" min="0" max="30" step="0.1">
-            <span class="input-suffix">% / yr</span>
+            <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
           </div>
         </div>
 
         <div class="input-group">
-          <label>Selling Closing Costs</label>
+          <label data-i18n="rvb.input.sell_closing">Selling Closing Costs</label>
           <div class="input-wrapper">
             <input type="number" id="sellClosing" value="7" min="0" max="20" step="0.1">
-            <span class="input-suffix">%</span>
+            <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
           </div>
         </div>
 
@@ -278,11 +278,11 @@
     <!-- RENT SIDE + SHARED -->
     <div>
       <div class="card" style="margin-bottom:1rem">
-        <div class="card-header">🏘 Renting</div>
+        <div class="card-header" data-i18n="rvb.card.rent">🏘 Renting</div>
         <div class="card-body">
 
           <div class="input-group">
-            <label>Monthly Rent</label>
+            <label data-i18n="rvb.input.rent">Monthly Rent</label>
             <div class="input-wrapper">
               <span class="input-prefix" id="pfx4">$</span>
               <input type="number" id="monthlyRent" value="2000" min="0" step="50">
@@ -290,24 +290,24 @@
           </div>
 
           <div class="input-group">
-            <label>Rent Increase</label>
+            <label data-i18n="rvb.input.rent_increase">Rent Increase</label>
             <div class="input-wrapper">
               <input type="number" id="rentIncrease" value="3" min="0" max="30" step="0.1">
-              <span class="input-suffix">% / yr</span>
+              <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
             </div>
           </div>
 
           <div class="input-group">
-            <label>Renter's Insurance</label>
+            <label data-i18n="rvb.input.renter_ins">Renter's Insurance</label>
             <div class="input-wrapper">
               <span class="input-prefix" id="pfx5">$</span>
               <input type="number" id="rentersIns" value="15" min="0" step="5">
-              <span class="input-suffix">/ mo</span>
+              <span class="input-suffix" data-i18n="rvb.unit.per_mo">/ mo</span>
             </div>
           </div>
 
           <div class="input-group">
-            <label>Security Deposit</label>
+            <label data-i18n="rvb.input.deposit">Security Deposit</label>
             <div class="input-wrapper">
               <span class="input-prefix" id="pfx6">$</span>
               <input type="number" id="secDeposit" value="4000" min="0" step="100">
@@ -315,7 +315,7 @@
           </div>
 
           <div class="input-group">
-            <label>Other Upfront Costs</label>
+            <label data-i18n="rvb.input.upfront">Other Upfront Costs</label>
             <div class="input-wrapper">
               <span class="input-prefix" id="pfx7">$</span>
               <input type="number" id="upfrontCost" value="100" min="0" step="50">
@@ -326,17 +326,17 @@
       </div>
 
       <div class="card">
-        <div class="card-header">📈 Your Investment Return</div>
+        <div class="card-header" data-i18n="rvb.card.invest">📈 Your Investment Return</div>
         <div class="card-body">
 
           <div class="input-group">
-            <label>Average Investment Return</label>
+            <label data-i18n="rvb.input.return">Average Investment Return</label>
             <div class="input-wrapper">
               <input type="number" id="investReturn" value="3" min="0" max="30" step="0.1">
-              <span class="input-suffix">% / yr</span>
+              <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
             </div>
           </div>
-          <div class="input-hint">What the down payment could earn if invested elsewhere (e.g., savings account, bonds).</div>
+          <div class="input-hint" data-i18n="rvb.hint.return">What the down payment could earn if invested elsewhere (e.g., savings account, bonds).</div>
 
         </div>
       </div>
@@ -351,7 +351,7 @@
     <div class="winner-banner" id="winnerBanner">
       <div class="winner-icon" id="winnerIcon">🏆</div>
       <div>
-        <div class="winner-label">Better Option</div>
+        <div class="winner-label" data-i18n="rvb.winner.label">Better Option</div>
         <div class="winner-title" id="winnerTitle">—</div>
         <div class="winner-saving" id="winnerSaving">—</div>
       </div>
@@ -360,50 +360,50 @@
     <!-- Net cost cards -->
     <div class="cost-cards">
       <div class="cost-card" id="buyCostCard">
-        <div class="cost-card-label">🏠 Net Cost of Buying</div>
+        <div class="cost-card-label" data-i18n="rvb.cost.buy">🏠 Net Cost of Buying</div>
         <div class="cost-card-value buy" id="r-buyCost">—</div>
-        <div class="cost-card-sub" id="r-buySub">after home sale proceeds</div>
+        <div class="cost-card-sub" id="r-buySub" data-i18n="rvb.cost.buy_sub">after home sale proceeds</div>
       </div>
       <div class="cost-card" id="rentCostCard">
-        <div class="cost-card-label">🏘 Net Cost of Renting</div>
+        <div class="cost-card-label" data-i18n="rvb.cost.rent">🏘 Net Cost of Renting</div>
         <div class="cost-card-value rent" id="r-rentCost">—</div>
-        <div class="cost-card-sub" id="r-rentSub">deposit returned at end</div>
+        <div class="cost-card-sub" id="r-rentSub" data-i18n="rvb.cost.rent_sub">deposit returned at end</div>
       </div>
     </div>
 
     <!-- Key stats -->
     <div class="key-stats">
       <div class="stat-item">
-        <div class="s-label">Monthly Mortgage</div>
+        <div class="s-label" data-i18n="rvb.stat.mortgage">Monthly Mortgage</div>
         <div class="s-value" id="r-monthlyMortgage">—</div>
       </div>
       <div class="stat-item">
-        <div class="s-label">Down Payment</div>
+        <div class="s-label" data-i18n="rvb.stat.down">Down Payment</div>
         <div class="s-value" id="r-downPmt">—</div>
       </div>
       <div class="stat-item">
-        <div class="s-label">Final Home Value</div>
+        <div class="s-label" data-i18n="rvb.stat.final_value">Final Home Value</div>
         <div class="s-value" id="r-finalHomeVal">—</div>
       </div>
       <div class="stat-item">
-        <div class="s-label">Opp. Cost of Down Pmt</div>
+        <div class="s-label" data-i18n="rvb.stat.opp_cost">Opp. Cost of Down Pmt</div>
         <div class="s-value" id="r-oppCost">—</div>
       </div>
       <div class="stat-item">
-        <div class="s-label">Total Rent Paid</div>
+        <div class="s-label" data-i18n="rvb.stat.total_rent">Total Rent Paid</div>
         <div class="s-value" id="r-totalRent">—</div>
       </div>
       <div class="stat-item">
-        <div class="s-label">Crossover Year</div>
+        <div class="s-label" data-i18n="rvb.stat.crossover">Crossover Year</div>
         <div class="s-value" id="r-crossover">—</div>
       </div>
     </div>
 
     <!-- Chart -->
     <div class="card" style="margin-bottom:1.25rem">
-      <div class="card-header">Cumulative Net Cost Over Time</div>
+      <div class="card-header" data-i18n="rvb.chart.title">Cumulative Net Cost Over Time</div>
       <div class="card-body" style="padding:.5rem 1rem .75rem">
-        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.4rem">
+        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.4rem" data-i18n="rvb.chart.note">
           Net cost = total money spent minus home equity (buying) or cumulative rent (renting). Lower is better.
         </div>
         <div class="chart-wrap">
@@ -416,25 +416,25 @@
     <div class="card">
       <div class="card-body" style="padding:.6rem .75rem .75rem">
         <div class="table-toggle-bar" onclick="toggleTable()">
-          <div class="section-title" style="margin:0;border:0;padding:0">Year-by-Year Summary</div>
-          <span class="table-toggle-btn" id="tableToggleBtn">▼ Show Table</span>
+          <div class="section-title" style="margin:0;border:0;padding:0" data-i18n="rvb.table.title">Year-by-Year Summary</div>
+          <span class="table-toggle-btn" id="tableToggleBtn" data-i18n="rvb.table.show">▼ Show Table</span>
         </div>
         <div id="tableWrap" style="display:none">
           <div class="year-table-wrap" style="margin-top:.65rem">
             <table class="year-table" id="yearTable">
               <thead>
                 <tr>
-                  <th rowspan="2">Year</th>
-                  <th colspan="4" style="text-align:center;border-bottom:1px solid #4d7c64;background:#1a5c38">🏠 Buying</th>
-                  <th colspan="2" style="text-align:center;border-bottom:1px solid #3b72c4;background:#1e3a8a">🏘 Renting</th>
+                  <th rowspan="2" data-i18n="rvb.th.year">Year</th>
+                  <th colspan="4" style="text-align:center;border-bottom:1px solid #4d7c64;background:#1a5c38" data-i18n="rvb.th.buying">🏠 Buying</th>
+                  <th colspan="2" style="text-align:center;border-bottom:1px solid #3b72c4;background:#1e3a8a" data-i18n="rvb.th.renting">🏘 Renting</th>
                 </tr>
                 <tr>
-                  <th class="col-group-buy">Annual Cost</th>
-                  <th>Cumulative</th>
-                  <th>Home Equity</th>
-                  <th>Net Position</th>
-                  <th class="col-group-rent">Annual Cost</th>
-                  <th>Cumulative</th>
+                  <th class="col-group-buy" data-i18n="rvb.th.annual_cost">Annual Cost</th>
+                  <th data-i18n="rvb.th.cumulative">Cumulative</th>
+                  <th data-i18n="rvb.th.equity">Home Equity</th>
+                  <th data-i18n="rvb.th.net">Net Position</th>
+                  <th class="col-group-rent" data-i18n="rvb.th.annual_cost">Annual Cost</th>
+                  <th data-i18n="rvb.th.cumulative">Cumulative</th>
                 </tr>
               </thead>
               <tbody id="yearTableBody"></tbody>
@@ -446,13 +446,13 @@
 
     <!-- Notes -->
     <div class="card" style="margin-top:1.25rem">
-      <div class="card-header">How This Calculator Works</div>
+      <div class="card-header" data-i18n="rvb.guide.title">How This Calculator Works</div>
       <div class="card-body" style="font-size:.82rem;color:var(--text-medium);line-height:1.65">
-        <p><strong>Buying costs</strong> include: mortgage payments, property tax (grows with home value), home insurance &amp; maintenance (grow with appreciation), HOA fees, and the <em>opportunity cost</em> of your down payment — what it could have earned if invested at your assumed return rate.</p>
-        <p style="margin-top:.6rem"><strong>Selling costs</strong> (agent fees, transfer tax, etc.) are deducted from the final home value in the net cost calculation.</p>
-        <p style="margin-top:.6rem"><strong>Renting costs</strong> include monthly rent (growing at your rent-increase rate), renter's insurance, and upfront costs. The security deposit is returned at the end of the term.</p>
-        <p style="margin-top:.6rem"><strong>Net cost</strong> is the total money you end up spending after accounting for the home you own (buy) or the rent you've paid (rent). A lower number means less money spent overall.</p>
-        <p style="margin-top:.6rem">💡 <strong>Tip:</strong> The crossover year is when buying becomes cheaper than renting on a cumulative basis. Before this point, renting may be financially advantageous.</p>
+        <p data-i18n-html="rvb.guide.buy"><strong>Buying costs</strong> include: mortgage payments, property tax (grows with home value), home insurance &amp; maintenance (grow with appreciation), HOA fees, and the <em>opportunity cost</em> of your down payment — what it could have earned if invested at your assumed return rate.</p>
+        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.sell"><strong>Selling costs</strong> (agent fees, transfer tax, etc.) are deducted from the final home value in the net cost calculation.</p>
+        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.rent"><strong>Renting costs</strong> include monthly rent (growing at your rent-increase rate), renter's insurance, and upfront costs. The security deposit is returned at the end of the term.</p>
+        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.net"><strong>Net cost</strong> is the total money you end up spending after accounting for the home you own (buy) or the rent you've paid (rent). A lower number means less money spent overall.</p>
+        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.tip">💡 <strong>Tip:</strong> The crossover year is when buying becomes cheaper than renting on a cumulative basis. Before this point, renting may be financially advantageous.</p>
       </div>
     </div>
 
@@ -474,6 +474,8 @@
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
 
 let lineChartInst = null;
 let currency = 'USD';
@@ -656,14 +658,18 @@ function calculate() {
     banner.className = 'winner-banner buy';
     document.getElementById('winnerIcon').textContent = '🏠';
     winTitle.className = 'winner-title buy';
-    winTitle.textContent = 'Buying is more economical';
-    winSaving.innerHTML = 'Buying saves approximately <strong>' + fmt(saving) + '</strong> compared to renting over ' + d.termYrs + ' years.';
+    winTitle.textContent = T('rvb.js.buy_wins');
+    winSaving.innerHTML = T('rvb.js.buy_saving')
+      .replace('{amount}', '<strong>' + fmt(saving) + '</strong>')
+      .replace('{years}', d.termYrs);
   } else {
     banner.className = 'winner-banner rent';
     document.getElementById('winnerIcon').textContent = '🏘';
     winTitle.className = 'winner-title rent';
-    winTitle.textContent = 'Renting is more economical';
-    winSaving.innerHTML = 'Renting saves approximately <strong>' + fmt(saving) + '</strong> compared to buying over ' + d.termYrs + ' years.';
+    winTitle.textContent = T('rvb.js.rent_wins');
+    winSaving.innerHTML = T('rvb.js.rent_saving')
+      .replace('{amount}', '<strong>' + fmt(saving) + '</strong>')
+      .replace('{years}', d.termYrs);
   }
 
   // Cost cards
@@ -695,7 +701,7 @@ function calculate() {
   document.getElementById('r-oppCost').innerHTML         = fmt(d.totalOppCost);
   document.getElementById('r-totalRent').innerHTML       = fmt(d.totalRentPaid);
   document.getElementById('r-crossover').textContent     =
-    d.crossoverYear ? 'Year ' + d.crossoverYear : '—';
+    d.crossoverYear ? T('rvb.js.year') + ' ' + d.crossoverYear : '—';
 
   // Chart
   renderChart(d.years);
@@ -718,7 +724,7 @@ function renderChart(years) {
       labels,
       datasets: [
         {
-          label: '🏠 Buying Net Cost',
+          label: T('rvb.chart.buy'),
           data: buyData,
           borderColor: '#059669',
           backgroundColor: 'rgba(5,150,105,0.08)',
@@ -728,7 +734,7 @@ function renderChart(years) {
           fill: false,
         },
         {
-          label: '🏘 Renting Net Cost',
+          label: T('rvb.chart.rent'),
           data: rentData,
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59,130,246,0.08)',
@@ -760,7 +766,7 @@ function renderChart(years) {
             callback: v => '$' + (v / 1000).toFixed(0) + 'k',
           },
           grid: { color: 'rgba(0,0,0,0.05)' },
-          title: { display: true, text: 'Net Cost (lower = better)', font: { size: 11 } },
+          title: { display: true, text: T('rvb.chart.axis'), font: { size: 11 } },
         },
       },
     },
@@ -788,7 +794,9 @@ function renderTable(years) {
 function toggleTable() {
   tableVisible = !tableVisible;
   document.getElementById('tableWrap').style.display = tableVisible ? '' : 'none';
-  document.getElementById('tableToggleBtn').textContent = tableVisible ? '▲ Hide Table' : '▼ Show Table';
+  const tb = document.getElementById('tableToggleBtn');
+  tb.setAttribute('data-i18n', tableVisible ? 'rvb.table.hide' : 'rvb.table.show');
+  tb.textContent = tableVisible ? T('rvb.table.hide') : T('rvb.table.show');
   if (tableVisible && lastData) renderTable(lastData.years);
 }
 
