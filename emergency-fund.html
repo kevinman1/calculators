@@ -184,14 +184,14 @@
 
         <!-- Currency toggle -->
         <div class="currency-toggle" style="margin-bottom:.75rem">
-          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
-          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd">$ USD</button>
+          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr">&#6107; KHR</button>
         </div>
         <div class="input-group" id="exrateGroup" style="display:none;margin-bottom:.6rem">
           <label data-i18n="loan.exrate">Exchange Rate (1 USD =)</label>
           <div class="input-wrapper">
             <input type="number" id="exchangeRate" value="4000" min="1" step="100" oninput="calculate()">
-            <span class="input-suffix">KHR</span>
+            <span class="input-suffix" data-i18n="currency.khr_code">KHR</span>
           </div>
         </div>
 

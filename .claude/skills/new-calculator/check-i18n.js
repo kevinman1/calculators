@@ -65,6 +65,12 @@ function auditPage(file, strings) {
      they are deliberately never translated. */
   markup = markup.replace(/<button\b[^>]*\bdata-lang="[^"]*"[^>]*>[\s\S]*?<\/button>/gi, '');
 
+  /* #latestLabel holds a data value (the newest CPI month), not UI copy, and the
+     admin Inflation tab rewrites it by matching the exact string
+     <span id="latestLabel">…</span>. Adding an attribute would stop that regex
+     matching and silently break saving. Leave it alone. */
+  markup = markup.replace(/<span\b[^>]*\bid="latestLabel"[^>]*>[\s\S]*?<\/span>/gi, '');
+
   /* Scan text nodes rather than whole elements. Element-based matching misses
      text that sits alongside a child element — e.g.
         <div class="scen-title">Rate Sensitivity <span>(ages …)</span></div>

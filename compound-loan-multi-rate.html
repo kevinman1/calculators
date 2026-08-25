@@ -131,8 +131,8 @@
         <!-- Currency -->
         <div class="section-label" data-i18n="loan.section.currency">Currency</div>
         <div class="currency-toggle" style="margin-bottom:.4rem">
-          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')">$ USD</button>
-          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')">&#6107; KHR</button>
+          <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd">$ USD</button>
+          <button class="currency-btn"        data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr">&#6107; KHR</button>
         </div>
         <div id="khrNote" class="input-hint" style="display:none;margin-bottom:.4rem" data-i18n="currency.khr_note">Exchange rate: 4,000 KHR = 1 USD (fixed)</div>
 
@@ -257,7 +257,7 @@
 
       <!-- Period 1 — Green -->
       <div class="period-card pc0" id="pcard-0">
-        <div class="period-card-hdr"><span>Period 1</span></div>
+        <div class="period-card-hdr"><span data-i18n="cmr.period.1">Period 1</span></div>
         <div class="period-card-body">
           <div class="input-group">
             <label data-i18n="cln.input.rate">Annual Interest Rate</label>
@@ -288,7 +288,7 @@
       <!-- Period 2 — Amber (hidden) -->
       <div class="period-card pc1" id="pcard-1" style="display:none">
         <div class="period-card-hdr">
-          <span>Period 2</span>
+          <span data-i18n="cmr.period.2">Period 2</span>
           <button class="pcard-remove" onclick="removePeriod(1)" data-i18n="cmr.btn.remove_period">✕ Remove</button>
         </div>
         <div class="period-card-body">
@@ -321,7 +321,7 @@
       <!-- Period 3 — Blue (hidden) -->
       <div class="period-card pc2" id="pcard-2" style="display:none">
         <div class="period-card-hdr">
-          <span>Period 3</span>
+          <span data-i18n="cmr.period.3">Period 3</span>
           <button class="pcard-remove" onclick="removePeriod(2)" data-i18n="cmr.btn.remove_period">✕ Remove</button>
         </div>
         <div class="period-card-body">
@@ -354,7 +354,7 @@
       <!-- Period 4 — Purple (hidden) -->
       <div class="period-card pc3" id="pcard-3" style="display:none">
         <div class="period-card-hdr">
-          <span>Period 4</span>
+          <span data-i18n="cmr.period.4">Period 4</span>
           <button class="pcard-remove" onclick="removePeriod(3)" data-i18n="cmr.btn.remove_period">✕ Remove</button>
         </div>
         <div class="period-card-body">
