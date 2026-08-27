@@ -205,7 +205,7 @@ window.WFC_STRINGS = {
     "simple_monthly.result.unpaid_interest": "⚠️ Unpaid interest of {amount} has built up. It is not included in the balance above, but you still owe it.",
     "simple_monthly.result.unpaid_growing": "⚠️ Your payment is {amount} less than the interest each month. That shortfall is not added to the balance above, but you still owe it, and it keeps growing every month.",
     "simple_monthly.input.interest_base": "Calculate Interest On",
-    "simple_monthly.input.base.original": "Original Principal",
+    "simple_monthly.input.base.original": "Original Principal (Default)",
     "simple_monthly.input.base.remaining": "Remaining Balance",
     "simple_monthly.input.principal_label": "Principal Reduction (optional)",
     "simple_monthly.input.principal_hint": "Set a monthly payment above the interest amount to start paying off the principal.",
