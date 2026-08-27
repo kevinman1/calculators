@@ -154,10 +154,11 @@
             <input type="number" id="rate" value="10" min="0" max="1000" step="0.1">
             <span class="input-suffix">%</span>
           </div>
+          <p class="field-hint" id="rateEquiv"></p>
         </div>
 
         <div class="input-group">
-          <label data-i18n="simple_monthly.input.new_payment">Monthly Payment</label>
+          <label id="paymentLabel" data-i18n="simple_monthly.input.new_payment">Monthly Payment</label>
           <div class="input-wrapper">
             <span class="input-prefix currency-sym">&#x17DB;</span>
             <input type="number" id="newPayment" value="" min="0" step="10000" placeholder="—">
@@ -177,6 +178,7 @@
           <label data-i18n="simple_monthly.input.rate_period">Rate Period</label>
           <div class="input-wrapper">
             <select id="ratePeriod">
+              <option value="weekly" data-i18n="simple_monthly.input.period.weekly">Per Week</option>
               <option value="monthly" selected data-i18n="simple_monthly.input.period.monthly">Per Month</option>
               <option value="yearly" data-i18n="simple_monthly.input.period.yearly">Per Year</option>
             </select>
@@ -279,7 +281,7 @@
       <table class="schedule-table" id="scheduleTable">
         <thead>
           <tr>
-            <th data-i18n="simple_monthly.sched.month">Month</th>
+            <th id="schedPeriodHead" data-i18n="simple_monthly.sched.month">Month</th>
             <th data-i18n="sched.date">Date</th>
             <th data-i18n="sched.beg_balance">Beg. Balance</th>
             <th data-i18n="simple_monthly.sched.interest">Interest</th>
@@ -309,7 +311,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=23"></script>
+<script src="lang.js?v=24"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 let balanceChart = null;
@@ -329,6 +331,16 @@ function addMonths(date, n) {
   const d = new Date(date);
   d.setMonth(d.getMonth() + n);
   return d;
+}
+function addWeeks(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n * 7);
+  return d;
+}
+// A period is a week when the rate is weekly, otherwise a month. Yearly rates
+// still run on monthly periods — the interest is just charged once every 12.
+function addPeriods(date, n, ratePeriod) {
+  return ratePeriod === 'weekly' ? addWeeks(date, n) : addMonths(date, n);
 }
 
 /* ── unpaid-interest notice ───────────────────────── */
@@ -362,15 +374,18 @@ function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaym
   let neverPaidOff = false;
   let stableCount = 0;
   let prevBalance = -999;
-  const MAX_MONTHS = 600;
+  // 600 months and 2600 weeks are both about 50 years.
+  const MAX_PERIODS = ratePeriod === 'weekly' ? 2600 : 600;
 
-  for (let m = 1; m <= MAX_MONTHS; m++) {
-    const date = startDate ? addMonths(startDate, m - 1) : null;
+  for (let m = 1; m <= MAX_PERIODS; m++) {
+    // Interest is charged at the end of each period, so payment 1 is due one
+    // period after the loan starts rather than on the start date.
+    const date = startDate ? addPeriods(startDate, m, ratePeriod) : null;
     const begBalance = balance;
 
     // Interest this period
-    // Monthly mode: charged every month (rate = monthly rate)
-    // Yearly mode:  charged once per year on months 1, 13, 25... (rate = annual rate)
+    // Weekly / monthly: charged every period at the stated rate
+    // Yearly:           charged once every 12 monthly periods
     let interest;
     if (ratePeriod === 'yearly') {
       interest = ((m - 1) % 12 === 0)
@@ -431,6 +446,56 @@ function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaym
   return { rows, neverPaidOff, unpaidInterest, lastShortfall };
 }
 
+/* ── period-dependent wording ─────────────────────── */
+// Everything that reads "month" has to follow the rate period, or picking
+// Per Week leaves the results talking about months.
+function periodWords(ratePeriod) {
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  if (ratePeriod === 'weekly') return {
+    suffix:  T('simple_monthly.per_week'),
+    interest:T('simple_monthly.result.weekly_interest'),
+    plural:  T('simple_monthly.result.weeks'),
+    head:    T('simple_monthly.sched.week'),
+    payment: T('simple_monthly.input.new_payment_weekly')
+  };
+  if (ratePeriod === 'yearly') return {
+    suffix:  T('simple_monthly.per_year'),
+    interest:T('simple_monthly.result.yearly_interest'),
+    plural:  T('simple_monthly.result.months'),
+    head:    T('simple_monthly.sched.month'),
+    payment: T('simple_monthly.input.new_payment')
+  };
+  return {
+    suffix:  T('simple_monthly.per_month'),
+    interest:T('simple_monthly.result.monthly_interest'),
+    plural:  T('simple_monthly.result.months'),
+    head:    T('simple_monthly.sched.month'),
+    payment: T('simple_monthly.input.new_payment')
+  };
+}
+
+// Simple interest scales linearly, so the equivalents are a straight multiple
+// of the stated rate — no compounding, which matches how this page charges it.
+function renderRateEquivalents(ratePercent, ratePeriod) {
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  const el = document.getElementById('rateEquiv');
+  if (!el) return;
+  if (!ratePercent) { el.textContent = ''; return; }
+  const n = v => (Math.round(v * 100) / 100).toLocaleString('en-US',
+    { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  if (ratePeriod === 'weekly') {
+    el.textContent = T('simple_monthly.equiv.from_weekly')
+      .replace('{monthly}', n(ratePercent * 52 / 12))
+      .replace('{yearly}',  n(ratePercent * 52));
+  } else if (ratePeriod === 'yearly') {
+    el.textContent = T('simple_monthly.equiv.from_yearly')
+      .replace('{monthly}', n(ratePercent / 12));
+  } else {
+    el.textContent = T('simple_monthly.equiv.from_monthly')
+      .replace('{yearly}', n(ratePercent * 12));
+  }
+}
+
 /* ── main calculate ──────────────────────────────── */
 function syncPaymentDateState() {
   const hasStart = !!document.getElementById("startDate").value;
@@ -468,10 +533,12 @@ function calculate() {
   const firstInterest = rows.length > 0 ? rows[0].interest : loan * rate;
 
   // Rate-period label
-  const pmtSuffix = ratePeriod === 'monthly' ? T('simple_monthly.per_month') : T('simple_monthly.per_year');
-  document.getElementById('r-pmtLabel').textContent =
-    ratePeriod === 'monthly' ? T('simple_monthly.result.monthly_interest') : T('simple_monthly.result.yearly_interest');
-  document.getElementById('r-regularPayment').textContent = fmtMoney(firstInterest) + ' ' + pmtSuffix;
+  const words = periodWords(ratePeriod);
+  document.getElementById('r-pmtLabel').textContent = words.interest;
+  document.getElementById('r-regularPayment').textContent = fmtMoney(firstInterest) + ' ' + words.suffix;
+  document.getElementById('paymentLabel').textContent     = words.payment;
+  document.getElementById('schedPeriodHead').textContent   = words.head;
+  renderRateEquivalents(parseFloat(document.getElementById('rate').value) || 0, ratePeriod);
 
   document.getElementById('r-loanAmount').textContent = fmtMoney(loan);
 
@@ -487,16 +554,16 @@ function calculate() {
     const last = rows[rows.length - 1];
     document.getElementById('r-heroLabel').textContent = T('simple_monthly.result.total_repaid');
     document.getElementById('r-hero').textContent      = fmtMoney(last.cumPaid);
-    document.getElementById('r-heroSub').textContent   = rows.length + ' ' + T('simple_monthly.result.months');
+    document.getElementById('r-heroSub').textContent   = rows.length + ' ' + words.plural;
     document.getElementById('r-totalInterest').textContent = fmtMoney(last.cumInterest);
-    document.getElementById('r-term').textContent          = rows.length + ' ' + T('simple_monthly.result.months');
+    document.getElementById('r-term').textContent          = rows.length + ' ' + words.plural;
     // clear the warning state, or it would persist from a previous calculation
     document.getElementById('r-heroSub').classList.remove('danger');
     document.getElementById('r-term').classList.remove('danger');
   }
 
   document.getElementById('scheduleCount').textContent =
-    rows.length + ' ' + T('simple_monthly.result.months') + (neverPaidOff ? ' (' + T('simple_monthly.result.partial') + ')' : '');
+    rows.length + ' ' + words.plural + (neverPaidOff ? ' (' + T('simple_monthly.result.partial') + ')' : '');
 
   document.getElementById('printDate').textContent = fmtDate(new Date());
 
@@ -514,13 +581,15 @@ function renderChart(rows, loan, neverPaidOff) {
   const rising = maxDisplay > 1 && rows[maxDisplay - 1].endBalance > loan + 0.005;
   const step = maxDisplay <= 60 ? 1 : maxDisplay <= 120 ? 3 : maxDisplay <= 240 ? 6 : 12;
 
-  const labels   = ['Month 0'];
+  const ratePeriod = document.getElementById('ratePeriod').value;
+  const words = periodWords(ratePeriod);
+  const labels   = [words.head + ' 0'];
   const balances = [loan];
 
   for (let i = 0; i < maxDisplay; i++) {
     const row = rows[i];
     if (i % step === 0 || i === maxDisplay - 1) {
-      labels.push('Month ' + row.month);
+      labels.push(words.head + ' ' + row.month);
       balances.push(row.endBalance);
     }
   }
