@@ -55,6 +55,14 @@
     }
     .r-value.danger { color: #b91c1c; }
 
+    /* A payment start date is meaningless without a loan start date — there is
+       no way to tell which month it falls in — so the field is disabled until
+       one is given, rather than being silently ignored. */
+    .input-group.is-disabled label { opacity: .5; }
+    .input-group.is-disabled .input-wrapper {
+      opacity: .5; background: var(--green-50); pointer-events: none;
+    }
+
     /* Shown only when an under-payment is left off the balance */
     .arrears-note {
       background: #fdf4e6;
@@ -193,11 +201,12 @@
           </div>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" id="payDateGroup">
           <label data-i18n="simple_monthly.input.new_payment_date">Payment Start Date (optional)</label>
           <div class="input-wrapper">
             <input type="date" id="newPaymentDate">
           </div>
+          <p class="field-hint" id="payDateHint" style="display:none" data-i18n="simple_monthly.hint.needs_start_date">Enter a loan start date above to use this.</p>
         </div>
 
         <hr class="section-divider">
@@ -300,7 +309,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=22"></script>
+<script src="lang.js?v=23"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 let balanceChart = null;
@@ -423,7 +432,17 @@ function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaym
 }
 
 /* ── main calculate ──────────────────────────────── */
+function syncPaymentDateState() {
+  const hasStart = !!document.getElementById("startDate").value;
+  document.getElementById("newPaymentDate").disabled = !hasStart;
+  document.getElementById("payDateGroup").classList.toggle("is-disabled", !hasStart);
+  document.getElementById("payDateHint").style.display = hasStart ? "none" : "block";
+  // The value is kept rather than cleared, so it comes back if a start date is
+  // re-entered. It is ignored while disabled either way.
+}
+
 function calculate() {
+  syncPaymentDateState();
   const loan          = Math.max(0, parseFloat(document.getElementById('loanAmount').value)   || 0);
   const rate          = Math.max(0, parseFloat(document.getElementById('rate').value) / 100    || 0);
   const ratePeriod    = document.getElementById('ratePeriod').value;

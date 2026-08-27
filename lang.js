@@ -211,6 +211,7 @@ window.WFC_STRINGS = {
     "simple_monthly.input.principal_hint": "Set a monthly payment above the interest amount to start paying off the principal.",
     "simple_monthly.input.new_payment": "Monthly Payment",
     "simple_monthly.input.new_payment_date": "Payment Start Date (optional)",
+    "simple_monthly.hint.needs_start_date": "Enter a loan start date above to use this.",
     "simple_monthly.result.total_repaid": "Total Amount Repaid",
     "simple_monthly.result.interest_only": "Monthly Interest Payment",
     "simple_monthly.result.never_paid": "No end date",
