@@ -3,10 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Interest – Monthly/Yearly Calculator – Wise Financial Cambodia</title>
+  <title>Simple Interest – Weekly/Monthly/Yearly Calculator – Wise Financial Cambodia</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .field-hint {
+      display: block;
+      font-size: .73rem;
+      color: var(--text-light);
+      line-height: 1.45;
+      margin-top: .25rem;
+    }
+
+    /* Checkbox option. The whole row is the label, so the text is clickable. */
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      cursor: pointer;
+      margin-bottom: .5rem;
+    }
+    .check-row input[type=checkbox] {
+      width: 16px; height: 16px;
+      margin-top: .12rem;
+      flex: none;
+      accent-color: var(--green-700);
+      cursor: pointer;
+    }
+    .check-label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-medium);
+      line-height: 1.4;
+    }
+    .check-row .field-hint { margin-top: .2rem; }
+
+    /* Never-paid-off warning. The hero panel stays green; only the sentence
+       turns red. Red directly on that green measures 1.25:1 contrast, so the
+       sentence sits on a light chip to make the red actually readable. */
+    .r-sub.danger {
+      display: inline-block;
+      background: rgba(255,255,255,.93);
+      color: #b91c1c;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: .3rem .6rem;
+      margin-top: .3rem;
+      line-height: 1.4;
+    }
+    .r-value.danger { color: #b91c1c; }
+
+    /* A payment start date is meaningless without a loan start date — there is
+       no way to tell which month it falls in — so the field is disabled until
+       one is given, rather than being silently ignored. */
+    .input-group.is-disabled label { opacity: .5; }
+    .input-group.is-disabled .input-wrapper {
+      opacity: .5; background: var(--green-50); pointer-events: none;
+    }
+
+    /* Shown only when an under-payment is left off the balance */
+    .arrears-note {
+      background: #fdf4e6;
+      border: 1px solid #e6cf9a;
+      border-radius: 5px;
+      padding: .5rem .65rem;
+      margin-top: .6rem;
+      font-size: .76rem;
+      color: #8a5d0b;
+      line-height: 1.45;
+    }
+  </style>
 </head>
 <body>
 
@@ -34,7 +102,7 @@
   <div class="breadcrumb-inner">
     <a href="index.html" data-i18n="bread.calculators">Calculators</a>
     &rsaquo; <span data-i18n="bread.loans">Loans</span>
-    &rsaquo; <span data-i18n="simple_monthly.bread">Simple Interest – Monthly/Yearly</span>
+    &rsaquo; <span data-i18n="simple_monthly.bread">Simple Interest – Weekly/Monthly/Yearly</span>
   </div>
 </div>
 
@@ -45,13 +113,13 @@
     <img src="assets/logo.png" alt="Wise Financial Cambodia">
     <div class="print-header-text">
       <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
-      <p><span data-i18n="simple_monthly.print_title">Simple Interest – Monthly/Yearly Repayment Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+      <p><span data-i18n="simple_monthly.print_title">Simple Interest – Weekly/Monthly/Yearly Repayment Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
     </div>
   </div>
 
   <div class="page-title">
-    <h2 data-i18n="simple_monthly.page_title">Simple Interest – Monthly/Yearly Repayment Calculator</h2>
-    <p data-i18n="simple_monthly.page_desc">Calculate interest and repayment schedules for simple-interest loans. Choose whether interest is charged monthly or yearly, and whether it is based on the original or remaining balance. Optionally set a higher payment to start reducing the principal.</p>
+    <h2 data-i18n="simple_monthly.page_title">Simple Interest – Weekly/Monthly/Yearly Repayment Calculator</h2>
+    <p data-i18n="simple_monthly.page_desc">Calculate interest and repayment schedules for simple-interest loans. Choose whether interest is charged weekly, monthly or yearly, and whether it is based on the original or remaining balance. Optionally set a higher payment to start reducing the principal.</p>
   </div>
 
   <!-- 3-column layout -->
@@ -83,38 +151,50 @@
         <div class="input-group">
           <label id="rateLabel" data-i18n="simple_monthly.input.rate">Interest Rate</label>
           <div class="input-wrapper">
-            <input type="number" id="rate" value="3" min="0" max="1000" step="0.1">
+            <input type="number" id="rate" value="10" min="0" max="1000" step="0.1">
             <span class="input-suffix">%</span>
           </div>
+          <p class="field-hint" id="rateEquiv"></p>
         </div>
+
+        <div class="input-group">
+          <label id="paymentLabel" data-i18n="simple_monthly.input.new_payment">Monthly Payment</label>
+          <div class="input-wrapper">
+            <span class="input-prefix currency-sym">&#x17DB;</span>
+            <input type="number" id="newPayment" value="" min="0" step="10000" placeholder="—">
+          </div>
+          <p class="field-hint" data-i18n="simple_monthly.input.principal_hint">Set a monthly payment above the interest amount to start paying off the principal.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- OPTIONAL SETTINGS -->
+    <div class="card">
+      <div class="card-header" data-i18n="input.optional">Optional Settings</div>
+      <div class="card-body">
 
         <div class="input-group">
           <label data-i18n="simple_monthly.input.rate_period">Rate Period</label>
           <div class="input-wrapper">
             <select id="ratePeriod">
+              <option value="weekly" data-i18n="simple_monthly.input.period.weekly">Per Week</option>
               <option value="monthly" selected data-i18n="simple_monthly.input.period.monthly">Per Month</option>
               <option value="yearly" data-i18n="simple_monthly.input.period.yearly">Per Year</option>
             </select>
           </div>
+          <p class="field-hint" data-i18n="simple_monthly.hint.rate_period">(Default for Cambodia is Monthly)</p>
         </div>
 
         <div class="input-group">
           <label data-i18n="simple_monthly.input.interest_base">Calculate Interest On</label>
           <div class="input-wrapper">
             <select id="interestBase">
-              <option value="original" selected data-i18n="simple_monthly.input.base.original">Original Principal</option>
+              <option value="original" selected data-i18n="simple_monthly.input.base.original">Original Principal (Default)</option>
               <option value="remaining" data-i18n="simple_monthly.input.base.remaining">Remaining Balance</option>
             </select>
           </div>
         </div>
-
-      </div>
-    </div>
-
-    <!-- PAYMENT SETTINGS -->
-    <div class="card">
-      <div class="card-header" data-i18n="simple_monthly.card.payment">Payment Settings</div>
-      <div class="card-body">
 
         <div class="input-group">
           <label data-i18n="simple_daily.input.start_date">Loan Start Date (optional)</label>
@@ -123,24 +203,23 @@
           </div>
         </div>
 
-        <hr class="section-divider">
-        <div class="section-label" data-i18n="simple_monthly.input.principal_label">Principal Reduction (optional)</div>
-        <p style="font-size:.75rem;color:#6b7b5c;margin:-.25rem 0 .75rem;line-height:1.4" data-i18n="simple_monthly.input.principal_hint">Set a monthly payment above the interest amount to start paying off the principal.</p>
-
-        <div class="input-group">
-          <label data-i18n="simple_monthly.input.new_payment">Monthly Payment</label>
-          <div class="input-wrapper">
-            <span class="input-prefix currency-sym">&#x17DB;</span>
-            <input type="number" id="newPayment" value="" min="0" step="10000" placeholder="—">
-          </div>
-        </div>
-
-        <div class="input-group">
+        <div class="input-group" id="payDateGroup">
           <label data-i18n="simple_monthly.input.new_payment_date">Payment Start Date (optional)</label>
           <div class="input-wrapper">
             <input type="date" id="newPaymentDate">
           </div>
+          <p class="field-hint" id="payDateHint" style="display:none" data-i18n="simple_monthly.hint.needs_start_date">Enter a loan start date above to use this.</p>
         </div>
+
+        <hr class="section-divider">
+
+        <label class="check-row">
+          <input type="checkbox" id="capitaliseShortfall" checked onchange="calculate()">
+          <span>
+            <span class="check-label" data-i18n="simple_monthly.opt.capitalise">If the payment is less than the interest, add the shortfall to the balance</span>
+            <span class="field-hint" data-i18n="simple_monthly.opt.capitalise_hint">This is how most Cambodian lenders work — unpaid interest is added to what you owe, so the debt grows. Untick to keep the balance unchanged and track the unpaid interest separately.</span>
+          </span>
+        </label>
 
         <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
       </div>
@@ -176,6 +255,8 @@
           </div>
         </div>
 
+        <div class="arrears-note" id="arrearsNote" style="display:none"></div>
+
       </div>
     </div>
 
@@ -200,7 +281,7 @@
       <table class="schedule-table" id="scheduleTable">
         <thead>
           <tr>
-            <th data-i18n="simple_monthly.sched.month">Month</th>
+            <th id="schedPeriodHead" data-i18n="simple_monthly.sched.month">Month</th>
             <th data-i18n="sched.date">Date</th>
             <th data-i18n="sched.beg_balance">Beg. Balance</th>
             <th data-i18n="simple_monthly.sched.interest">Interest</th>
@@ -230,7 +311,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=22"></script>
+<script src="lang.js?v=26"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 let balanceChart = null;
@@ -251,25 +332,60 @@ function addMonths(date, n) {
   d.setMonth(d.getMonth() + n);
   return d;
 }
+function addWeeks(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n * 7);
+  return d;
+}
+// A period is a week when the rate is weekly, otherwise a month. Yearly rates
+// still run on monthly periods — the interest is just charged once every 12.
+function addPeriods(date, n, ratePeriod) {
+  return ratePeriod === 'weekly' ? addWeeks(date, n) : addMonths(date, n);
+}
+
+/* ── unpaid-interest notice ───────────────────────── */
+// Only relevant when the shortfall is NOT being added to the balance: the
+// balance alone would understate the debt, so say what has built up.
+function renderArrears(unpaidInterest, capitalise, neverPaidOff, lastShortfall) {
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  const el = document.getElementById("arrearsNote");
+  if (!el) return;
+  if (capitalise || !unpaidInterest || unpaidInterest < 0.005) {
+    el.style.display = "none";
+    el.textContent = "";
+    return;
+  }
+  el.style.display = "block";
+  // If the loan never ends, a running total is just an artefact of where the
+  // simulation stopped — report the recurring monthly shortfall instead.
+  el.textContent = neverPaidOff
+    ? T("simple_monthly.result.unpaid_growing").replace("{amount}", fmtMoney(lastShortfall))
+    : T("simple_monthly.result.unpaid_interest").replace("{amount}", fmtMoney(unpaidInterest));
+}
 
 /* ── schedule builder ────────────────────────────── */
-function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaymentDate, startDate) {
+function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaymentDate, startDate, capitalise) {
   const rows = [];
   let balance = loan;
   let cumInterest = 0;
   let cumPaid = 0;
+  let unpaidInterest = 0;   // only accrues when capitalise is off
+  let lastShortfall  = 0;   // largest monthly shortfall seen
   let neverPaidOff = false;
   let stableCount = 0;
   let prevBalance = -999;
-  const MAX_MONTHS = 600;
+  // 600 months and 2600 weeks are both about 50 years.
+  const MAX_PERIODS = ratePeriod === 'weekly' ? 2600 : 600;
 
-  for (let m = 1; m <= MAX_MONTHS; m++) {
-    const date = startDate ? addMonths(startDate, m - 1) : null;
+  for (let m = 1; m <= MAX_PERIODS; m++) {
+    // Interest is charged at the end of each period, so payment 1 is due one
+    // period after the loan starts rather than on the start date.
+    const date = startDate ? addPeriods(startDate, m, ratePeriod) : null;
     const begBalance = balance;
 
     // Interest this period
-    // Monthly mode: charged every month (rate = monthly rate)
-    // Yearly mode:  charged once per year on months 1, 13, 25... (rate = annual rate)
+    // Weekly / monthly: charged every period at the stated rate
+    // Yearly:           charged once every 12 monthly periods
     let interest;
     if (ratePeriod === 'yearly') {
       interest = ((m - 1) % 12 === 0)
@@ -296,7 +412,17 @@ function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaym
     payment = Math.min(Math.max(payment, 0), totalOwed);
 
     const principalPaid = payment - interest;
-    balance = begBalance + interest - payment;
+    if (capitalise) {
+      // Any shortfall is added to what is owed, so the debt grows.
+      balance = begBalance + interest - payment;
+    } else {
+      // Leave the balance alone, but track the unpaid interest so it is not
+      // silently dropped from what the borrower actually owes.
+      const shortfall = Math.max(0, interest - payment);
+      unpaidInterest += shortfall;
+      if (shortfall > lastShortfall) lastShortfall = shortfall;
+      balance = begBalance - Math.max(0, payment - interest);
+    }
     if (balance < 0.005) balance = 0;
 
     cumInterest += interest;
@@ -317,11 +443,71 @@ function buildSchedule(loan, rate, ratePeriod, interestBase, newPayment, newPaym
   }
 
   if (balance > 0 && !neverPaidOff) neverPaidOff = true;
-  return { rows, neverPaidOff };
+  return { rows, neverPaidOff, unpaidInterest, lastShortfall };
+}
+
+/* ── period-dependent wording ─────────────────────── */
+// Everything that reads "month" has to follow the rate period, or picking
+// Per Week leaves the results talking about months.
+function periodWords(ratePeriod) {
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  if (ratePeriod === 'weekly') return {
+    suffix:  T('simple_monthly.per_week'),
+    interest:T('simple_monthly.result.weekly_interest'),
+    plural:  T('simple_monthly.result.weeks'),
+    head:    T('simple_monthly.sched.week'),
+    payment: T('simple_monthly.input.new_payment_weekly')
+  };
+  if (ratePeriod === 'yearly') return {
+    suffix:  T('simple_monthly.per_year'),
+    interest:T('simple_monthly.result.yearly_interest'),
+    plural:  T('simple_monthly.result.months'),
+    head:    T('simple_monthly.sched.month'),
+    payment: T('simple_monthly.input.new_payment')
+  };
+  return {
+    suffix:  T('simple_monthly.per_month'),
+    interest:T('simple_monthly.result.monthly_interest'),
+    plural:  T('simple_monthly.result.months'),
+    head:    T('simple_monthly.sched.month'),
+    payment: T('simple_monthly.input.new_payment')
+  };
+}
+
+// Simple interest scales linearly, so the equivalents are a straight multiple
+// of the stated rate — no compounding, which matches how this page charges it.
+function renderRateEquivalents(ratePercent, ratePeriod) {
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  const el = document.getElementById('rateEquiv');
+  if (!el) return;
+  if (!ratePercent) { el.textContent = ''; return; }
+  const n = v => (Math.round(v * 100) / 100).toLocaleString('en-US',
+    { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  if (ratePeriod === 'weekly') {
+    el.textContent = T('simple_monthly.equiv.from_weekly')
+      .replace('{monthly}', n(ratePercent * 52 / 12))
+      .replace('{yearly}',  n(ratePercent * 52));
+  } else if (ratePeriod === 'yearly') {
+    el.textContent = T('simple_monthly.equiv.from_yearly')
+      .replace('{monthly}', n(ratePercent / 12));
+  } else {
+    el.textContent = T('simple_monthly.equiv.from_monthly')
+      .replace('{yearly}', n(ratePercent * 12));
+  }
 }
 
 /* ── main calculate ──────────────────────────────── */
+function syncPaymentDateState() {
+  const hasStart = !!document.getElementById("startDate").value;
+  document.getElementById("newPaymentDate").disabled = !hasStart;
+  document.getElementById("payDateGroup").classList.toggle("is-disabled", !hasStart);
+  document.getElementById("payDateHint").style.display = hasStart ? "none" : "block";
+  // The value is kept rather than cleared, so it comes back if a start date is
+  // re-entered. It is ignored while disabled either way.
+}
+
 function calculate() {
+  syncPaymentDateState();
   const loan          = Math.max(0, parseFloat(document.getElementById('loanAmount').value)   || 0);
   const rate          = Math.max(0, parseFloat(document.getElementById('rate').value) / 100    || 0);
   const ratePeriod    = document.getElementById('ratePeriod').value;
@@ -331,6 +517,7 @@ function calculate() {
   const newPaymentVal = parseFloat(document.getElementById('newPayment').value) || 0;
   const newPmtDateStr = document.getElementById('newPaymentDate').value;
   const newPaymentDate = newPmtDateStr ? new Date(newPmtDateStr + 'T00:00:00') : null;
+  const capitalise    = document.getElementById('capitaliseShortfall').checked;
 
   // Currency symbol
   const sym = document.getElementById('currency').value === 'KHR' ? '៛' : '$';
@@ -338,17 +525,20 @@ function calculate() {
 
   const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
 
-  const { rows, neverPaidOff } = buildSchedule(loan, rate, ratePeriod, interestBase, newPaymentVal, newPaymentDate, startDate);
+  const { rows, neverPaidOff, unpaidInterest, lastShortfall } = buildSchedule(loan, rate, ratePeriod, interestBase, newPaymentVal, newPaymentDate, startDate, capitalise);
   lastScheduleData = { rows, neverPaidOff };
+  renderArrears(unpaidInterest, capitalise, neverPaidOff, lastShortfall);
 
   // First-period interest (for display)
   const firstInterest = rows.length > 0 ? rows[0].interest : loan * rate;
 
   // Rate-period label
-  const pmtSuffix = ratePeriod === 'monthly' ? T('simple_monthly.per_month') : T('simple_monthly.per_year');
-  document.getElementById('r-pmtLabel').textContent =
-    ratePeriod === 'monthly' ? T('simple_monthly.result.monthly_interest') : T('simple_monthly.result.yearly_interest');
-  document.getElementById('r-regularPayment').textContent = fmtMoney(firstInterest) + ' ' + pmtSuffix;
+  const words = periodWords(ratePeriod);
+  document.getElementById('r-pmtLabel').textContent = words.interest;
+  document.getElementById('r-regularPayment').textContent = fmtMoney(firstInterest) + ' ' + words.suffix;
+  document.getElementById('paymentLabel').textContent     = words.payment;
+  document.getElementById('schedPeriodHead').textContent   = words.head;
+  renderRateEquivalents(parseFloat(document.getElementById('rate').value) || 0, ratePeriod);
 
   document.getElementById('r-loanAmount').textContent = fmtMoney(loan);
 
@@ -358,17 +548,22 @@ function calculate() {
     document.getElementById('r-heroSub').textContent   = T('simple_monthly.result.never_paid_hint');
     document.getElementById('r-totalInterest').textContent = '—';
     document.getElementById('r-term').textContent          = T('simple_monthly.result.never_paid');
+    document.getElementById('r-heroSub').classList.add('danger');
+    document.getElementById('r-term').classList.add('danger');
   } else {
     const last = rows[rows.length - 1];
     document.getElementById('r-heroLabel').textContent = T('simple_monthly.result.total_repaid');
     document.getElementById('r-hero').textContent      = fmtMoney(last.cumPaid);
-    document.getElementById('r-heroSub').textContent   = rows.length + ' ' + T('simple_monthly.result.months');
+    document.getElementById('r-heroSub').textContent   = rows.length + ' ' + words.plural;
     document.getElementById('r-totalInterest').textContent = fmtMoney(last.cumInterest);
-    document.getElementById('r-term').textContent          = rows.length + ' ' + T('simple_monthly.result.months');
+    document.getElementById('r-term').textContent          = rows.length + ' ' + words.plural;
+    // clear the warning state, or it would persist from a previous calculation
+    document.getElementById('r-heroSub').classList.remove('danger');
+    document.getElementById('r-term').classList.remove('danger');
   }
 
   document.getElementById('scheduleCount').textContent =
-    rows.length + ' ' + T('simple_monthly.result.months') + (neverPaidOff ? ' (' + T('simple_monthly.result.partial') + ')' : '');
+    rows.length + ' ' + words.plural + (neverPaidOff ? ' (' + T('simple_monthly.result.partial') + ')' : '');
 
   document.getElementById('printDate').textContent = fmtDate(new Date());
 
@@ -381,15 +576,20 @@ function calculate() {
 /* ── chart ───────────────────────────────────────── */
 function renderChart(rows, loan, neverPaidOff) {
   const maxDisplay = neverPaidOff ? Math.min(rows.length, 48) : rows.length;
+  // A debt that is growing is the single most important thing to show, so it
+  // gets its own colour and label rather than the same green as a healthy loan.
+  const rising = maxDisplay > 1 && rows[maxDisplay - 1].endBalance > loan + 0.005;
   const step = maxDisplay <= 60 ? 1 : maxDisplay <= 120 ? 3 : maxDisplay <= 240 ? 6 : 12;
 
-  const labels   = ['Month 0'];
+  const ratePeriod = document.getElementById('ratePeriod').value;
+  const words = periodWords(ratePeriod);
+  const labels   = [words.head + ' 0'];
   const balances = [loan];
 
   for (let i = 0; i < maxDisplay; i++) {
     const row = rows[i];
     if (i % step === 0 || i === maxDisplay - 1) {
-      labels.push('Month ' + row.month);
+      labels.push(words.head + ' ' + row.month);
       balances.push(row.endBalance);
     }
   }
@@ -403,15 +603,19 @@ function renderChart(rows, loan, neverPaidOff) {
     data: {
       labels,
       datasets: [{
-        label: T('simple_monthly.chart.balance'),
+        label: rising ? T('simple_monthly.chart.debt_growing')
+             : neverPaidOff ? T('simple_monthly.chart.never_shrinks')
+             : T('simple_monthly.chart.balance'),
         data: balances,
-        borderColor: '#739669',
-        backgroundColor: 'rgba(115,150,105,0.12)',
+        borderColor: rising ? '#b91c1c' : neverPaidOff ? '#b45309' : '#739669',
+        backgroundColor: rising ? 'rgba(185,28,28,0.12)'
+                       : neverPaidOff ? 'rgba(180,83,9,0.12)'
+                       : 'rgba(115,150,105,0.12)',
         fill: true,
         tension: 0.2,
         borderWidth: 2.5,
         pointRadius: maxDisplay <= 24 ? 3 : 0,
-        borderDash: neverPaidOff ? [6, 4] : []
+        borderDash: (neverPaidOff && !rising) ? [6, 4] : []
       }]
     },
     options: {
