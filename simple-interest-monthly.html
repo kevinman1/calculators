@@ -40,13 +40,20 @@
     }
     .check-row .field-hint { margin-top: .2rem; }
 
-    /* Never-paid-off state. The hero is white-on-green, so red text there
-       would be unreadable — the whole panel switches to red instead. */
-    .result-hero.danger { background: linear-gradient(135deg, #7f1d1d, #b91c1c); }
-    .r-value.danger { color: #b91c1c; }
-    .danger-flag {
-      display: inline-block; font-weight: 700; color: #b91c1c;
+    /* Never-paid-off warning. The hero panel stays green; only the sentence
+       turns red. Red directly on that green measures 1.25:1 contrast, so the
+       sentence sits on a light chip to make the red actually readable. */
+    .r-sub.danger {
+      display: inline-block;
+      background: rgba(255,255,255,.93);
+      color: #b91c1c;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: .3rem .6rem;
+      margin-top: .3rem;
+      line-height: 1.4;
     }
+    .r-value.danger { color: #b91c1c; }
 
     /* Shown only when an under-payment is left off the balance */
     .arrears-note {
@@ -455,7 +462,7 @@ function calculate() {
     document.getElementById('r-heroSub').textContent   = T('simple_monthly.result.never_paid_hint');
     document.getElementById('r-totalInterest').textContent = '—';
     document.getElementById('r-term').textContent          = T('simple_monthly.result.never_paid');
-    document.querySelector('.result-hero').classList.add('danger');
+    document.getElementById('r-heroSub').classList.add('danger');
     document.getElementById('r-term').classList.add('danger');
   } else {
     const last = rows[rows.length - 1];
@@ -465,7 +472,7 @@ function calculate() {
     document.getElementById('r-totalInterest').textContent = fmtMoney(last.cumInterest);
     document.getElementById('r-term').textContent          = rows.length + ' ' + T('simple_monthly.result.months');
     // clear the warning state, or it would persist from a previous calculation
-    document.querySelector('.result-hero').classList.remove('danger');
+    document.getElementById('r-heroSub').classList.remove('danger');
     document.getElementById('r-term').classList.remove('danger');
   }
 
