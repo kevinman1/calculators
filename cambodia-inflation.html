@@ -172,7 +172,7 @@
           <span data-i18n="cinf.note.source">National Institute of Statistics (NIS), Cambodia. CPI base: Oct–Dec 2006 = 100.</span>
           <br>
           <span data-i18n="cinf.note.latest_label">Latest data:</span>
-          <span id="latestLabel">March 2026</span>
+          <span id="latestLabel">April 2026</span>
         </div>
 
       </div>
@@ -241,7 +241,7 @@
 <script src="lang.js?v=26"></script>
 <script src="i18n.js?v=2"></script>
 <script>
-// ── CPI Data: 256 months Dec 2004 – Mar 2026 ──
+// ── CPI Data: 257 months Dec 2004 – Apr 2026 ──
 // Source: National Institute of Statistics (NIS), Cambodia. Base: Oct-Dec 2006 = 100.
 const CPI_DATA = [
   [{y:2004,m:12},87.858],
@@ -725,7 +725,7 @@ function calculate() {
 
   if (!cpiFrom || !cpiTo) {
     document.getElementById('resultsBody').innerHTML =
-      `<div class="placeholder-msg" style="color:#b45309">Selected date is outside available data range (Dec 2004 – Mar 2026).</div>`;
+      `<div class="placeholder-msg" style="color:#b45309">Selected date is outside available data range (Dec 2004 – Apr 2026).</div>`;
     return;
   }
 
