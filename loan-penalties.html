@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" data-title-key="lp.page_title">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Penalties Calculator – Wise Financial Cambodia</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem 1.25rem; }
+    @media (max-width: 540px) { .input-grid { grid-template-columns: 1fr; } }
+    input[type="date"] { font-family: inherit; }
+
+    .lp-readonly { background: var(--green-50) !important; color: var(--green-800); font-weight: 600; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-bottom: 1rem; }
+    @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+    .stat-box { background: var(--green-50); border: 1px solid var(--green-200); border-radius: 6px; padding: .6rem .8rem; }
+    .stat-box .s-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-light); margin-bottom: .15rem; }
+    .stat-box .s-value { font-size: 1.05rem; font-weight: 700; color: var(--green-800); }
+    .stat-box .s-sub   { font-size: .68rem; color: var(--text-light); margin-top: .15rem; }
+
+    .lp-total-banner {
+      background: var(--green-800); color: #fff; border-radius: 8px;
+      padding: 1rem 1.25rem; display: flex; align-items: baseline; justify-content: space-between;
+      flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem;
+    }
+    .lp-total-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; opacity: .85; }
+    .lp-total-value { font-size: 1.7rem; font-weight: 700; }
+
+    .lp-note {
+      background: var(--green-50); border: 1px solid var(--green-200); border-radius: 6px;
+      padding: .65rem .9rem; font-size: .8rem; color: var(--text-medium); line-height: 1.55; margin-top: .75rem;
+    }
+    .chart-wrap { position: relative; height: 240px; padding: .5rem 0 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia" class="header-logo">
+    <div class="header-title">
+      <h1 data-i18n="site.name">Wise Financial Cambodia</h1>
+      <span data-i18n="site.tagline">Financial Education Tools</span>
+    </div>
+    <nav>
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      <a href="index.html#savings" data-i18n="nav.savings">Savings</a>
+      <a href="index.html#loans" class="active" data-i18n="nav.loans">Loans</a>
+      <a href="index.html#budgeting" data-i18n="nav.budgeting">Budgeting</a>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" onclick="WFC.setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="km" onclick="WFC.setLang('km')">ខ្មែរ</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="breadcrumb">
+      <a href="index.html" data-i18n="nav.all">All Calculators</a>
+      &rsaquo; <span data-i18n="nav.loans">Loans</span>
+      &rsaquo; <span data-i18n="lp.bread">Loan Penalties Calculator</span>
+    </div>
+    <h2 data-i18n="lp.page_title">Loan Penalties Calculator</h2>
+    <p data-i18n="lp.page_desc">See exactly how a late or partial payment splits between penalty, interest, and principal — and what's still owed.</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="print-header">
+    <img src="assets/logo.png" alt="Wise Financial Cambodia">
+    <div class="print-header-text">
+      <h3 data-i18n="site.name">Wise Financial Cambodia</h3>
+      <p><span data-i18n="lp.page_title">Loan Penalties Calculator</span> &mdash; <span data-i18n="print.date_prefix">printed</span> <span id="printDate"></span></p>
+    </div>
+  </div>
+
+  <!-- Currency toggle -->
+  <div class="currency-bar" style="margin-bottom:1rem">
+    <span class="currency-label" data-i18n="currency.label">Currency:</span>
+    <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd_alt">USD $</button>
+    <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr_alt">KHR &#6107;</button>
+    <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
+      <span style="color:var(--text-medium)" data-i18n="currency.exrate_prefix">1 USD =</span>
+      <input type="number" id="exchangeRate" value="4000" min="100" step="100"
+        style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem" oninput="calculate()">
+      <span style="color:var(--text-medium)" data-i18n="currency.khr_code">KHR</span>
+    </span>
+  </div>
+
+  <!-- Overdue installment -->
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-header" data-i18n="lp.section.installment">Overdue Installment</div>
+    <div class="card-body">
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label" data-i18n="lp.input.overdue_principal">Overdue Principal</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxPrincipal">$</span>
+            <input type="number" id="overduePrincipal" value="112.49" min="0" step="1" oninput="calculate()">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" data-i18n="lp.input.overdue_interest">Overdue Interest</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxInterest">$</span>
+            <input type="number" id="overdueInterest" value="206.55" min="0" step="1" oninput="calculate()">
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:1fr;margin-top:.85rem;margin-bottom:0">
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.overdue_amount">Overdue Amount</div>
+          <div class="s-value" id="valOverdueAmount">—</div>
+          <div class="s-sub" data-i18n="lp.hint.overdue_amount">Overdue Principal + Overdue Interest</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Penalty rate & timing -->
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-header" data-i18n="lp.section.rate_timing">Penalty Rate &amp; Timing</div>
+    <div class="card-body">
+      <div class="input-grid">
+        <div class="input-group">
+          <label class="input-label" data-i18n="lp.input.annual_penalty_rate">Annual Penalty Rate (%)</label>
+          <div class="input-wrapper">
+            <input type="number" id="annualPenaltyRate" value="27" min="0" max="500" step="0.5" oninput="calculate()">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" data-i18n="lp.input.due_date">Due Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="dueDate" value="2022-12-10" oninput="calculate()">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" data-i18n="lp.input.actual_date">Actual Payment Date</label>
+          <div class="input-wrapper">
+            <input type="date" id="actualDate" value="2024-01-19" oninput="calculate()">
+          </div>
+          <div style="font-size:.71rem;color:var(--text-light);margin-top:.25rem" data-i18n="lp.hint.actual_date">Still unpaid? Leave this as today's date.</div>
+        </div>
+        <div class="input-group">
+          <label class="input-label" data-i18n="lp.input.amount_paid">Amount Paid Toward This Installment</label>
+          <div class="input-wrapper">
+            <span class="input-prefix" id="pfxPaid">$</span>
+            <input type="number" id="amountPaid" value="36.83" min="0" step="1" oninput="calculate()">
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-top:.85rem;margin-bottom:0">
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.daily_penalty_rate">Daily Penalty Rate (%)</div>
+          <div class="s-value" id="valDailyRate">—</div>
+          <div class="s-sub" data-i18n="lp.hint.daily_rate">Annual Rate ÷ 360</div>
+        </div>
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.days_late">Days Late</div>
+          <div class="s-value" id="valDaysLate">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breakdown -->
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-header dark" data-i18n="lp.section.breakdown">Penalty &amp; Payment Breakdown</div>
+    <div class="card-body">
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.penalty_accrued">Penalty</div>
+          <div class="s-value" id="valPenaltyAccrued">—</div>
+          <div class="s-sub" data-i18n="lp.hint.penalty_accrued">Full amount accrued to date</div>
+        </div>
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.penalty_paid">Penalty Paid</div>
+          <div class="s-value" id="valPenaltyPaid">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.interest_paid">Interest Paid</div>
+          <div class="s-value" id="valInterestPaid">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.principal_paid">Principal Paid</div>
+          <div class="s-value" id="valPrincipalPaid">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.penalty_due">Penalty Due</div>
+          <div class="s-value" id="valPenaltyDue">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.interest_due">Interest Due</div>
+          <div class="s-value" id="valInterestDue">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="s-label" data-i18n="lp.result.principal_due">Principal Due</div>
+          <div class="s-value" id="valPrincipalDue">—</div>
+        </div>
+      </div>
+
+      <div class="lp-total-banner">
+        <span class="lp-total-label" data-i18n="lp.result.total_due">Total Due</span>
+        <span class="lp-total-value" id="valTotalDue">—</span>
+      </div>
+
+      <div class="lp-note" data-i18n="lp.note.priority">
+        Payment priority is Penalty &rarr; Interest &rarr; Principal. Overdue penalty and interest are never added to (capitalized into) the principal — there is no compounding.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card">
+    <div class="card-header" data-i18n="lp.chart.title">Outstanding Amount Due by Category</div>
+    <div class="card-body" style="padding:.5rem 1rem .75rem">
+      <div class="chart-wrap">
+        <canvas id="lpChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print bar -->
+  <div class="print-bar">
+    <div class="print-note" data-i18n-html="print.note">Click <strong>Print / Save as PDF</strong> to export results.</div>
+    <button class="btn-print" onclick="window.print()">&#128424; <span data-i18n="print.btn">Print / Save as PDF</span></button>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
+</footer>
+
+<script src="lang.js?v=26"></script>
+<script src="i18n.js?v=2"></script>
+<script>
+'use strict';
+
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
+
+let lpChart = null;
+let currency = 'USD';
+
+// ── Date helpers (matches convention used in flexible-loan.html / compound-loan-multi-rate.html) ──
+function parseISO(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+function daysBetween(a, b) { return Math.round((b.getTime() - a.getTime()) / 86400000); }
+
+// ── Currency helpers ─────────────────────────────────────────────────────────
+function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
+function toUSD(v) { return currency === 'KHR' ? v / getXR() : v; }
+
+function fmt(usdVal) {
+  const v = Math.round(usdVal + (usdVal >= 0 ? 1e-9 : -1e-9));
+  if (currency === 'KHR') return '&#6107;&thinsp;' + Math.round(v * getXR()).toLocaleString('en-US');
+  return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('en-US');
+}
+
+const DOLLAR_IDS = ['overduePrincipal', 'overdueInterest', 'amountPaid'];
+
+function setCurrency(newCur) {
+  if (currency === newCur) return;
+  const xr = getXR();
+  DOLLAR_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    const v = parseFloat(el.value) || 0;
+    el.value = newCur === 'KHR' ? Math.round(v * xr) : (v / xr).toFixed(2);
+  });
+  currency = newCur;
+  document.querySelectorAll('.currency-btn').forEach(b => b.classList.toggle('active', b.dataset.currency === newCur));
+  const sym = currency === 'KHR' ? '&#6107;' : '$';
+  document.getElementById('pfxPrincipal').innerHTML = sym;
+  document.getElementById('pfxInterest').innerHTML  = sym;
+  document.getElementById('pfxPaid').innerHTML      = sym;
+  document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? 'flex' : 'none';
+  calculate();
+}
+
+// ── Core calculation (matches the validated "Penalty Calculator" sheet formula) ──
+function calculate() {
+  const principal = toUSD(parseFloat(document.getElementById('overduePrincipal').value) || 0);
+  const interest  = toUSD(parseFloat(document.getElementById('overdueInterest').value)  || 0);
+  const installment = principal + interest;
+
+  const annualRate = (parseFloat(document.getElementById('annualPenaltyRate').value) || 0) / 100;
+  const dailyRate  = annualRate / 360;
+
+  const due    = parseISO(document.getElementById('dueDate').value);
+  const actual = parseISO(document.getElementById('actualDate').value);
+  const daysLate = (due && actual) ? Math.max(0, daysBetween(due, actual)) : 0;
+
+  const amountPaid = toUSD(parseFloat(document.getElementById('amountPaid').value) || 0);
+
+  // Full penalty accrued: ROUND(installment * dailyRate * daysLate, 2)
+  const penaltyAccrued = Math.round(installment * dailyRate * daysLate * 100) / 100;
+
+  // Payment waterfall: Penalty -> Interest -> Principal
+  const penaltyPaid   = Math.min(amountPaid, penaltyAccrued);
+  const interestPaid  = Math.min(Math.max(0, amountPaid - penaltyPaid), interest);
+  const principalPaid = Math.min(Math.max(0, amountPaid - penaltyPaid - interestPaid), principal);
+
+  const penaltyDue   = penaltyAccrued - penaltyPaid;
+  const interestDue  = interest - interestPaid;
+  const principalDue = principal - principalPaid;
+  const totalDue     = penaltyDue + interestDue + principalDue;
+
+  document.getElementById('valOverdueAmount').innerHTML = fmt(installment);
+  document.getElementById('valDailyRate').textContent   = (dailyRate * 100).toFixed(3) + '%';
+  document.getElementById('valDaysLate').textContent    = daysLate.toLocaleString('en-US');
+
+  document.getElementById('valPenaltyAccrued').innerHTML = fmt(penaltyAccrued);
+  document.getElementById('valPenaltyPaid').innerHTML    = fmt(penaltyPaid);
+  document.getElementById('valInterestPaid').innerHTML   = fmt(interestPaid);
+  document.getElementById('valPrincipalPaid').innerHTML  = fmt(principalPaid);
+  document.getElementById('valPenaltyDue').innerHTML     = fmt(penaltyDue);
+  document.getElementById('valInterestDue').innerHTML    = fmt(interestDue);
+  document.getElementById('valPrincipalDue').innerHTML   = fmt(principalDue);
+  document.getElementById('valTotalDue').innerHTML       = fmt(totalDue);
+
+  document.getElementById('printDate').textContent = new Date().toLocaleDateString('en-GB',
+    { day: '2-digit', month: 'short', year: 'numeric' });
+
+  drawChart(penaltyDue, interestDue, principalDue);
+}
+
+// ── Chart ────────────────────────────────────────────────────────────────────
+function drawChart(penaltyDue, interestDue, principalDue) {
+  const ctx = document.getElementById('lpChart').getContext('2d');
+  if (lpChart) lpChart.destroy();
+
+  const labels = [T('lp.result.penalty_due'), T('lp.result.interest_due'), T('lp.result.principal_due')];
+  const data   = [penaltyDue, interestDue, principalDue];
+  const colors = ['#dc2626', '#d97706', '#2E75B6'];
+
+  lpChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: colors.map(c => c + 'CC'), borderColor: colors, borderWidth: 2, borderRadius: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '  ' + fmt(ctx.raw) } }
+      },
+      scales: {
+        x: { ticks: { callback: v => currency === 'KHR' ? '&#6107;' + (v/1000).toFixed(0) + 'K' : '$' + v.toLocaleString('en-US') } },
+        y: { ticks: { font: { weight: '600' } } }
+      }
+    }
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+calculate();
+</script>
+
+</body>
+</html>
