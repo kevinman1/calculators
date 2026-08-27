@@ -89,6 +89,12 @@
     .lang-switch { margin-left: .5rem; display:flex; gap:.2rem; }
     .lang-btn { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); color:white; padding:.3rem .6rem; font-size:.75rem; border-radius:3px; cursor:pointer; }
     .lang-btn.active { background:rgba(255,255,255,.35); font-weight:700; }
+    .chart-note {
+      font-size: .76rem;
+      color: var(--text-light);
+      line-height: 1.5;
+      margin-bottom: .5rem;
+    }
   </style>
 </head>
 <body>
@@ -204,6 +210,15 @@
     </div>
   </div>
 
+  <!-- ── Monthly year-on-year, with the 12-month moving average ── -->
+  <div class="card chart-card" style="margin-top:1.25rem">
+    <div class="card-header" data-i18n="cinf.chart.monthly_title">Year-on-Year Inflation, Month by Month</div>
+    <div class="card-body" style="padding:.5rem 1rem .75rem">
+      <p class="chart-note" data-i18n="cinf.chart.monthly_note">Each point compares a month with the same month a year earlier. The smoother line is a 12-month moving average, which strips out one-off spikes and shows the underlying trend.</p>
+      <div class="chart-container-tall"><canvas id="monthlyYoyChart"></canvas></div>
+    </div>
+  </div>
+
   <!-- ── Annual Table ── -->
   <div class="card annual-card">
     <div class="card-header" data-i18n="cinf.table.title">Annual CPI Data (December)</div>
@@ -238,7 +253,7 @@
   <p style="margin-top:.3rem" data-i18n="site.footer.edu">Calculators are for educational purposes. Consult a financial advisor for personal advice.</p>
 </footer>
 
-<script src="lang.js?v=26"></script>
+<script src="lang.js?v=27"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 // ── CPI Data: 257 months Dec 2004 – Apr 2026 ──
@@ -500,7 +515,7 @@ const CPI_DATA = [
   [{y:2026,m:1},212.33],
   [{y:2026,m:2},213.937],
   [{y:2026,m:3},219.007],
-  [{y:2026,m:4},220.34],
+  [{y:2026,m:4},220.342],
 ];
 
 // ── Helpers ──
@@ -541,9 +556,97 @@ function buildDateSelects() {
   document.getElementById('toYear').value   = '2026';
 }
 
+// ── Derived series ──────────────────────────────────────────────────────────
+// Year-on-year and the moving averages are all computed from CPI_DATA rather
+// than stored, so the admin Inflation tab stays the single place data is
+// entered. Checked against the source workbook: both series reproduce its own
+// columns exactly across all 257 months.
+function monthLabel(y, m) {
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return M[m - 1] + ' ' + y;
+}
+// Year-on-year change of the CPI itself.
+function yoySeries() {
+  const out = [];
+  for (let i = 12; i < CPI_DATA.length; i++) {
+    const [{y, m}, cpi] = CPI_DATA[i];
+    out.push({ y, m, label: monthLabel(y, m), pct: (cpi / CPI_DATA[i - 12][1] - 1) * 100 });
+  }
+  return out;
+}
+// Average the CPI over k months, then compare with the same average a year
+// earlier. This is the workbook's row 52 when k is 12.
+function maYoySeries(k) {
+  const avg = (from, to) => {
+    let t = 0;
+    for (let i = from; i <= to; i++) t += CPI_DATA[i][1];
+    return t / (to - from + 1);
+  };
+  const out = [];
+  for (let i = 0; i < CPI_DATA.length; i++) {
+    const [{y, m}] = CPI_DATA[i];
+    if (i < k - 1 + 12) { out.push({ y, m, label: monthLabel(y, m), pct: null }); continue; }
+    const cur  = avg(i - k + 1, i);
+    const prev = avg(i - k + 1 - 12, i - 12);
+    out.push({ y, m, label: monthLabel(y, m), pct: (cur / prev - 1) * 100 });
+  }
+  return out;
+}
+
 // ── Charts ──
-let powerChartInst = null;
-let yoyChartInst   = null;
+let powerChartInst   = null;
+let yoyChartInst     = null;
+let monthlyYoyInst   = null;
+
+// Monthly year-on-year with the 12-month moving average over the top, which is
+// the pair the source workbook charts together.
+function buildMonthlyYoyChart() {
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  const yoy = yoySeries();
+  const ma  = maYoySeries(12);
+  const byKey = {};
+  ma.forEach(r => byKey[r.y + '-' + r.m] = r.pct);
+
+  const labels = yoy.map(r => r.label);
+  const ctx = document.getElementById('monthlyYoyChart').getContext('2d');
+  if (monthlyYoyInst) monthlyYoyInst.destroy();
+  monthlyYoyInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: T('cinf.chart.series_yoy'),
+          data: yoy.map(r => +r.pct.toFixed(2)),
+          borderColor: '#5a6943',
+          backgroundColor: 'rgba(90,105,67,.10)',
+          borderWidth: 1.5, pointRadius: 0, fill: true, tension: .15
+        },
+        {
+          label: T('cinf.chart.series_ma12'),
+          data: yoy.map(r => { const v = byKey[r.y + '-' + r.m]; return v === null || v === undefined ? null : +v.toFixed(2); }),
+          borderColor: '#0284c7',
+          borderWidth: 2.5, pointRadius: 0, fill: false, tension: .2,
+          spanGaps: true
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 14, padding: 12 } },
+        tooltip: { callbacks: { label: c => '  ' + c.dataset.label + ': ' +
+          (c.parsed.y === null ? '—' : c.parsed.y.toFixed(2) + '%') } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 9 }, maxTicksLimit: 16, maxRotation: 45 }, grid: { display: false } },
+        y: { ticks: { callback: v => v + '%', font: { size: 10 } },
+             grid: { color: 'rgba(0,0,0,.06)' } }
+      }
+    }
+  });
+}
 
 function buildYoyChart() {
   // Build annual Dec YoY chart (static — doesn't change with inputs)
@@ -561,26 +664,53 @@ function buildYoyChart() {
     }
   }
 
+  // the 12-month moving average, sampled at each December we have a bar for
+  const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
+  const maByYear = {};
+  maYoySeries(12).forEach(r => { if (r.m === 12) maByYear[r.y] = r.pct; });
+  const maVals = labels.map(y => {
+    const v = maByYear[+y];
+    return v === null || v === undefined ? null : +v.toFixed(2);
+  });
+
   const ctx = document.getElementById('yoyChart').getContext('2d');
   if (yoyChartInst) yoyChartInst.destroy();
   yoyChartInst = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
-      datasets: [{
-        label: 'Dec YoY %',
-        data: vals,
-        backgroundColor: colors,
-        borderRadius: 3,
-      }]
+      datasets: [
+        {
+          label: T('cinf.chart.series_dec_yoy'),
+          data: vals,
+          backgroundColor: colors,
+          borderRadius: 3,
+          order: 2
+        },
+        {
+          label: T('cinf.chart.series_ma12'),
+          data: maVals,
+          type: 'line',
+          borderColor: '#0284c7',
+          backgroundColor: '#0284c7',
+          borderWidth: 2.5,
+          pointRadius: 2,
+          fill: false,
+          tension: .2,
+          spanGaps: true,
+          order: 1
+        }
+      ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { display: false },
+        legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12, padding: 10 } },
         tooltip: {
           callbacks: {
-            label: ctx => ctx.parsed.y.toFixed(2) + '%'
+            label: c => '  ' + c.dataset.label + ': ' +
+              (c.parsed.y === null ? '—' : c.parsed.y.toFixed(2) + '%')
           }
         }
       },
@@ -798,6 +928,7 @@ function calculate() {
 document.addEventListener('DOMContentLoaded', () => {
   buildDateSelects();
   buildYoyChart();
+  buildMonthlyYoyChart();
   buildAnnualTable();
   calculate();
 });
