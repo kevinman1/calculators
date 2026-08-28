@@ -540,6 +540,7 @@ window.WFC_STRINGS = {
     "cmr.late.grand_total": "Grand Total Owing",
     "cinf.page_title": "Cambodian Inflation Calculator",
     "cinf.desc": "See how the purchasing power of money has changed over time in Cambodia using official CPI data from the National Institute of Statistics.",
+    "cinf.what_is_cpi": "The Consumer Price Index (CPI) is a single number that tracks the average cost of a fixed \"basket\" of everyday goods and services — food, housing, transport, utilities, and more — bought by a typical household. It isn't a price in dollars or riel; it's an index that rises and falls as those costs change, so comparing the CPI between two dates shows how much more (or less) it costs to buy the same things. A rise in the CPI over time is what we call inflation.",
     "cinf.section.inputs": "Inputs",
     "cinf.section.results": "Results",
     "cinf.input.amount": "Amount",
