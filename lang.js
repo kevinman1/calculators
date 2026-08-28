@@ -568,6 +568,7 @@ window.WFC_STRINGS = {
     "cinf.table.year": "Year",
     "cinf.table.cpi_index": "CPI Index (Dec)",
     "cinf.table.yoy": "Dec YoY %",
+    "cinf.table.ma12": "12-mo MA YoY %",
     "cinf.table.cum": "Cumulative from 2004",
     "cinf.table.source_note": "Source: NIS Cambodia. CPI base Oct–Dec 2006 = 100. YoY = December vs. previous December.",
     "cinf.print.note": "All calculations use official NIS Cambodia CPI data. For educational purposes only.",
