@@ -549,12 +549,13 @@ function buildDateSelects() {
   document.getElementById('fromYear').innerHTML = yearOpts;
   document.getElementById('toYear').innerHTML   = yearOpts;
 
-  // Defaults: From = Jan 2010, To = the newest month in CPI_DATA. 'To' is
-  // derived rather than hardcoded, so it never goes stale again when a new
-  // month is added through the admin Inflation tab.
-  const latest = CPI_DATA[CPI_DATA.length - 1][0];
-  document.getElementById('fromMon').value  = '1';
-  document.getElementById('fromYear').value = '2010';
+  // Defaults: From = the oldest month in CPI_DATA, To = the newest. Both are
+  // derived rather than hardcoded, so neither goes stale when data is added
+  // at either end through the admin Inflation tab.
+  const earliest = CPI_DATA[0][0];
+  const latest   = CPI_DATA[CPI_DATA.length - 1][0];
+  document.getElementById('fromMon').value  = String(earliest.m);
+  document.getElementById('fromYear').value = String(earliest.y);
   document.getElementById('toMon').value    = String(latest.m);
   document.getElementById('toYear').value   = String(latest.y);
 }
