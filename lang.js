@@ -545,6 +545,7 @@ window.WFC_STRINGS = {
     "cinf.input.amount": "Amount",
     "cinf.input.from_date": "From Month",
     "cinf.input.to_date": "To Month",
+    "cinf.input.reset_range": "↺ Reset to Full Range",
     "cinf.note.source_label": "Data source:",
     "cinf.note.source": "National Institute of Statistics (NIS), Cambodia. CPI base: Oct–Dec 2006 = 100.",
     "cinf.note.latest_label": "Latest data:",
