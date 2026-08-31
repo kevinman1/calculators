@@ -208,6 +208,11 @@
       <div style="font-size:.82rem;color:var(--text-medium)" data-i18n-html="dp.budget_note">
         per month — total available for <strong>all</strong> debts combined
       </div>
+      <div style="font-size:.78rem;color:var(--text-light);margin-left:auto;white-space:nowrap">
+        <span data-i18n="dp.budget.min_total_label">Total minimum payments:</span>
+        <strong id="minPaymentTotal" style="color:var(--text-dark)">—</strong>
+        <span data-i18n="dp.th.per_mo">/mo</span>
+      </div>
     </div>
   </div>
 
@@ -381,7 +386,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=33"></script>
+<script src="lang.js?v=34"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
@@ -711,13 +716,22 @@ function calculate() {
   const loans  = getLoans();
   const budget = toUSD(parseFloat(document.getElementById('monthlyBudget').value) || 0);
 
+  // Subtotal of minimum payments across all debts, shown in the budget card
+  // as a guide for how large the monthly budget needs to be. Kept outside
+  // the early-return below so it still updates even before a budget is set.
+  const totalMin = loans.reduce((s, l) => s + l.min, 0);
+  const minTotalEl = document.getElementById('minPaymentTotal');
+  if (minTotalEl) {
+    minTotalEl.textContent = loans.length ? fmt(totalMin) : '—';
+    minTotalEl.style.color = (loans.length && budget > 0 && totalMin > budget) ? '#d97706' : '';
+  }
+
   if (!loans.length || budget <= 0) {
     document.getElementById('resultsSection').style.opacity = '0.3';
     return;
   }
   document.getElementById('resultsSection').style.opacity = '1';
 
-  const totalMin = loans.reduce((s, l) => s + l.min, 0);
   // Also warn when monthly compound interest alone exceeds budget
   const totalCompoundInterest = loans.filter(l => l.type === 'compound' && l.rate > 0)
     .reduce((s, l) => s + l.balance * l.rate / 12 / 100, 0);

@@ -798,6 +798,7 @@ window.WFC_STRINGS = {
     "dp.page_desc": "Compare all five pay-off strategies side by side — enter your debts, set your monthly budget, and instantly see which approach gets you debt-free fastest and cheapest.",
     "dp.card.budget": "Monthly Budget for Debt Payments",
     "dp.budget_note": "per month — total available for <strong>all</strong> debts combined",
+    "dp.budget.min_total_label": "Total minimum payments:",
     "dp.card.debts": "Your Debts",
     "dp.debts_hint": "☰ drag rows · ▲▼ move · Custom order = 🎯 strategy",
     "dp.th.name": "Debt Name",
