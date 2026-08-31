@@ -633,6 +633,40 @@ function pickTarget(activeDebts, budget, strategy) {
   return activeDebts[0];
 }
 
+// Allocate this month's payment per debt. Non-targets get their minimum;
+// the rest of the budget goes to the target. If the target finishes paying
+// off with budget still left over, the leftover cascades to the next-
+// priority debt within the same month, so the full budget is always spent.
+function allocateMonthlyPayments(active, budget, strategy) {
+  const target = pickTarget(active, budget, strategy);
+  const paymentFor = new Map(active.map(d => [d.id, 0]));
+  if (!target) return { target, paymentFor };
+
+  let remaining = budget;
+  active.filter(d => d.id !== target.id).forEach(d => {
+    const pay = Math.min(d.min, d.balance);
+    paymentFor.set(d.id, pay);
+    remaining -= pay;
+  });
+
+  let pool = active.slice();
+  let current = target;
+  while (current && remaining > 0.005) {
+    const mr       = current.rate / 12 / 100;
+    const interest = current.type === 'simple' ? current.origBalance * mr : current.balance * mr;
+    const already  = paymentFor.get(current.id) || 0;
+    const needed   = Math.max(0, current.balance + interest * 1.05 - already);
+    const extra    = Math.min(remaining, needed);
+    paymentFor.set(current.id, already + extra);
+    remaining -= extra;
+    pool = pool.filter(d => d.id !== current.id);
+    if (remaining <= 0.005 || !pool.length) break;
+    current = pickTarget(pool, budget, strategy);
+  }
+
+  return { target, paymentFor };
+}
+
 function runStrategy(loansInput, budget, strategy) {
   const debts = deepCopy(loansInput);
   const history = [debts.reduce((s, d) => s + d.balance, 0)];
@@ -650,27 +684,8 @@ function runStrategy(loansInput, budget, strategy) {
   while (debts.some(d => d.balance > 0.005) && month < MAX) {
     month++;
     const active = debts.filter(d => d.balance > 0.005);
-    const target = pickTarget(active, budget, strategy);
-    const nonTargets = active.filter(d => d.id !== target.id);
-    const nonTargetMin = nonTargets.reduce((s, d) => s + Math.min(d.min, d.balance), 0);
-
-    // Pay non-targets their minimum payment
-    let remaining = budget;
-    nonTargets.forEach(d => {
-      const pay = Math.min(d.min, d.balance);
-      remaining -= pay;
-      applyPayment(d, pay);
-    });
-
-    // Target gets all remaining
-    if (target) {
-      const mr = target.rate / 12 / 100;
-      const interest = target.type === 'simple'
-        ? target.origBalance * mr
-        : target.balance * mr;
-      const pay = Math.max(0, Math.min(remaining, target.balance + interest * 1.05));
-      applyPayment(target, pay);
-    }
+    const { paymentFor } = allocateMonthlyPayments(active, budget, strategy);
+    active.forEach(d => applyPayment(d, paymentFor.get(d.id) || 0));
 
     // Mark paid-off
     debts.forEach(d => {
@@ -881,27 +896,18 @@ function runStrategyDetailed(loansInput, budget, strategy) {
 
   while (debts.some(d => d.balance > 0.005) && month < MAX) {
     month++;
-    const active     = debts.filter(d => d.balance > 0.005);
-    const target     = pickTarget(active, budget, strategy);
+    const active = debts.filter(d => d.balance > 0.005);
+    const { target, paymentFor } = allocateMonthlyPayments(active, budget, strategy);
     if (!target) break;
-    const nonTargets = active.filter(d => d.id !== target.id);
 
     const row = {};
-    debts.forEach(d => { row[d.id] = { pay: 0, isTarget: d.id === target.id }; });
-
-    let remaining = budget;
-    nonTargets.forEach(d => {
-      const pay = Math.min(d.min, d.balance);
-      remaining  -= pay;
-      row[d.id].pay = pay;
+    debts.forEach(d => { row[d.id] = { pay: 0, isTarget: false }; });
+    active.forEach(d => {
+      const pay    = paymentFor.get(d.id) || 0;
+      const minPay = Math.min(d.min, d.balance);
+      row[d.id] = { pay, isTarget: pay > minPay + 0.005 };
       applyPayment(d, pay);
     });
-
-    const mr   = target.rate / 12 / 100;
-    const tInt = target.type === 'simple' ? target.origBalance * mr : target.balance * mr;
-    const tPay = Math.max(0, Math.min(remaining, target.balance + tInt * 1.05));
-    row[target.id].pay = tPay;
-    applyPayment(target, tPay);
 
     debts.forEach(d => {
       if (d.balance < 0.005 && d.paidOffMonth === null) {
