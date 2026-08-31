@@ -16,6 +16,20 @@
     .opt-input-2 .input-suffix { background: #c8a84b1f; color: #8a6f1f; }
     .opt-input-3 .input-suffix { background: #5b8db81f; color: #33597a; }
 
+    /* ── Per-option computed total, under each days input ── */
+    .opt-total-line { font-size: .74rem; margin-top: .35rem; }
+    .opt-input-1 .opt-total-line { color: #4d6b47; }
+    .opt-input-2 .opt-total-line { color: #8a6f1f; }
+    .opt-input-3 .opt-total-line { color: #33597a; }
+
+    /* ── Comparison table rows coloured to match the option inputs + chart lines ── */
+    .cmp-table tr.opt-row-1 td { color: #4d6b47; font-weight: 700; }
+    .cmp-table tr.opt-row-2 td { color: #8a6f1f; font-weight: 700; }
+    .cmp-table tr.opt-row-3 td { color: #33597a; font-weight: 700; }
+    .cmp-table tr.opt-row-1 td:first-child { border-left: 3px solid #739669; padding-left: .55rem; }
+    .cmp-table tr.opt-row-2 td:first-child { border-left: 3px solid #c8a84b; padding-left: .55rem; }
+    .cmp-table tr.opt-row-3 td:first-child { border-left: 3px solid #5b8db8; padding-left: .55rem; }
+
     /* ── Comparison table + balance chart, side by side ── */
     .cmp-chart-row {
       display: grid;
@@ -72,7 +86,7 @@
 
   <div class="page-title">
     <h2 data-i18n="simple_daily.page_title">Simple Interest Daily Repayment Calculator</h2>
-    <p data-i18n="simple_daily.page_desc">Enter the loan amount and total payback amount to see the daily payment schedule and true annual interest rate for up to three repayment term options.</p>
+    <p data-i18n="simple_daily.page_desc">Enter the loan amount and daily payback amount to see each option's total repayment, daily payment schedule, and true annual interest rate for up to three repayment term options.</p>
   </div>
 
   <div style="display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:1.25rem; align-items:start;">
@@ -101,17 +115,10 @@
         </div>
 
         <div class="input-group">
-          <label data-i18n="simple_daily.input.payback">Payback Amount (Total to Repay)</label>
+          <label data-i18n="simple_daily.input.daily_payback">Daily Payback Amount</label>
           <div class="input-wrapper">
             <span class="input-prefix currency-sym">&#x17DB;</span>
-            <input type="number" id="paybackAmount" value="600000" min="0" step="1000">
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label data-i18n="simple_daily.input.start_date">Loan Start Date (optional)</label>
-          <div class="input-wrapper">
-            <input type="date" id="startDate">
+            <input type="number" id="dailyPayback" value="20000" min="0" step="1000">
           </div>
         </div>
 
@@ -126,24 +133,34 @@
         <div class="input-group opt-input-1">
           <label data-i18n="simple_daily.input.opt1">Option 1</label>
           <div class="input-wrapper">
-            <input type="number" id="days1" value="20" min="1" step="1">
+            <input type="number" id="days1" value="15" min="1" step="1">
             <span class="input-suffix" data-i18n="input.days_unit">days</span>
           </div>
+          <div class="opt-total-line"><span data-i18n="simple_daily.input.opt_total">Total to Repay</span>: <strong id="optTotal1">—</strong></div>
         </div>
 
         <div class="input-group opt-input-2">
           <label data-i18n="simple_daily.input.opt2">Option 2</label>
           <div class="input-wrapper">
-            <input type="number" id="days2" value="30" min="1" step="1">
+            <input type="number" id="days2" value="20" min="1" step="1">
             <span class="input-suffix" data-i18n="input.days_unit">days</span>
           </div>
+          <div class="opt-total-line"><span data-i18n="simple_daily.input.opt_total">Total to Repay</span>: <strong id="optTotal2">—</strong></div>
         </div>
 
         <div class="input-group opt-input-3">
           <label data-i18n="simple_daily.input.opt3">Option 3</label>
           <div class="input-wrapper">
-            <input type="number" id="days3" value="120" min="1" step="1">
+            <input type="number" id="days3" value="50" min="1" step="1">
             <span class="input-suffix" data-i18n="input.days_unit">days</span>
+          </div>
+          <div class="opt-total-line"><span data-i18n="simple_daily.input.opt_total">Total to Repay</span>: <strong id="optTotal3">—</strong></div>
+        </div>
+
+        <div class="input-group">
+          <label data-i18n="simple_daily.input.start_date">Loan Start Date (optional)</label>
+          <div class="input-wrapper">
+            <input type="date" id="startDate">
           </div>
         </div>
 
@@ -168,8 +185,8 @@
             <div class="r-value" id="r-loanAmount">—</div>
           </div>
           <div class="result-item">
-            <div class="r-label" data-i18n="simple_daily.result.payback_amount">Payback Amount</div>
-            <div class="r-value" id="r-paybackAmount">—</div>
+            <div class="r-label" data-i18n="simple_daily.result.daily_payback">Daily Payback Amount</div>
+            <div class="r-value" id="r-dailyPayback">—</div>
           </div>
         </div>
 
@@ -195,19 +212,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="current">
+              <tr class="opt-row-1">
                 <td>1</td>
                 <td id="cmp-days1">—</td>
                 <td id="cmp-pmt1">—</td>
                 <td id="cmp-rate1">—</td>
               </tr>
-              <tr>
+              <tr class="opt-row-2">
                 <td>2</td>
                 <td id="cmp-days2">—</td>
                 <td id="cmp-pmt2">—</td>
                 <td id="cmp-rate2">—</td>
               </tr>
-              <tr>
+              <tr class="opt-row-3">
                 <td>3</td>
                 <td id="cmp-days3">—</td>
                 <td id="cmp-pmt3">—</td>
@@ -267,7 +284,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=34"></script>
+<script src="lang.js?v=35"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 let balanceChart = null;
@@ -288,39 +305,49 @@ function addDays(date, n) {
   d.setDate(d.getDate() + n);
   return d;
 }
+function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
 
 /* ── main calculate ─────────────────────────────────── */
 function calculate() {
-  const loan    = Math.max(0, parseFloat(document.getElementById('loanAmount').value)    || 0);
-  const payback = Math.max(0, parseFloat(document.getElementById('paybackAmount').value) || 0);
+  const loan        = Math.max(0, parseFloat(document.getElementById('loanAmount').value)  || 0);
+  const dailyPayback = Math.max(0, parseFloat(document.getElementById('dailyPayback').value) || 0);
   const days1   = Math.max(1, parseInt(document.getElementById('days1').value)           || 1);
   const days2   = Math.max(1, parseInt(document.getElementById('days2').value)           || 1);
   const days3   = Math.max(1, parseInt(document.getElementById('days3').value)           || 1);
   const dateStr = document.getElementById('startDate').value;
   const startDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
 
-  const totalInterest = Math.max(0, payback - loan);
-  const interestPct   = loan > 0 ? (totalInterest / loan) * 100 : 0;
-
-  // Per-option calculations  (matches Excel: daily = payback/days, rate = (payback-loan)/(loan*(days/360)))
-  const opts = [days1, days2, days3].map(days => ({
-    days,
-    dailyPmt:   days  > 0             ? payback / days                                      : 0,
-    annualRate: loan  > 0 && days > 0 ? (totalInterest / (loan * (days / 360))) * 100        : 0
-  }));
+  // Per-option calculations — each option's total repayment is its own days × the shared daily amount
+  const opts = [days1, days2, days3].map(days => {
+    const total         = days * dailyPayback;
+    const totalInterest = Math.max(0, total - loan);
+    return {
+      days,
+      dailyPmt: dailyPayback,
+      total,
+      totalInterest,
+      annualRate: loan > 0 && days > 0 ? (totalInterest / (loan * (days / 360))) * 100 : 0
+    };
+  });
 
   // Currency symbol in prefix
   const sym = document.getElementById('currency').value === 'KHR' ? '៛' : '$';
   document.querySelectorAll('.currency-sym').forEach(el => el.textContent = sym);
 
-  // Hero
-  document.getElementById('r-totalInterest').textContent = fmtMoney(totalInterest);
+  // Per-option total, shown under each days input
+  opts.forEach((o, i) => {
+    document.getElementById('optTotal' + (i + 1)).textContent = fmtMoney(o.total);
+  });
+
+  // Hero — reflects Option 1 (the first repayment term, highlighted below)
+  const hero = opts[0];
+  document.getElementById('r-totalInterest').textContent = fmtMoney(hero.totalInterest);
   document.getElementById('r-interestPct').textContent   =
-    loan > 0 ? interestPct.toFixed(1) + '% of loan amount' : '—';
+    loan > 0 ? (hero.totalInterest / loan * 100).toFixed(1) + '% of loan amount (Option 1)' : '—';
 
   // Summary grid
-  document.getElementById('r-loanAmount').textContent   = fmtMoney(loan);
-  document.getElementById('r-paybackAmount').textContent = fmtMoney(payback);
+  document.getElementById('r-loanAmount').textContent    = fmtMoney(loan);
+  document.getElementById('r-dailyPayback').textContent  = fmtMoney(dailyPayback);
 
   // Comparison table
   opts.forEach((o, i) => {
@@ -341,22 +368,22 @@ function calculate() {
 
   document.getElementById('printDate').textContent = fmtDate(new Date());
 
-  renderChart(opts, payback, maxDays);
+  renderChart(opts, maxDays);
 
   if (document.getElementById('scheduleWrapper').style.display !== 'none') {
-    renderSchedule(opts, payback, maxDays, startDate);
+    renderSchedule(opts, maxDays, startDate);
   }
 }
 
 /* ── chart ──────────────────────────────────────────── */
-function renderChart(opts, payback, maxDays) {
+function renderChart(opts, maxDays) {
   const step = maxDays <= 60 ? 1 : maxDays <= 180 ? 5 : maxDays <= 365 ? 7 : 30;
   const labels = [];
   const series = [[], [], []];
 
   for (let d = 0; d <= maxDays; d += step) {
     labels.push('Day ' + d);
-    opts.forEach((o, i) => series[i].push(Math.max(0, payback - d * o.dailyPmt)));
+    opts.forEach((o, i) => series[i].push(Math.max(0, o.total - d * o.dailyPmt)));
   }
   if (maxDays % step !== 0) {
     labels.push('Day ' + maxDays);
@@ -415,7 +442,7 @@ function renderChart(opts, payback, maxDays) {
 }
 
 /* ── schedule ───────────────────────────────────────── */
-function renderSchedule(opts, payback, maxDays, startDate) {
+function renderSchedule(opts, maxDays, startDate) {
   const tbody = document.querySelector('#scheduleTable tbody');
   tbody.innerHTML = '';
   for (let d = 0; d <= maxDays; d++) {
@@ -427,7 +454,7 @@ function renderSchedule(opts, payback, maxDays, startDate) {
       if (d > o.days) {
         html += '<td style="color:#bbb">—</td>';
       } else {
-        const rem = Math.max(0, payback - d * o.dailyPmt);
+        const rem = Math.max(0, o.total - d * o.dailyPmt);
         html += '<td>' + fmtMoney(rem) + '</td>';
       }
     });
@@ -444,20 +471,23 @@ function toggleSchedule() {
   const T = (typeof WFC !== 'undefined') ? WFC.t : k => k;
   btn.textContent = isHidden ? T('schedule.hide') : T('schedule.show');
   if (isHidden) {
-    const loan    = Math.max(0, parseFloat(document.getElementById('loanAmount').value)    || 0);
-    const payback = Math.max(0, parseFloat(document.getElementById('paybackAmount').value) || 0);
+    const loan        = Math.max(0, parseFloat(document.getElementById('loanAmount').value)   || 0);
+    const dailyPayback = Math.max(0, parseFloat(document.getElementById('dailyPayback').value) || 0);
     const days1   = Math.max(1, parseInt(document.getElementById('days1').value)           || 1);
     const days2   = Math.max(1, parseInt(document.getElementById('days2').value)           || 1);
     const days3   = Math.max(1, parseInt(document.getElementById('days3').value)           || 1);
     const dateStr = document.getElementById('startDate').value;
     const startDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
-    const totalInterest = Math.max(0, payback - loan);
-    const opts = [days1, days2, days3].map(days => ({
-      days,
-      dailyPmt:   days > 0             ? payback / days                                     : 0,
-      annualRate: loan  > 0 && days > 0 ? (totalInterest / (loan * (days / 360))) * 100 : 0
-    }));
-    renderSchedule(opts, payback, Math.max(days1, days2, days3), startDate);
+    const opts = [days1, days2, days3].map(days => {
+      const total = days * dailyPayback;
+      return {
+        days,
+        dailyPmt: dailyPayback,
+        total,
+        annualRate: loan > 0 && days > 0 ? (Math.max(0, total - loan) / (loan * (days / 360))) * 100 : 0
+      };
+    });
+    renderSchedule(opts, Math.max(days1, days2, days3), startDate);
   }
 }
 
