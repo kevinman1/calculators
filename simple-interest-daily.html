@@ -7,6 +7,27 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Option colours (match the balance chart's line colours) ── */
+    .opt-input-1 .input-wrapper { border-color: #739669; border-width: 2px; }
+    .opt-input-2 .input-wrapper { border-color: #c8a84b; border-width: 2px; }
+    .opt-input-3 .input-wrapper { border-color: #5b8db8; border-width: 2px; }
+    .opt-input-1 .input-suffix { background: #7396691f; color: #4d6b47; }
+    .opt-input-2 .input-suffix { background: #c8a84b1f; color: #8a6f1f; }
+    .opt-input-3 .input-suffix { background: #5b8db81f; color: #33597a; }
+
+    /* ── Comparison table + balance chart, side by side ── */
+    .cmp-chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 1.25rem;
+      align-items: start;
+      margin-top: 1.25rem;
+    }
+    .cmp-chart-row > * { min-width: 0; }
+    @media (max-width: 900px) { .cmp-chart-row { grid-template-columns: 1fr; } }
+    .cmp-table-wrap { overflow-x: auto; }
+  </style>
 </head>
 <body>
 
@@ -102,7 +123,7 @@
       <div class="card-header" data-i18n="simple_daily.input.options_label">Repayment Term Options</div>
       <div class="card-body">
 
-        <div class="input-group">
+        <div class="input-group opt-input-1">
           <label data-i18n="simple_daily.input.opt1">Option 1</label>
           <div class="input-wrapper">
             <input type="number" id="days1" value="20" min="1" step="1">
@@ -110,7 +131,7 @@
           </div>
         </div>
 
-        <div class="input-group">
+        <div class="input-group opt-input-2">
           <label data-i18n="simple_daily.input.opt2">Option 2</label>
           <div class="input-wrapper">
             <input type="number" id="days2" value="30" min="1" step="1">
@@ -118,7 +139,7 @@
           </div>
         </div>
 
-        <div class="input-group">
+        <div class="input-group opt-input-3">
           <label data-i18n="simple_daily.input.opt3">Option 3</label>
           <div class="input-wrapper">
             <input type="number" id="days3" value="120" min="1" step="1">
@@ -157,49 +178,54 @@
 
   </div>
 
-  <!-- OPTION COMPARISON TABLE (full-width) -->
-  <div class="card" style="margin-top:1.25rem">
-    <div class="card-header" data-i18n="simple_daily.result.comparison">Option Comparison</div>
-    <div class="card-body" style="padding-top:.6rem;padding-bottom:.6rem">
-      <table class="cmp-table">
-        <thead>
-          <tr>
-            <th data-i18n="simple_daily.result.option_col">Option</th>
-            <th data-i18n="simple_daily.result.days_col">Days</th>
-            <th data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</th>
-            <th data-i18n="simple_daily.result.annual_rate_col">Annual Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="current">
-            <td>1</td>
-            <td id="cmp-days1">—</td>
-            <td id="cmp-pmt1">—</td>
-            <td id="cmp-rate1">—</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td id="cmp-days2">—</td>
-            <td id="cmp-pmt2">—</td>
-            <td id="cmp-rate2">—</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td id="cmp-days3">—</td>
-            <td id="cmp-pmt3">—</td>
-            <td id="cmp-rate3">—</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <!-- OPTION COMPARISON TABLE + BALANCE CHART, side by side -->
+  <div class="cmp-chart-row">
 
-  <!-- CHART -->
-  <div class="card chart-card">
-    <div class="card-header" data-i18n="simple_daily.chart.title">Daily Remaining Balance</div>
-    <div class="chart-container">
-      <canvas id="balanceChart"></canvas>
+    <div class="card">
+      <div class="card-header" data-i18n="simple_daily.result.comparison">Option Comparison</div>
+      <div class="card-body" style="padding-top:.6rem;padding-bottom:.6rem">
+        <div class="cmp-table-wrap">
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th data-i18n="simple_daily.result.option_col">Option</th>
+                <th data-i18n="simple_daily.result.days_col">Days</th>
+                <th data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</th>
+                <th data-i18n="simple_daily.result.annual_rate_col">Annual Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="current">
+                <td>1</td>
+                <td id="cmp-days1">—</td>
+                <td id="cmp-pmt1">—</td>
+                <td id="cmp-rate1">—</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td id="cmp-days2">—</td>
+                <td id="cmp-pmt2">—</td>
+                <td id="cmp-rate2">—</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td id="cmp-days3">—</td>
+                <td id="cmp-pmt3">—</td>
+                <td id="cmp-rate3">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+
+    <div class="card">
+      <div class="card-header" data-i18n="simple_daily.chart.title">Daily Remaining Balance</div>
+      <div class="chart-container">
+        <canvas id="balanceChart"></canvas>
+      </div>
+    </div>
+
   </div>
 
   <!-- SCHEDULE -->
