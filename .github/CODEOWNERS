@@ -1,0 +1,5 @@
+# Automatically requests Kevin as a reviewer on every pull request, so it
+# shows up in his GitHub review queue and notifications. This does not block
+# anyone from merging — branch protection still only blocks force-pushes and
+# branch deletion (see CLAUDE.md and PUBLISHING.md for why).
+* @kevinman1
