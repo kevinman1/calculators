@@ -400,7 +400,7 @@ function calculate() {
   document.getElementById('printDate').textContent = today.toLocaleDateString('en-GB',
     { day: '2-digit', month: 'short', year: 'numeric' });
 
-  renderChart(totalYears, salaryKHR);
+  renderChart(totalYears, salaryKHR, startAge);
   if (document.getElementById('tableWrapper').style.display !== 'none') {
     renderTable(totalYears, salaryKHR, startAge);
   }
@@ -410,12 +410,19 @@ function calculate() {
 // Retirement itself happens at a fixed age (60) and isn't a lever that changes
 // the payout — what actually changes it is how many years you end up
 // contributing in total. Holds salary fixed and varies only that.
-function renderChart(userYears, salaryKHR) {
+function renderChart(userYears, salaryKHR, startAge) {
   const xr     = getXR();
   const toDisp = v => currency === 'KHR' ? Math.round(v) : Math.round(v / xr);
 
+  // NSSF contributions are mandatory only up to retirement age (60) — you can't
+  // rack up more years than that from your own start age. Cap the axis there,
+  // but never cut it shorter than needed to still show the user's own bar.
+  const NSSF_RETIREMENT_AGE = 60;
+  const maxByAge60 = Math.floor(NSSF_RETIREMENT_AGE - startAge);
+  const maxYears   = Math.min(50, Math.max(maxByAge60, userYears, 1));
+
   const labels = [], values = [], colors = [];
-  for (let y = 1; y <= 50; y++) {
+  for (let y = 1; y <= maxYears; y++) {
     labels.push(y);
     values.push(toDisp(pensionRate(y) * salaryKHR));
     colors.push(y === userYears ? 'rgba(45,90,27,0.95)' : 'rgba(115,150,105,0.55)');
