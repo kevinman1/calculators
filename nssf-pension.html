@@ -209,11 +209,11 @@
 
   <!-- ── CHART ──────────────────────────────────────────────────────────────── -->
   <div class="card chart-card">
-    <div class="card-header" data-i18n="nssf.chart.title">Monthly Pension by Retirement Age</div>
-    <div style="font-size:.76rem;color:#555;padding:.5rem 1rem 0" data-i18n="nssf.chart.subtitle">If your salary and start date stay the same, here's how retiring earlier or later would change your monthly pension.</div>
+    <div class="card-header" data-i18n="nssf.chart.title">Monthly Pension by Total Contribution Years</div>
+    <div style="font-size:.76rem;color:#555;padding:.5rem 1rem 0" data-i18n="nssf.chart.subtitle">NSSF's old-age pension can only be claimed at retirement age (60) with at least 12 months of contribution — retiring earlier just means no pension yet, not a different amount. What actually changes your pension is how many years you end up contributing in total, shown here.</div>
     <div style="display:flex;gap:1.2rem;padding:.4rem 1rem 0;font-size:.76rem;color:#555;flex-wrap:wrap">
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(45,90,27,0.95);margin-right:.35rem"></span><span data-i18n="nssf.chart.legend_chosen">Your chosen retirement age</span></span>
-      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(115,150,105,0.55);margin-right:.35rem"></span><span data-i18n="nssf.chart.legend_other">Other retirement ages</span></span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(45,90,27,0.95);margin-right:.35rem"></span><span data-i18n="nssf.chart.legend_chosen">Your total contribution years</span></span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(115,150,105,0.55);margin-right:.35rem"></span><span data-i18n="nssf.chart.legend_other">Other year counts</span></span>
     </div>
     <div class="chart-container">
       <canvas id="nssfChart"></canvas>
@@ -400,30 +400,25 @@ function calculate() {
   document.getElementById('printDate').textContent = today.toLocaleDateString('en-GB',
     { day: '2-digit', month: 'short', year: 'numeric' });
 
-  renderChart(currentAge, retirementAge, startDate, salaryKHR);
+  renderChart(totalYears, salaryKHR);
   if (document.getElementById('tableWrapper').style.display !== 'none') {
     renderTable(totalYears, salaryKHR, startAge);
   }
 }
 
-// ── Chart: how the pension changes if you retire earlier or later ──────────────
-// Holds salary and contribution start date fixed, and varies only the retirement
-// age, so the chart answers a question the user can actually act on.
-function renderChart(currentAge, retirementAge, startDate, salaryKHR) {
+// ── Chart: how the pension changes with total years contributed ────────────────
+// Retirement itself happens at a fixed age (60) and isn't a lever that changes
+// the payout — what actually changes it is how many years you end up
+// contributing in total. Holds salary fixed and varies only that.
+function renderChart(userYears, salaryKHR) {
   const xr     = getXR();
   const toDisp = v => currency === 'KHR' ? Math.round(v) : Math.round(v / xr);
-  const today  = new Date();
 
-  const MIN_AGE = 50, MAX_AGE = 80; // matches the Retirement Age input's own min/max
-
-  const labels = [], values = [], colors = [], yearsAt = {};
-  for (let age = MIN_AGE; age <= MAX_AGE; age++) {
-    const candidateDate = addYears(today, Math.max(0, age - currentAge));
-    const years = Math.max(0, Math.floor(daysBetween(startDate, candidateDate) / 365.25));
-    labels.push(age);
-    values.push(toDisp(pensionRate(years) * salaryKHR));
-    yearsAt[age] = years;
-    colors.push(age === retirementAge ? 'rgba(45,90,27,0.95)' : 'rgba(115,150,105,0.55)');
+  const labels = [], values = [], colors = [];
+  for (let y = 1; y <= 50; y++) {
+    labels.push(y);
+    values.push(toDisp(pensionRate(y) * salaryKHR));
+    colors.push(y === userYears ? 'rgba(45,90,27,0.95)' : 'rgba(115,150,105,0.55)');
   }
 
   const ctx = document.getElementById('nssfChart').getContext('2d');
@@ -447,18 +442,17 @@ function renderChart(currentAge, retirementAge, startDate, salaryKHR) {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            title: ctx => T('nssf.input.retirement_age') + ' ' + ctx[0].label +
-              (parseInt(ctx[0].label) === retirementAge ? ' ★ ' + T('nssf.chart.you') : ''),
+            title: ctx => T('nssf.table.year') + ' ' + ctx[0].label +
+              (parseInt(ctx[0].label) === userYears ? ' ★ ' + T('nssf.chart.you') : ''),
             label: ctx => '  ' + (currency === 'KHR' ? '៛' : '$') +
-              ctx.parsed.y.toLocaleString('en-US') + ' / ' + T('input.months'),
-            afterLabel: ctx => '  (' + yearsAt[parseInt(ctx.label)] + ' ' + T('input.years') + ')'
+              ctx.parsed.y.toLocaleString('en-US') + ' / ' + T('input.months')
           }
         }
       },
       scales: {
         x: {
-          title: { display: true, text: T('nssf.input.retirement_age'), font: { size: 10 } },
-          ticks: { font: { size: 9 }, maxTicksLimit: 16 },
+          title: { display: true, text: T('nssf.result.total_years'), font: { size: 10 } },
+          ticks: { font: { size: 9 }, maxTicksLimit: 26 },
           grid: { display: false }
         },
         y: {
