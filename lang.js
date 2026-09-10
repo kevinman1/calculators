@@ -1967,6 +1967,21 @@ window.WFC_STRINGS = {
     "invest.scale.bad_desc": "CAGR គឺទាបជាងអតិផរណាច្រើនជាង <ខ្លាំង>1%</ខ្លាំង> — អំណាចទិញរបស់អ្នកកំពុងថយចុះ។",
     "invest.scale.average_desc": "CAGR ស្ថិតក្នុងចន្លោះ <ខ្លាំង>±1% នៃអតិផរណា</ខ្លាំង> — ប្រហែលជារក្សាបានស្របតាមការកើនឡើងនៃតម្លៃ ប៉ុន្តែមិនបានបង្កើនតម្លៃពិតប្រាកដទេ។",
     "invest.rounded_note": "≈ បង្គត់ទៅជាចំនួនឆ្នាំពេញ",
-    "invest.scale.good_desc": "CAGR ខ្ពស់ជាងអតិផរណាច្រើនជាង <ខ្លាំង>1%</ខ្លាំង> — អ្នកកំពុងបង្កើនអំណាចទិញយ៉ាងមានន័យ។"
+    "invest.scale.good_desc": "CAGR ខ្ពស់ជាងអតិផរណាច្រើនជាង <ខ្លាំង>1%</ខ្លាំង> — អ្នកកំពុងបង្កើនអំណាចទិញយ៉ាងមានន័យ។",
+    "invest.stat.cagr": "CAGR (ក្នុង១ឆ្នាំ)",
+    "invest.scale.title": "មាត្រដ្ឋានវាយតម្លៃ",
+    "invest.stat.gain": "ចំណេញ/ខាត",
+    "invest.stat.inflation": "អត្រាអតិផរណា",
+    "invest.stat.inflation_sub": "ជាមធ្យមក្នុង១ឆ្នាំ",
+    "invest.stat.simple": "ជាមធ្យមសាមញ្ញ(ក្នុង១ឆ្នាំ)",
+    "invest.stat.years": "ចំនួនឆ្នាំកាន់កាប់",
+    "invest.stat.spread_sub": "វិជ្ជមាន=ឈ្នះអតិផរណា",
+    "invest.stat.years_sub": "បង្គត់ទៅជាចំនួនឆ្នាំពេញ",
+    "invest.years_from_now": "ចំនួនឆ្នាំចាប់ពីបច្ចុប្បន្ន=",
+    "invest.stat.spread": "CAGR ធៀបនឹងអតិផរណា",
+    "invest.stat.simple_sub": "បង្ហាញកំណើនខ្ពស់ជាងការពិត (មិនគិតការប្រាក់បង្គរ)",
+    "invest.stat.cagr_sub": "បង្គរអត្រាកំណើនប្រចាំឆ្នាំ",
+    "invest.formula.compounding": "គិតបញ្ចូល<br>ការប្រាក់បង្គរ?",
+    "invest.formula.overstates": "ជាក់ស្តែងខ្ពស់ជាងការពិត<br>កើនឡើង?"
   }
 };
