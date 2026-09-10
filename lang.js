@@ -1907,6 +1907,15 @@ window.WFC_STRINGS = {
     "hvb.sens.years_title": "ភាពប្រែប្រួលឆ្នាំដំណើរការ",
     "hvb.strategy.early": "អ្នកឆាប់សន្សំ",
     "hvb.strategy.home": "នៅផ្ទះ",
-    "hvb.strategy.late": "អ្នកសន្សំយឺត"
+    "hvb.strategy.late": "អ្នកសន្សំយឺត",
+    "currency.exrate_prefix": "១ ដុល្លា=",
+    "currency.khr": "៛ រៀល",
+    "currency.khr_alt": "រៀល ៛",
+    "currency.khr_code": "រៀល",
+    "currency.label": "រូបិយប័ណ្ណ៖",
+    "currency.opt_khr": "រៀល ៛",
+    "currency.opt_usd": "ដុល្លា ($)",
+    "currency.usd": "$ ដុល្លា",
+    "currency.usd_alt": "ដុល្លា ($)"
   }
 };
