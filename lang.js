@@ -1916,6 +1916,10 @@ window.WFC_STRINGS = {
     "currency.opt_khr": "រៀល ៛",
     "currency.opt_usd": "ដុល្លា ($)",
     "currency.usd": "$ ដុល្លា",
-    "currency.usd_alt": "ដុល្លា ($)"
+    "currency.usd_alt": "ដុល្លា ($)",
+    "simple_daily.input.daily_payback": "ចំនួនបង់សងប្រចាំថ្ងៃ",
+    "simple_daily.result.daily_payback": "ចំនួនបង់សងប្រចាំថ្ងៃ",
+    "simple_daily.page_desc": "បញ្ចូលចំនួនទឹកប្រាក់កម្ចី និងចំនួនទឹកប្រាក់ដែលត្រូវសងប្រចាំថ្ងៃដើម្បីមើលចំនួនទឹកប្រាក់សងសរុបរបស់ជម្រើសនីមួយៗ កាលវិភាគសងប្រចាំថ្ងៃ និងអត្រាការប្រាក់ប្រចាំឆ្នាំពិតប្រាកដសម្រាប់ជម្រើសរយៈពេលសងរហូតដល់ ៣ ជម្រើស។",
+    "simple_daily.input.opt_total": "ចំនួនទឹកប្រាក់ត្រូវសងសរុប"
   }
 };
