@@ -2014,6 +2014,12 @@ window.WFC_STRINGS = {
     "budget.status.low": "ចំណេញទាប",
     "budget.status.moderate": "ប្រាក់ចំណេញមធ្យម",
     "budget.total_expense": "សរុបការចំណាយក្នុងវគ្គ",
-    "budget.total_income": "សរុបចំណូលក្នុងវគ្គ"
+    "budget.total_income": "សរុបចំណូលក្នុងវគ្គ",
+    "cbl.bread": "ការប្រៀបធៀបឥណទាននៅកម្ពុជា",
+    "cbl.ck.open_label": "នៅតែបើក — មិនមានការកំណត់ចុងគ្រា",
+    "cbl.ck.total_repaid_hint": "សរុបការបង់កន្លងមក (ជម្រើស)",
+    "cbl.col.metric": "សូចនាករ",
+    "cbl.input.principal": "ប្រាក់ដើមឥណទាន",
+    "cbl.input.term": "ការប្រៀបធៀបរយៈពេលឥណទាន"
   }
 };
