@@ -595,6 +595,7 @@ window.WFC_STRINGS = {
     "nssf.result.as_pct_salary": "Pension as % of Salary",
     "nssf.result.formula": "Rate Formula:",
     "nssf.note.years_explainer": "Total Contribution Years is counted from your Contribution Start Date all the way to your Retirement Age — not just (Retirement Age − Current Age). If your start date is in the past, those years already count, so your total can be higher than that simple subtraction: Total = Years Already Contributed + Years Remaining to Retirement.",
+    "nssf.warn.salary_cap": "NSSF only requires contributions up to ៛1,200,000 of monthly salary. Your pension below is calculated using that ៛1,200,000 cap, not your full salary.",
     "nssf.warn.under20": "Less than 20 years of contribution — you will receive a lump sum instead of a monthly pension.",
     "nssf.warn.zero_years": "Contribution start date is at or after retirement — no pension accrued.",
     "nssf.chart.title": "Monthly Pension by Total Contribution Years",

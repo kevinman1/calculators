@@ -160,24 +160,24 @@
               <div class="r-value" id="r-annualPension">—</div>
             </div>
             <div class="result-item">
-              <div class="r-label" data-i18n="nssf.result.total_years">Total Contribution Years</div>
-              <div class="r-value" id="r-totalYears">—</div>
-            </div>
-            <div class="result-item">
               <div class="r-label" data-i18n="nssf.result.years_already">Years Already Contributed</div>
               <div class="r-value" id="r-yearsAlready">—</div>
-            </div>
-            <div class="result-item">
-              <div class="r-label" data-i18n="nssf.result.years_remaining">Years Remaining to Retirement</div>
-              <div class="r-value" id="r-yearsRemaining">—</div>
             </div>
             <div class="result-item">
               <div class="r-label" data-i18n="nssf.result.as_pct_salary">Pension as % of Salary</div>
               <div class="r-value" id="r-asPctSalary">—</div>
             </div>
             <div class="result-item">
+              <div class="r-label" data-i18n="nssf.result.years_remaining">Years Remaining to Retirement</div>
+              <div class="r-value" id="r-yearsRemaining">—</div>
+            </div>
+            <div class="result-item">
               <div class="r-label" data-i18n="nssf.result.pension_rate">Pension Rate</div>
               <div class="r-value" id="r-pensionRate">—</div>
+            </div>
+            <div class="result-item">
+              <div class="r-label" data-i18n="nssf.result.total_years">Total Contribution Years</div>
+              <div class="r-value" id="r-totalYears">—</div>
             </div>
           </div>
 
@@ -192,6 +192,10 @@
             <div id="r-formula-note" style="margin-top:.35rem;font-size:.78rem;color:#5a7a50;line-height:1.5"></div>
           </div>
 
+          <!-- Warning: salary above NSSF's contribution cap -->
+          <div class="warn-box" id="warnSalaryCap">
+            <strong>&#9888; </strong><span data-i18n="nssf.warn.salary_cap">NSSF only requires contributions up to ៛1,200,000 of monthly salary. Your pension below is calculated using that ៛1,200,000 cap, not your full salary.</span>
+          </div>
           <!-- Warning: under 20 years -->
           <div class="warn-box" id="warnUnder20">
             <strong>&#9888; </strong><span data-i18n="nssf.warn.under20">Less than 20 years of contribution — you will receive a lump sum instead of a monthly pension.</span>
@@ -329,6 +333,9 @@ function daysBetween(a, b) { return (b - a) / 86400000; }
 const NSSF_LAUNCH_STR  = '2022-10-01';
 const NSSF_LAUNCH_DATE = new Date(NSSF_LAUNCH_STR + 'T00:00:00');
 
+// NSSF only requires (and calculates pension on) salary up to this monthly cap.
+const NSSF_MAX_SALARY_KHR = 1200000;
+
 // Clamp a start date to the NSSF launch date, and reflect the clamp back into the
 // input field so what's displayed always matches what's used in the calculation.
 function getClampedStartDate(today) {
@@ -347,7 +354,9 @@ function calculate() {
   const retirementAge = Math.max(18, Math.min(80, parseInt(document.getElementById('retirementAge').value) || 60));
   const salaryInput   = Math.max(0,  parseFloat(document.getElementById('avgSalary').value) || 0);
 
-  const salaryKHR = currency === 'KHR' ? salaryInput : salaryInput * getXR();
+  const salaryKHRRaw   = currency === 'KHR' ? salaryInput : salaryInput * getXR();
+  const isSalaryCapped = salaryKHRRaw > NSSF_MAX_SALARY_KHR;
+  const salaryKHR       = Math.min(salaryKHRRaw, NSSF_MAX_SALARY_KHR);
 
   const today          = new Date();
   const yearsToRetire  = Math.max(0, retirementAge - currentAge);
@@ -395,6 +404,7 @@ function calculate() {
       ? 'Years 1–15 at 1.75%/yr &nbsp;(rate increases to 1.25%/yr after year 15)'
       : '';
 
+  document.getElementById('warnSalaryCap').classList.toggle('visible', isSalaryCapped);
   document.getElementById('warnUnder20').classList.toggle('visible', isUnder20);
   document.getElementById('warnZero').classList.toggle('visible', isZero);
   document.getElementById('printDate').textContent = today.toLocaleDateString('en-GB',
@@ -510,7 +520,7 @@ function toggleTable() {
     const currentAge   = parseInt(document.getElementById('currentAge').value)    || 35;
     const retireAge    = parseInt(document.getElementById('retirementAge').value)  || 60;
     const salaryInput  = parseFloat(document.getElementById('avgSalary').value)    || 0;
-    const salaryKHR    = currency === 'KHR' ? salaryInput : salaryInput * getXR();
+    const salaryKHR    = Math.min(NSSF_MAX_SALARY_KHR, currency === 'KHR' ? salaryInput : salaryInput * getXR());
     const today        = new Date();
     const startDate    = getClampedStartDate(today);
     const yearsSoFar = Math.max(0, daysBetween(startDate, today) / 365.25);
