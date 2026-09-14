@@ -220,7 +220,7 @@
     </div>
 
     <div class="cycle-note" style="font-size:.82rem;color:var(--text-medium);background:var(--green-50);border:1px solid var(--green-200);border-radius:6px;padding:.6rem .9rem;margin-bottom:.75rem">
-      <span data-i18n="budget.cycle_note">A Cycle = 3, 6, 9, or 12 months within the year — set it above in "Months per Cycle." The totals below are for that whole cycle; see Monthly Summary further down for the per-month breakdown.</span>
+      <span id="cycleNoteText">—</span>
     </div>
 
     <div class="stats-grid">
@@ -361,8 +361,20 @@ function getSum(ids) {
   return ids.reduce((s, id) => s + toUSD(parseFloat(document.getElementById(id).value) || 0), 0);
 }
 
+function cycleNoteText(cycleLength) {
+  const perYear = 12 / cycleLength;
+  const timesText = Number.isInteger(perYear)
+    ? perYear + (perYear === 1 ? ' ' + T('budget.cycle_note.time') : ' ' + T('budget.cycle_note.times'))
+    : T('budget.cycle_note.about') + ' ' + perYear.toFixed(1) + ' ' + T('budget.cycle_note.times');
+  return T('budget.cycle_note')
+    .replace('{months}', cycleLength)
+    .replace('{times}', timesText);
+}
+
 function calculate() {
   const cycleLength = Math.max(1, parseFloat(document.getElementById('cycleLength').value) || 1);
+  document.getElementById('cycleNoteText').textContent = cycleNoteText(cycleLength);
+
   const totalIncome  = getSum(INCOME_IDS);
   const totalExpense = getSum(EXPENSE_IDS);
   const netIncome    = totalIncome - totalExpense;
