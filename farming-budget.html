@@ -143,10 +143,12 @@
         </div>
         <div class="input-group">
           <label class="input-label" data-i18n="budget.input.cycle_length">Months per Cycle</label>
-          <div class="input-wrapper">
-            <input type="number" id="cycleLength" value="3" min="1" max="60" step="1" oninput="calculate()">
-            <span class="input-suffix" data-i18n="budget.months_suffix">months</span>
-          </div>
+          <select id="cycleLength" style="width:100%;padding:.4rem .6rem;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;font-family:inherit;background:#fff" onchange="calculate()">
+            <option value="3" selected data-i18n="budget.cycle.3mo">3 months</option>
+            <option value="6" data-i18n="budget.cycle.6mo">6 months</option>
+            <option value="9" data-i18n="budget.cycle.9mo">9 months</option>
+            <option value="12" data-i18n="budget.cycle.12mo">12 months</option>
+          </select>
         </div>
       </div>
     </div>
@@ -198,7 +200,7 @@
         <tfoot>
           <tr>
             <td data-i18n="budget.total_expense">Total Cycle Expense</td>
-            <td style="text-align:right" id="r-totalExpense">$745</td>
+            <td style="text-align:right" id="r-totalExpense">$645</td>
           </tr>
         </tfoot>
       </table>
@@ -215,6 +217,10 @@
         <div class="rating-text" id="ratingText" data-i18n="budget.status.moderate">Moderate Profit</div>
         <div class="rating-sub" id="ratingSub" data-i18n="budget.advice.moderate">Good balance! Room to improve.</div>
       </div>
+    </div>
+
+    <div class="cycle-note" style="font-size:.82rem;color:var(--text-medium);background:var(--green-50);border:1px solid var(--green-200);border-radius:6px;padding:.6rem .9rem;margin-bottom:.75rem">
+      <span id="cycleNoteText">—</span>
     </div>
 
     <div class="stats-grid">
@@ -281,7 +287,7 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=36"></script>
+<script src="lang.js?v=37"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
@@ -305,8 +311,6 @@ const EXPENSE_ITEMS = [
   { id: 'repair',        key: 'budget.input.repair',   def: 50 },
   { id: 'fuel',          key: 'budget.input.fuel',     def: 20 },
   { id: 'tax',           key: 'fb.input.tax',          def: 0 },
-  { id: 'loanPrincipal', key: 'fb.input.loan_principal', def: 100 },
-  { id: 'interest',      key: 'fb.input.interest',     def: 0 },
   { id: 'other',         key: 'budget.input.other',    def: 0 },
 ];
 const INCOME_IDS = ['revenue', 'additionalRevenue'];
@@ -357,8 +361,20 @@ function getSum(ids) {
   return ids.reduce((s, id) => s + toUSD(parseFloat(document.getElementById(id).value) || 0), 0);
 }
 
+function cycleNoteText(cycleLength) {
+  const perYear = 12 / cycleLength;
+  const timesText = Number.isInteger(perYear)
+    ? perYear + (perYear === 1 ? ' ' + T('budget.cycle_note.time') : ' ' + T('budget.cycle_note.times'))
+    : T('budget.cycle_note.about') + ' ' + perYear.toFixed(1) + ' ' + T('budget.cycle_note.times');
+  return T('budget.cycle_note')
+    .replace('{months}', cycleLength)
+    .replace('{times}', timesText);
+}
+
 function calculate() {
   const cycleLength = Math.max(1, parseFloat(document.getElementById('cycleLength').value) || 1);
+  document.getElementById('cycleNoteText').textContent = cycleNoteText(cycleLength);
+
   const totalIncome  = getSum(INCOME_IDS);
   const totalExpense = getSum(EXPENSE_IDS);
   const netIncome    = totalIncome - totalExpense;
