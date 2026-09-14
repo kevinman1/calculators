@@ -16,31 +16,20 @@
     .opt-input-2 .input-suffix { background: #c8a84b1f; color: #8a6f1f; }
     .opt-input-3 .input-suffix { background: #5b8db81f; color: #33597a; }
 
-    /* ── Per-option computed total, under each days input ── */
-    .opt-total-line { font-size: .74rem; margin-top: .35rem; }
-    .opt-input-1 .opt-total-line { color: #4d6b47; }
-    .opt-input-2 .opt-total-line { color: #8a6f1f; }
-    .opt-input-3 .opt-total-line { color: #33597a; }
+    /* ── Main inputs: two labeled columns ── */
+    .main-inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
+    @media (max-width: 560px) { .main-inputs-grid { grid-template-columns: 1fr; } }
 
-    /* ── Comparison table rows coloured to match the option inputs + chart lines ── */
-    .cmp-table tr.opt-row-1 td { color: #4d6b47; font-weight: 700; }
-    .cmp-table tr.opt-row-2 td { color: #8a6f1f; font-weight: 700; }
-    .cmp-table tr.opt-row-3 td { color: #33597a; font-weight: 700; }
-    .cmp-table tr.opt-row-1 td:first-child { border-left: 3px solid #739669; padding-left: .55rem; }
-    .cmp-table tr.opt-row-2 td:first-child { border-left: 3px solid #c8a84b; padding-left: .55rem; }
-    .cmp-table tr.opt-row-3 td:first-child { border-left: 3px solid #5b8db8; padding-left: .55rem; }
-
-    /* ── Comparison table + balance chart, side by side ── */
-    .cmp-chart-row {
-      display: grid;
-      grid-template-columns: 1fr 1.6fr;
-      gap: 1.25rem;
-      align-items: start;
-      margin-top: 1.25rem;
-    }
-    .cmp-chart-row > * { min-width: 0; }
-    @media (max-width: 900px) { .cmp-chart-row { grid-template-columns: 1fr; } }
-    .cmp-table-wrap { overflow-x: auto; }
+    /* ── Repayment options: three boxes side by side ── */
+    .opt-options-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 640px) { .opt-options-grid { grid-template-columns: 1fr; } }
+    .opt-box { text-align: center; }
+    .opt-box .input-wrapper { justify-content: center; }
+    .opt-daily { font-size: 1.4rem; font-weight: 700; margin-top: .55rem; }
+    .opt-rate  { font-size: .74rem; color: var(--text-light); margin-top: .2rem; }
+    .opt-input-1 .opt-daily { color: #4d6b47; }
+    .opt-input-2 .opt-daily { color: #8a6f1f; }
+    .opt-input-3 .opt-daily { color: #33597a; }
   </style>
 </head>
 <body>
@@ -89,160 +78,103 @@
     <p data-i18n="simple_daily.page_desc">Enter the loan amount and total payback amount to see the daily payment schedule and true annual interest rate for up to three repayment term options.</p>
   </div>
 
-  <div style="display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:1.25rem; align-items:start;">
-
-    <!-- MAIN INPUTS -->
-    <div class="card">
-      <div class="card-header" data-i18n="input.main">Main Inputs</div>
-      <div class="card-body">
-
-        <div class="input-group">
-          <label data-i18n="simple_daily.input.currency">Currency</label>
-          <div class="input-wrapper">
-            <select id="currency">
-              <option value="USD" data-i18n="currency.opt_usd">USD ($)</option>
-              <option value="KHR" selected data-i18n="currency.opt_khr">KHR (&#x17DB;)</option>
-            </select>
+  <!-- MAIN INPUTS -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-header" data-i18n="input.main">Main Inputs</div>
+    <div class="card-body">
+      <div class="main-inputs-grid">
+        <div>
+          <div class="input-group">
+            <label data-i18n="simple_daily.input.loan">Loan Amount (Principal)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix currency-sym">&#x17DB;</span>
+              <input type="number" id="loanAmount" value="1000000" min="0" step="1000">
+            </div>
+          </div>
+          <div class="input-group" style="margin-bottom:0">
+            <label data-i18n="simple_daily.input.payback">Payback Amount (Total to Repay)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix currency-sym">&#x17DB;</span>
+              <input type="number" id="paybackAmount" value="1050000" min="0" step="1000">
+            </div>
           </div>
         </div>
-
-        <div class="input-group">
-          <label data-i18n="simple_daily.input.loan">Loan Amount (Principal)</label>
-          <div class="input-wrapper">
-            <span class="input-prefix currency-sym">&#x17DB;</span>
-            <input type="number" id="loanAmount" value="1000000" min="0" step="1000">
+        <div>
+          <div class="input-group">
+            <label data-i18n="simple_daily.input.currency">Currency</label>
+            <div class="input-wrapper">
+              <select id="currency">
+                <option value="USD" data-i18n="currency.opt_usd">USD ($)</option>
+                <option value="KHR" selected data-i18n="currency.opt_khr">KHR (&#x17DB;)</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group" style="margin-bottom:0">
+            <label data-i18n="simple_daily.input.start_date">Loan Start Date (optional)</label>
+            <div class="input-wrapper">
+              <input type="date" id="startDate" value="2026-09-01">
+            </div>
           </div>
         </div>
+      </div>
 
-        <div class="input-group">
-          <label data-i18n="simple_daily.input.payback">Payback Amount (Total to Repay)</label>
-          <div class="input-wrapper">
-            <span class="input-prefix currency-sym">&#x17DB;</span>
-            <input type="number" id="paybackAmount" value="1050000" min="0" step="1000">
-          </div>
-        </div>
-
+      <div style="margin-top:1rem;padding:.65rem .9rem;background:var(--green-50);border:1px solid var(--green-200);border-radius:6px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.4rem">
+        <span style="font-size:.78rem;color:var(--text-medium);text-transform:uppercase;letter-spacing:.04em" data-i18n="simple_daily.result.total_interest">Total Interest (Lender Profit)</span>
+        <span>
+          <strong style="font-size:1.25rem;color:var(--green-800)" id="r-totalInterest">—</strong>
+          <span style="font-size:.78rem;color:var(--text-light)" id="r-interestPct">—</span>
+        </span>
       </div>
     </div>
+  </div>
 
-    <!-- REPAYMENT OPTIONS -->
-    <div class="card">
-      <div class="card-header" data-i18n="simple_daily.input.options_label">Repayment Term Options</div>
-      <div class="card-body">
+  <!-- REPAYMENT OPTIONS -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-header" data-i18n="simple_daily.input.options_label">Repayment Term Options</div>
+    <div class="card-body">
+      <div class="opt-options-grid">
 
-        <div class="input-group opt-input-1">
-          <label data-i18n="simple_daily.input.opt1">Option 1</label>
+        <div class="opt-box opt-input-1">
+          <label class="input-label" data-i18n="simple_daily.input.opt1">Option 1</label>
           <div class="input-wrapper">
             <input type="number" id="days1" value="15" min="1" step="1">
             <span class="input-suffix" data-i18n="input.days_unit">days</span>
           </div>
-          <div class="opt-total-line"><span data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</span>: <strong id="optDaily1">—</strong></div>
+          <div class="opt-daily" id="optDaily1">—</div>
+          <div class="opt-rate" id="optRate1">—</div>
         </div>
 
-        <div class="input-group opt-input-2">
-          <label data-i18n="simple_daily.input.opt2">Option 2</label>
+        <div class="opt-box opt-input-2">
+          <label class="input-label" data-i18n="simple_daily.input.opt2">Option 2</label>
           <div class="input-wrapper">
             <input type="number" id="days2" value="30" min="1" step="1">
             <span class="input-suffix" data-i18n="input.days_unit">days</span>
           </div>
-          <div class="opt-total-line"><span data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</span>: <strong id="optDaily2">—</strong></div>
+          <div class="opt-daily" id="optDaily2">—</div>
+          <div class="opt-rate" id="optRate2">—</div>
         </div>
 
-        <div class="input-group opt-input-3">
-          <label data-i18n="simple_daily.input.opt3">Option 3</label>
+        <div class="opt-box opt-input-3">
+          <label class="input-label" data-i18n="simple_daily.input.opt3">Option 3</label>
           <div class="input-wrapper">
             <input type="number" id="days3" value="60" min="1" step="1">
             <span class="input-suffix" data-i18n="input.days_unit">days</span>
           </div>
-          <div class="opt-total-line"><span data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</span>: <strong id="optDaily3">—</strong></div>
-        </div>
-
-        <div class="input-group">
-          <label data-i18n="simple_daily.input.start_date">Loan Start Date (optional)</label>
-          <div class="input-wrapper">
-            <input type="date" id="startDate" value="2026-09-01">
-          </div>
-        </div>
-
-        <button class="btn-primary" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
-      </div>
-    </div>
-
-    <!-- SUMMARY RESULTS -->
-    <div class="card">
-      <div class="card-header dark" data-i18n="result.summary">Summary Results</div>
-      <div class="card-body">
-
-        <div class="result-hero">
-          <div class="r-label" data-i18n="simple_daily.result.total_interest">Total Interest (Lender Profit)</div>
-          <div class="r-value" id="r-totalInterest">—</div>
-          <div class="r-sub" id="r-interestPct">—</div>
-        </div>
-
-        <div class="results-grid">
-          <div class="result-item">
-            <div class="r-label" data-i18n="simple_daily.result.loan_amount">Loan Amount</div>
-            <div class="r-value" id="r-loanAmount">—</div>
-          </div>
-          <div class="result-item">
-            <div class="r-label" data-i18n="simple_daily.result.payback_amount">Payback Amount</div>
-            <div class="r-value" id="r-paybackAmount">—</div>
-          </div>
+          <div class="opt-daily" id="optDaily3">—</div>
+          <div class="opt-rate" id="optRate3">—</div>
         </div>
 
       </div>
+      <button class="btn-primary" style="margin-top:1.1rem" onclick="calculate()" data-i18n="btn.calculate">Calculate</button>
     </div>
-
   </div>
 
-  <!-- OPTION COMPARISON TABLE + BALANCE CHART, side by side -->
-  <div class="cmp-chart-row">
-
-    <div class="card">
-      <div class="card-header" data-i18n="simple_daily.result.comparison">Option Comparison</div>
-      <div class="card-body" style="padding-top:.6rem;padding-bottom:.6rem">
-        <div class="cmp-table-wrap">
-          <table class="cmp-table">
-            <thead>
-              <tr>
-                <th data-i18n="simple_daily.result.option_col">Option</th>
-                <th data-i18n="simple_daily.result.days_col">Days</th>
-                <th data-i18n="simple_daily.result.daily_pmt_col">Daily Payment</th>
-                <th data-i18n="simple_daily.result.annual_rate_col">Annual Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="opt-row-1">
-                <td>1</td>
-                <td id="cmp-days1">—</td>
-                <td id="cmp-pmt1">—</td>
-                <td id="cmp-rate1">—</td>
-              </tr>
-              <tr class="opt-row-2">
-                <td>2</td>
-                <td id="cmp-days2">—</td>
-                <td id="cmp-pmt2">—</td>
-                <td id="cmp-rate2">—</td>
-              </tr>
-              <tr class="opt-row-3">
-                <td>3</td>
-                <td id="cmp-days3">—</td>
-                <td id="cmp-pmt3">—</td>
-                <td id="cmp-rate3">—</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+  <!-- BALANCE CHART -->
+  <div class="card chart-card" style="margin-bottom:1.25rem">
+    <div class="card-header" data-i18n="simple_daily.chart.title">Daily Remaining Balance</div>
+    <div class="chart-container">
+      <canvas id="balanceChart"></canvas>
     </div>
-
-    <div class="card">
-      <div class="card-header" data-i18n="simple_daily.chart.title">Daily Remaining Balance</div>
-      <div class="chart-container">
-        <canvas id="balanceChart"></canvas>
-      </div>
-    </div>
-
   </div>
 
   <!-- SCHEDULE -->
@@ -336,27 +268,17 @@ function calculate() {
   const sym = document.getElementById('currency').value === 'KHR' ? '៛' : '$';
   document.querySelectorAll('.currency-sym').forEach(el => el.textContent = sym);
 
-  // Per-option daily payment, shown under each days input
+  // Per-option daily payment (big) and annual rate (small), shown under each days input
   opts.forEach((o, i) => {
     document.getElementById('optDaily' + (i + 1)).textContent = fmtMoney(o.dailyPmt);
+    document.getElementById('optRate'  + (i + 1)).textContent =
+      T('simple_daily.result.annual_rate_col') + ': ' + o.annualRate.toFixed(2) + '%';
   });
 
-  // Hero — reflects Option 1 (the first repayment term, highlighted below)
-  const hero = opts[0];
-  document.getElementById('r-totalInterest').textContent = fmtMoney(hero.totalInterest);
+  // Total interest — same for every option, since the payback total is fixed
+  document.getElementById('r-totalInterest').textContent = fmtMoney(totalInterest);
   document.getElementById('r-interestPct').textContent   =
-    loan > 0 ? (hero.totalInterest / loan * 100).toFixed(1) + '% of loan amount' : '—';
-
-  // Summary grid
-  document.getElementById('r-loanAmount').textContent     = fmtMoney(loan);
-  document.getElementById('r-paybackAmount').textContent  = fmtMoney(payback);
-
-  // Comparison table
-  opts.forEach((o, i) => {
-    document.getElementById('cmp-days' + (i + 1)).textContent = o.days + ' days';
-    document.getElementById('cmp-pmt'  + (i + 1)).textContent = fmtMoney(o.dailyPmt);
-    document.getElementById('cmp-rate' + (i + 1)).textContent = o.annualRate.toFixed(2) + '%';
-  });
+    loan > 0 ? '(' + (totalInterest / loan * 100).toFixed(1) + '% of loan amount)' : '—';
 
   // Schedule column headers
   opts.forEach((o, i) => {
