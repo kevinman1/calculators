@@ -24,7 +24,7 @@
     .winner-title.rent { color: #1e40af; }
     .winner-saving { font-size: .88rem; color: var(--text-medium); margin-top: .15rem; }
 
-    /* ── Net cost cards ── */
+    /* ── Result cards ── */
     .cost-cards {
       display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;
     }
@@ -62,7 +62,6 @@
     .stat-item .s-value { font-size: 1rem; font-weight: 700; color: var(--green-800);
       margin-top: .2rem; }
 
-    /* ── Section headers ── */
     .section-title {
       font-size: .82rem; font-weight: 700; text-transform: uppercase;
       letter-spacing: .06em; color: var(--green-700);
@@ -92,29 +91,22 @@
     .year-table .rent-col { color: #1e40af; }
     .year-table .neg { color: #dc2626; }
 
-    /* section group divider */
-    .col-group-buy  { border-left: 3px solid #6ee7b7; }
-    .col-group-rent { border-left: 3px solid #93c5fd; }
-
-    /* ── Chart container ── */
     .chart-wrap { position: relative; height: 280px; padding: .5rem 0 0; }
 
-    /* ── Input column heads ── */
-    .input-col-head {
-      font-size: .78rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .06em; padding: .45rem .9rem .45rem;
-      border-radius: 6px 6px 0 0; margin: -.75rem -.75rem .75rem;
-    }
-    .input-col-head.buy-head  { background: #d1fae5; color: #065f46; }
-    .input-col-head.rent-head { background: #dbeafe; color: #1e40af; }
-
-    /* ── Collapsible year table ── */
-    .table-toggle-bar {
+    /* ── Collapsible blocks ── */
+    .toggle-bar {
       display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer; padding: .5rem 0; user-select: none;
+      gap: .75rem; cursor: pointer; padding: .5rem 0; user-select: none;
     }
-    .table-toggle-bar:hover .table-toggle-btn { text-decoration: underline; }
-    .table-toggle-btn { font-size: .8rem; color: var(--green-700); font-weight: 600; }
+    .toggle-bar:hover .toggle-btn { text-decoration: underline; }
+    .toggle-btn { font-size: .8rem; color: var(--green-700); font-weight: 600; white-space: nowrap; }
+
+    .fin-select {
+      width: 100%; padding: .45rem .6rem; border: 1px solid #d1d5db; border-radius: 6px;
+      font-size: .9rem; font-family: inherit; background: #fff;
+    }
+    .fin-hint { margin-top: .35rem; }
+    #loanFields[hidden] { display: none; }
   </style>
 </head>
 <body>
@@ -147,7 +139,7 @@
       &rsaquo; <span data-i18n="calc.rent_vs_buy.name">Renting vs. Financing</span>
     </div>
     <h2 data-i18n="calc.rent_vs_buy.name">Renting vs. Financing</h2>
-    <p data-i18n="rvb.page_desc">Compare the true long-term cost of buying a home versus renting — including mortgage, taxes, maintenance, and the opportunity cost of your down payment.</p>
+    <p data-i18n="rvb.c.page_desc">Should you rent or buy in Cambodia? Compare how much wealth you would have after a number of years, counting transfer tax, loan or developer-plan payments, property tax, and what your cash could earn in a fixed deposit instead.</p>
   </div>
 </div>
 
@@ -159,7 +151,7 @@
     <button class="currency-btn active" data-currency="USD" onclick="setCurrency('USD')" data-i18n="currency.usd_alt">USD $</button>
     <button class="currency-btn" data-currency="KHR" onclick="setCurrency('KHR')" data-i18n="currency.khr_alt">KHR &#6107;</button>
     <span id="exrateGroup" style="display:none; margin-left:.75rem; font-size:.8rem; align-items:center; gap:.35rem">
-      <span style="color:var(--text-medium)" data-i18n="loan.exrate">1 USD =</span>
+      <span style="color:var(--text-medium)" data-i18n="currency.exrate_prefix">1 USD =</span>
       <input type="number" id="exchangeRate" value="4000" min="100" step="100"
         style="width:72px;padding:.2rem .4rem;border:1px solid #d1d5db;border-radius:4px;font-size:.82rem">
       <span style="color:var(--text-medium)" data-i18n="currency.khr_code">KHR</span>
@@ -177,105 +169,60 @@
         <div class="input-group">
           <label data-i18n="rvb.input.price">Home Price</label>
           <div class="input-wrapper">
-            <span class="input-prefix" id="pfx1">$</span>
-            <input type="number" id="homePrice" value="500000" min="0" step="1000">
+            <span class="input-prefix" id="pfxPrice">$</span>
+            <input type="number" id="homePrice" value="150000" min="0" step="1000">
           </div>
         </div>
 
         <div class="input-group">
-          <label data-i18n="rvb.input.down">Down Payment</label>
-          <div class="input-wrapper">
-            <input type="number" id="downPct" value="10" min="1" max="100" step="0.5">
-            <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
-          </div>
-        </div>
-        <div class="input-hint" id="downAmtHint">= $50,000</div>
-
-        <div class="input-group">
-          <label data-i18n="rvb.input.rate">Interest Rate</label>
-          <div class="input-wrapper">
-            <input type="number" id="interestRate" value="7.5" min="0.1" max="50" step="0.1">
-            <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
-          </div>
+          <label for="financing" data-i18n="rvb.c.input.financing">How will you pay?</label>
+          <select id="financing" class="fin-select">
+            <option value="bank" data-i18n="rvb.c.fin.bank">Bank mortgage</option>
+            <option value="cash" data-i18n="rvb.c.fin.cash">Cash (no loan)</option>
+            <option value="dev" data-i18n="rvb.c.fin.dev">Developer installment plan</option>
+          </select>
+          <div class="input-hint fin-hint" id="finHint"></div>
         </div>
 
-        <div class="input-group">
-          <label data-i18n="rvb.input.term">Loan Term</label>
-          <div class="input-wrapper">
-            <input type="number" id="loanTerm" value="25" min="1" max="30" step="1">
-            <span class="input-suffix" data-i18n="rvb.unit.yrs_max">yrs (max 30)</span>
+        <div id="loanFields">
+          <div class="input-group">
+            <label data-i18n="rvb.input.down">Down Payment</label>
+            <div class="input-wrapper">
+              <input type="number" id="downPct" value="20" min="0" max="100" step="1">
+              <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
+            </div>
+          </div>
+          <div class="input-hint" id="downAmtHint"></div>
+
+          <div class="input-group">
+            <label data-i18n="rvb.input.rate">Interest Rate</label>
+            <div class="input-wrapper">
+              <input type="number" id="interestRate" value="9" min="0" max="50" step="0.1">
+              <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label data-i18n="rvb.input.term">Loan Term</label>
+            <div class="input-wrapper">
+              <input type="number" id="loanTerm" value="20" min="1" max="30" step="1">
+              <span class="input-suffix" data-i18n="rvb.unit.yrs_max">yrs (max 30)</span>
+            </div>
           </div>
         </div>
-
-        <hr class="section-divider">
-        <div class="section-label" data-i18n="rvb.section.annual">Annual Costs</div>
-
-        <div class="input-group">
-          <label data-i18n="rvb.input.buy_closing">Buying Closing Costs</label>
-          <div class="input-wrapper">
-            <input type="number" id="buyClosing" value="2" min="0" max="20" step="0.1">
-            <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
-          </div>
-        </div>
-        <div class="input-hint" data-i18n="rvb.hint.financed">Financed into the loan</div>
-
-        <div class="input-group">
-          <label data-i18n="rvb.input.property_tax">Property Tax</label>
-          <div class="input-wrapper">
-            <input type="number" id="propTax" value="1.5" min="0" max="10" step="0.1">
-            <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label data-i18n="rvb.input.home_ins">Home Insurance</label>
-          <div class="input-wrapper">
-            <span class="input-prefix" id="pfx2">$</span>
-            <input type="number" id="homeIns" value="2500" min="0" step="100">
-            <span class="input-suffix" data-i18n="rvb.unit.per_yr">/ yr</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label data-i18n="rvb.input.hoa">HOA Fee</label>
-          <div class="input-wrapper">
-            <span class="input-prefix" id="pfx3">$</span>
-            <input type="number" id="hoaFee" value="0" min="0" step="100">
-            <span class="input-suffix" data-i18n="rvb.unit.per_yr">/ yr</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label data-i18n="rvb.input.maintenance">Maintenance Cost</label>
-          <div class="input-wrapper">
-            <input type="number" id="maintCost" value="2" min="0" max="20" step="0.1">
-            <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
-          </div>
-        </div>
-
-        <hr class="section-divider">
-        <div class="section-label" data-i18n="rvb.section.sale">Sale</div>
 
         <div class="input-group">
           <label data-i18n="rvb.input.appreciation">Home Value Appreciation</label>
           <div class="input-wrapper">
-            <input type="number" id="appreciation" value="3" min="0" max="30" step="0.1">
+            <input type="number" id="appreciation" value="3" min="-20" max="30" step="0.1">
             <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label data-i18n="rvb.input.sell_closing">Selling Closing Costs</label>
-          <div class="input-wrapper">
-            <input type="number" id="sellClosing" value="7" min="0" max="20" step="0.1">
-            <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- RENT SIDE + SHARED -->
+    <!-- RENT SIDE + PLAN -->
     <div>
       <div class="card" style="margin-bottom:1rem">
         <div class="card-header" data-i18n="rvb.card.rent">🏘 Renting</div>
@@ -284,8 +231,9 @@
           <div class="input-group">
             <label data-i18n="rvb.input.rent">Monthly Rent</label>
             <div class="input-wrapper">
-              <span class="input-prefix" id="pfx4">$</span>
-              <input type="number" id="monthlyRent" value="2000" min="0" step="50">
+              <span class="input-prefix" id="pfxRent">$</span>
+              <input type="number" id="monthlyRent" value="700" min="0" step="50">
+              <span class="input-suffix" data-i18n="rvb.unit.per_mo">/ mo</span>
             </div>
           </div>
 
@@ -297,46 +245,30 @@
             </div>
           </div>
 
-          <div class="input-group">
-            <label data-i18n="rvb.input.renter_ins">Renter's Insurance</label>
-            <div class="input-wrapper">
-              <span class="input-prefix" id="pfx5">$</span>
-              <input type="number" id="rentersIns" value="15" min="0" step="5">
-              <span class="input-suffix" data-i18n="rvb.unit.per_mo">/ mo</span>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label data-i18n="rvb.input.deposit">Security Deposit</label>
-            <div class="input-wrapper">
-              <span class="input-prefix" id="pfx6">$</span>
-              <input type="number" id="secDeposit" value="4000" min="0" step="100">
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label data-i18n="rvb.input.upfront">Other Upfront Costs</label>
-            <div class="input-wrapper">
-              <span class="input-prefix" id="pfx7">$</span>
-              <input type="number" id="upfrontCost" value="100" min="0" step="50">
-            </div>
-          </div>
-
         </div>
       </div>
 
       <div class="card">
-        <div class="card-header" data-i18n="rvb.card.invest">📈 Your Investment Return</div>
+        <div class="card-header" data-i18n="rvb.c.card.plan">🗓 Your Plan</div>
         <div class="card-body">
+
+          <div class="input-group">
+            <label data-i18n="rvb.c.input.years">Years you plan to stay</label>
+            <div class="input-wrapper">
+              <input type="number" id="horizon" value="10" min="1" max="30" step="1">
+              <span class="input-suffix" data-i18n="rvb.c.unit.yrs">years</span>
+            </div>
+          </div>
+          <div class="input-hint" data-i18n="rvb.c.hint.years">You sell the home (or stop renting) at the end of this period.</div>
 
           <div class="input-group">
             <label data-i18n="rvb.input.return">Average Investment Return</label>
             <div class="input-wrapper">
-              <input type="number" id="investReturn" value="3" min="0" max="30" step="0.1">
+              <input type="number" id="investReturn" value="5" min="0" max="30" step="0.1">
               <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
             </div>
           </div>
-          <div class="input-hint" data-i18n="rvb.hint.return">What the down payment could earn if invested elsewhere (e.g., savings account, bonds).</div>
+          <div class="input-hint" data-i18n="rvb.c.hint.return">What your spare cash could earn instead, for example a USD fixed deposit (about 4–6% a year).</div>
 
         </div>
       </div>
@@ -344,10 +276,103 @@
 
   </div><!-- end input grid -->
 
+  <!-- ── OPTIONAL ASSUMPTIONS ── -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-body" style="padding:.6rem .75rem .75rem">
+      <div class="toggle-bar" onclick="toggleMore()">
+        <div>
+          <div class="section-title" style="margin:0;border:0;padding:0" data-i18n="rvb.c.more.title">⚙ More Assumptions (optional)</div>
+          <div class="input-hint" data-i18n="rvb.c.more.desc">Pre-filled with typical Cambodian costs. You can leave these as they are.</div>
+        </div>
+        <span class="toggle-btn" id="moreToggleBtn" data-i18n="rvb.c.more.show">▼ Show</span>
+      </div>
+
+      <div id="moreWrap" style="display:none; margin-top:.5rem">
+        <div class="calc-grid">
+          <div>
+            <div class="section-label" data-i18n="rvb.c.sec.buy">Buying costs (one-time)</div>
+
+            <div class="input-group">
+              <label data-i18n="rvb.c.input.transfer">Transfer tax</label>
+              <div class="input-wrapper">
+                <input type="number" id="transferTax" value="4" min="0" max="20" step="0.1">
+                <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
+              </div>
+            </div>
+            <div class="input-hint" data-i18n="rvb.c.hint.transfer">Usually 4% of the property value, paid once. Who pays can be negotiated.</div>
+
+            <div class="input-group">
+              <label data-i18n="rvb.c.input.other_buy">Notary, legal & other fees</label>
+              <div class="input-wrapper">
+                <input type="number" id="otherBuy" value="1" min="0" max="20" step="0.1">
+                <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
+              </div>
+            </div>
+            <div class="input-hint" data-i18n="rvb.c.hint.other_buy">Notary, registration, legal and bank fees. Typically 0.5–1.5%.</div>
+
+            <hr class="section-divider">
+            <div class="section-label" data-i18n="rvb.c.sec.own">Owning costs (per year)</div>
+
+            <div class="input-group">
+              <label data-i18n="rvb.c.input.prop_tax">Annual property tax</label>
+              <div class="input-wrapper">
+                <input type="number" id="propTax" value="0.1" min="0" max="10" step="0.05">
+                <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
+              </div>
+            </div>
+            <div class="input-hint" data-i18n="rvb.c.hint.prop_tax">0.1% a year on the value above KHR 100,000,000. Based on the government valuation, which is often lower than the market price.</div>
+
+            <div class="input-group">
+              <label data-i18n="rvb.c.input.maint">Maintenance & building fees</label>
+              <div class="input-wrapper">
+                <input type="number" id="maintCost" value="1" min="0" max="20" step="0.1">
+                <span class="input-suffix" data-i18n="rvb.unit.pct_yr">% / yr</span>
+              </div>
+            </div>
+            <div class="input-hint" data-i18n="rvb.c.hint.maint">Repairs, condo management fees and sinking fund. Typically about 1% of the home value a year.</div>
+          </div>
+
+          <div>
+            <div class="section-label" data-i18n="rvb.c.sec.sell">When you sell</div>
+
+            <div class="input-group">
+              <label data-i18n="rvb.c.input.sell_cost">Agent & selling costs</label>
+              <div class="input-wrapper">
+                <input type="number" id="sellCost" value="3" min="0" max="20" step="0.1">
+                <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
+              </div>
+            </div>
+            <div class="input-hint" data-i18n="rvb.c.hint.sell_cost">Agent commission (typically 2–5%) and legal fees when you sell.</div>
+
+            <div class="input-group">
+              <label data-i18n="rvb.c.input.cgt">Capital gains tax</label>
+              <div class="input-wrapper">
+                <input type="number" id="cgtRate" value="0" min="0" max="50" step="1">
+                <span class="input-suffix" data-i18n="rvb.unit.pct">%</span>
+              </div>
+            </div>
+            <div class="input-hint" data-i18n="rvb.c.hint.cgt">Tax on your profit when you sell. Enter 0 if it does not apply to you. Check the current rule with the General Department of Taxation.</div>
+
+            <hr class="section-divider">
+            <div class="section-label" data-i18n="rvb.c.sec.rent">Renting</div>
+
+            <div class="input-group">
+              <label data-i18n="rvb.c.input.deposit_months">Rental deposit</label>
+              <div class="input-wrapper">
+                <input type="number" id="depositMonths" value="2" min="0" max="12" step="0.5">
+                <span class="input-suffix" data-i18n="rvb.c.unit.months">months of rent</span>
+              </div>
+            </div>
+            <div class="input-hint" data-i18n="rvb.c.hint.deposit_months">Usually 1–2 months. You get it back when you move out.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── RESULTS ── -->
   <div id="resultsSection">
 
-    <!-- Winner banner -->
     <div class="winner-banner" id="winnerBanner">
       <div class="winner-icon" id="winnerIcon">🏆</div>
       <div>
@@ -357,41 +382,47 @@
       </div>
     </div>
 
-    <!-- Net cost cards -->
     <div class="cost-cards">
       <div class="cost-card" id="buyCostCard">
-        <div class="cost-card-label" data-i18n="rvb.cost.buy">🏠 Net Cost of Buying</div>
-        <div class="cost-card-value buy" id="r-buyCost">—</div>
-        <div class="cost-card-sub" id="r-buySub" data-i18n="rvb.cost.buy_sub">after home sale proceeds</div>
+        <div class="cost-card-label" data-i18n="rvb.c.res.buy">🏠 Wealth if you buy</div>
+        <div class="cost-card-value buy" id="r-buyWealth">—</div>
+        <div class="cost-card-sub" data-i18n="rvb.c.res.buy_sub">home sale proceeds minus loan, plus your savings</div>
       </div>
       <div class="cost-card" id="rentCostCard">
-        <div class="cost-card-label" data-i18n="rvb.cost.rent">🏘 Net Cost of Renting</div>
-        <div class="cost-card-value rent" id="r-rentCost">—</div>
-        <div class="cost-card-sub" id="r-rentSub" data-i18n="rvb.cost.rent_sub">deposit returned at end</div>
+        <div class="cost-card-label" data-i18n="rvb.c.res.rent">🏘 Wealth if you rent</div>
+        <div class="cost-card-value rent" id="r-rentWealth">—</div>
+        <div class="cost-card-sub" data-i18n="rvb.c.res.rent_sub">your savings plus your returned deposit</div>
       </div>
     </div>
 
-    <!-- Key stats -->
     <div class="key-stats">
       <div class="stat-item">
-        <div class="s-label" data-i18n="rvb.stat.mortgage">Monthly Mortgage</div>
-        <div class="s-value" id="r-monthlyMortgage">—</div>
+        <div class="s-label" data-i18n="rvb.c.stat.upfront">Cash needed to buy</div>
+        <div class="s-value" id="r-upfront">—</div>
       </div>
       <div class="stat-item">
-        <div class="s-label" data-i18n="rvb.stat.down">Down Payment</div>
-        <div class="s-value" id="r-downPmt">—</div>
+        <div class="s-label" data-i18n="rvb.c.stat.buy_costs">Buying costs paid</div>
+        <div class="s-value" id="r-buyCosts">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label" data-i18n="rvb.c.stat.monthly_pay">Monthly loan payment</div>
+        <div class="s-value" id="r-payment">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label" data-i18n="rvb.c.stat.monthly_own">Monthly cost of owning</div>
+        <div class="s-value" id="r-monthlyOwn">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label" data-i18n="rvb.c.stat.monthly_rent">Monthly rent</div>
+        <div class="s-value" id="r-monthlyRent">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="s-label" data-i18n="rvb.c.stat.yield">Gross rental yield</div>
+        <div class="s-value" id="r-yield">—</div>
       </div>
       <div class="stat-item">
         <div class="s-label" data-i18n="rvb.stat.final_value">Final Home Value</div>
         <div class="s-value" id="r-finalHomeVal">—</div>
-      </div>
-      <div class="stat-item">
-        <div class="s-label" data-i18n="rvb.stat.opp_cost">Opp. Cost of Down Pmt</div>
-        <div class="s-value" id="r-oppCost">—</div>
-      </div>
-      <div class="stat-item">
-        <div class="s-label" data-i18n="rvb.stat.total_rent">Total Rent Paid</div>
-        <div class="s-value" id="r-totalRent">—</div>
       </div>
       <div class="stat-item">
         <div class="s-label" data-i18n="rvb.stat.crossover">Crossover Year</div>
@@ -399,12 +430,11 @@
       </div>
     </div>
 
-    <!-- Chart -->
     <div class="card" style="margin-bottom:1.25rem">
-      <div class="card-header" data-i18n="rvb.chart.title">Cumulative Net Cost Over Time</div>
+      <div class="card-header" data-i18n="rvb.c.chart.title">Your Wealth Over Time</div>
       <div class="card-body" style="padding:.5rem 1rem .75rem">
-        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.4rem" data-i18n="rvb.chart.note">
-          Net cost = total money spent minus home equity (buying) or cumulative rent (renting). Lower is better.
+        <div style="font-size:.76rem;color:var(--text-light);margin-bottom:.4rem" data-i18n="rvb.c.chart.note">
+          Wealth is what you would have if you stopped that year: the home sold after costs and loan (buying), or your savings plus deposit (renting). Higher is better.
         </div>
         <div class="chart-wrap">
           <canvas id="lineChart"></canvas>
@@ -412,29 +442,23 @@
       </div>
     </div>
 
-    <!-- Year-by-year table -->
     <div class="card">
       <div class="card-body" style="padding:.6rem .75rem .75rem">
-        <div class="table-toggle-bar" onclick="toggleTable()">
+        <div class="toggle-bar" onclick="toggleTable()">
           <div class="section-title" style="margin:0;border:0;padding:0" data-i18n="rvb.table.title">Year-by-Year Summary</div>
-          <span class="table-toggle-btn" id="tableToggleBtn" data-i18n="rvb.table.show">▼ Show Table</span>
+          <span class="toggle-btn" id="tableToggleBtn" data-i18n="rvb.table.show">▼ Show Table</span>
         </div>
         <div id="tableWrap" style="display:none">
           <div class="year-table-wrap" style="margin-top:.65rem">
             <table class="year-table" id="yearTable">
               <thead>
                 <tr>
-                  <th rowspan="2" data-i18n="rvb.th.year">Year</th>
-                  <th colspan="4" style="text-align:center;border-bottom:1px solid #4d7c64;background:#1a5c38" data-i18n="rvb.th.buying">🏠 Buying</th>
-                  <th colspan="2" style="text-align:center;border-bottom:1px solid #3b72c4;background:#1e3a8a" data-i18n="rvb.th.renting">🏘 Renting</th>
-                </tr>
-                <tr>
-                  <th class="col-group-buy" data-i18n="rvb.th.annual_cost">Annual Cost</th>
-                  <th data-i18n="rvb.th.cumulative">Cumulative</th>
-                  <th data-i18n="rvb.th.equity">Home Equity</th>
-                  <th data-i18n="rvb.th.net">Net Position</th>
-                  <th class="col-group-rent" data-i18n="rvb.th.annual_cost">Annual Cost</th>
-                  <th data-i18n="rvb.th.cumulative">Cumulative</th>
+                  <th data-i18n="rvb.th.year">Year</th>
+                  <th data-i18n="rvb.c.th.value">Home Value</th>
+                  <th data-i18n="rvb.c.th.loan">Loan Left</th>
+                  <th data-i18n="rvb.c.th.buy">Wealth: Buy</th>
+                  <th data-i18n="rvb.c.th.rent">Wealth: Rent</th>
+                  <th data-i18n="rvb.c.th.diff">Buy minus Rent</th>
                 </tr>
               </thead>
               <tbody id="yearTableBody"></tbody>
@@ -444,21 +468,19 @@
       </div>
     </div>
 
-    <!-- Notes -->
     <div class="card" style="margin-top:1.25rem">
       <div class="card-header" data-i18n="rvb.guide.title">How This Calculator Works</div>
       <div class="card-body" style="font-size:.82rem;color:var(--text-medium);line-height:1.65">
-        <p data-i18n-html="rvb.guide.buy"><strong>Buying costs</strong> include: mortgage payments, property tax (grows with home value), home insurance &amp; maintenance (grow with appreciation), HOA fees, and the <em>opportunity cost</em> of your down payment — what it could have earned if invested at your assumed return rate.</p>
-        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.sell"><strong>Selling costs</strong> (agent fees, transfer tax, etc.) are deducted from the final home value in the net cost calculation.</p>
-        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.rent"><strong>Renting costs</strong> include monthly rent (growing at your rent-increase rate), renter's insurance, and upfront costs. The security deposit is returned at the end of the term.</p>
-        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.net"><strong>Net cost</strong> is the total money you end up spending after accounting for the home you own (buy) or the rent you've paid (rent). A lower number means less money spent overall.</p>
-        <p style="margin-top:.6rem" data-i18n-html="rvb.guide.tip">💡 <strong>Tip:</strong> The crossover year is when buying becomes cheaper than renting on a cumulative basis. Before this point, renting may be financially advantageous.</p>
+        <p data-i18n-html="rvb.c.guide.buy"><strong>Buying:</strong> you pay the down payment, transfer tax and other fees up front, then loan or installment payments, property tax and upkeep. When you sell, selling costs and any capital gains tax come off the sale price and the remaining loan is repaid.</p>
+        <p style="margin-top:.6rem" data-i18n-html="rvb.c.guide.rent"><strong>Renting:</strong> you pay a deposit (returned when you leave) and monthly rent that rises each year.</p>
+        <p style="margin-top:.6rem" data-i18n-html="rvb.c.guide.fair"><strong>Fair comparison:</strong> whichever option costs less each month, or needs less cash up front, puts the difference into savings earning your chosen return. At the end, both sides are compared as total wealth.</p>
+        <p style="margin-top:.6rem" data-i18n-html="rvb.c.guide.tip">💡 <strong>Tip:</strong> Compare a rent with the price of a similar home. A gross rental yield well below your loan interest rate usually favors renting; fast price growth or a long stay favors buying.</p>
+        <p style="margin-top:.6rem" data-i18n="rvb.c.guide.disclaimer">Defaults are typical estimates, not offers or advice. Rules and fees change, so confirm taxes with the General Department of Taxation and costs with your bank, notary and developer. The calculator ignores utilities, furnishing and the personal value of owning your home.</p>
       </div>
     </div>
 
   </div><!-- end resultsSection -->
 
-  <!-- Print bar -->
   <div class="print-bar">
     <div class="print-note" data-i18n-html="print.note">Click <strong>Print / Save as PDF</strong> to export results.</div>
     <button class="btn-print" onclick="window.print()">&#128424; <span data-i18n="print.btn">Print / Save as PDF</span></button>
@@ -470,43 +492,51 @@
   <p data-i18n="site.footer.edu_short">Calculators are for educational purposes only.</p>
 </footer>
 
-<script src="lang.js?v=38"></script>
+<script src="lang.js?v=39"></script>
 <script src="i18n.js?v=2"></script>
 <script>
 'use strict';
 
 function T(k) { return (typeof WFC !== 'undefined') ? WFC.t(k) : k; }
 
+// ── State ─────────────────────────────────────────────────────────────────────
 let lineChartInst = null;
 let currency = 'USD';
 let tableVisible = false;
+let moreVisible = false;
 let lastData = null;
+
+const PROP_TAX_THRESHOLD_KHR = 100000000;   // property tax applies above this value
+
+// Defaults applied when the financing choice changes
+const FIN_DEFAULTS = {
+  bank: { down: 20, rate: 9, term: 20 },
+  dev:  { down: 30, rate: 0, term: 3 },
+};
 
 // ── Currency helpers ──────────────────────────────────────────────────────────
 function getXR() { return Math.max(1, parseFloat(document.getElementById('exchangeRate').value) || 4000); }
 
-const MONETARY_IDS = ['homePrice','homeIns','hoaFee','monthlyRent','rentersIns','secDeposit','upfrontCost'];
-
 function setCurrency(newCur) {
   if (currency === newCur) return;
   const xr = getXR();
-  MONETARY_IDS.forEach(id => {
-    const el = document.getElementById(id);
-    const v = parseFloat(el.value) || 0;
-    el.value = newCur === 'KHR' ? Math.round(v * xr) : +(v / xr).toFixed(0);
-    if (id === 'homePrice') el.step = newCur === 'KHR' ? '100000' : '1000';
-    else if (id === 'homeIns' || id === 'hoaFee') el.step = newCur === 'KHR' ? '50000' : '100';
-    else if (id === 'monthlyRent') el.step = newCur === 'KHR' ? '10000' : '50';
-    else if (id === 'rentersIns') el.step = newCur === 'KHR' ? '5000' : '5';
-    else if (id === 'secDeposit') el.step = newCur === 'KHR' ? '100000' : '100';
-    else if (id === 'upfrontCost') el.step = newCur === 'KHR' ? '5000' : '50';
-  });
+  const price = document.getElementById('homePrice');
+  const rent  = document.getElementById('monthlyRent');
+  const pv = parseFloat(price.value) || 0;
+  const rv = parseFloat(rent.value) || 0;
+  if (newCur === 'KHR') {
+    price.value = Math.round(pv * xr);  price.step = '1000000';
+    rent.value  = Math.round(rv * xr);  rent.step  = '50000';
+  } else {
+    price.value = Math.round(pv / xr);  price.step = '1000';
+    rent.value  = Math.round(rv / xr);  rent.step  = '50';
+  }
   currency = newCur;
   document.querySelectorAll('.currency-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.currency === newCur));
   const sym = newCur === 'KHR' ? '&#6107;' : '$';
-  ['pfx1','pfx2','pfx3','pfx4','pfx5','pfx6','pfx7'].forEach(id =>
-    document.getElementById(id).innerHTML = sym);
+  document.getElementById('pfxPrice').innerHTML = sym;
+  document.getElementById('pfxRent').innerHTML = sym;
   document.getElementById('exrateGroup').style.display = newCur === 'KHR' ? 'flex' : 'none';
   calculate();
 }
@@ -517,204 +547,184 @@ function toUSD(val) {
 
 function fmt(usdVal) {
   if (currency === 'KHR') {
-    const khr = Math.round(usdVal * getXR());
-    return '&#6107;&nbsp;' + khr.toLocaleString('en-US');
+    return '&#6107;&nbsp;' + Math.round(usdVal * getXR()).toLocaleString('en-US');
   }
   return '$' + Math.round(usdVal).toLocaleString('en-US');
 }
 
-// ── PMT helper ────────────────────────────────────────────────────────────────
+function fmtPlain(usdVal) {
+  return fmt(usdVal).replace('&#6107;&nbsp;', '៛ ');
+}
+
+// ── Loan helpers ──────────────────────────────────────────────────────────────
 function pmt(r, n, pv) {
+  if (pv <= 0) return 0;
   if (r === 0) return pv / n;
   return pv * r / (1 - Math.pow(1 + r, -n));
 }
 
-// ── Loan balance after k payments ─────────────────────────────────────────────
-function loanBalance(pv, r, monthlyPmt, k) {
-  if (r === 0) return pv - monthlyPmt * k;
-  return pv * Math.pow(1 + r, k) - monthlyPmt * (Math.pow(1 + r, k) - 1) / r;
+function num(id, fallback) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? fallback : v;
 }
 
 // ── Core computation ──────────────────────────────────────────────────────────
+// Month-by-month simulation. Whichever option costs less in a given month (or
+// needs less cash up front) invests the difference at the chosen return, so
+// both sides spend the same amount and can be compared as final wealth.
 function compute() {
-  // Inputs (in user's currency, then convert to USD for calc)
-  const homePrice    = toUSD(parseFloat(document.getElementById('homePrice').value)    || 0);
-  const downPct      = (parseFloat(document.getElementById('downPct').value)           || 10) / 100;
-  const rate         = (parseFloat(document.getElementById('interestRate').value)      || 7.5) / 100;
-  const termYrs      = Math.min(30, Math.max(1, parseInt(document.getElementById('loanTerm').value) || 25));
-  const buyClosingPct= (parseFloat(document.getElementById('buyClosing').value)        || 2)  / 100;
-  const propTaxPct   = (parseFloat(document.getElementById('propTax').value)           || 1.5)/ 100;
-  const homeInsAmt   = toUSD(parseFloat(document.getElementById('homeIns').value)      || 0);
-  const hoaAmt       = toUSD(parseFloat(document.getElementById('hoaFee').value)       || 0);
-  const maintPct     = (parseFloat(document.getElementById('maintCost').value)         || 2)  / 100;
-  const appRate      = (parseFloat(document.getElementById('appreciation').value)      || 3)  / 100;
-  const sellClosingPct=(parseFloat(document.getElementById('sellClosing').value)       || 7)  / 100;
-  const monthlyRent  = toUSD(parseFloat(document.getElementById('monthlyRent').value)  || 0);
-  const rentInc      = (parseFloat(document.getElementById('rentIncrease').value)      || 3)  / 100;
-  const rentersIns   = toUSD(parseFloat(document.getElementById('rentersIns').value)   || 0); // per month
-  const secDeposit   = toUSD(parseFloat(document.getElementById('secDeposit').value)   || 0);
-  const upfrontCost  = toUSD(parseFloat(document.getElementById('upfrontCost').value)  || 0);
-  const investReturn = (parseFloat(document.getElementById('investReturn').value)      || 3)  / 100;
+  const mode      = document.getElementById('financing').value;
+  const price     = toUSD(Math.max(0, num('homePrice', 0)));
+  const rent0     = toUSD(Math.max(0, num('monthlyRent', 0)));
+  const horizon   = Math.min(30, Math.max(1, Math.round(num('horizon', 10))));
+  const app       = num('appreciation', 3) / 100;
+  const rentInc   = num('rentIncrease', 3) / 100;
+  const ret       = num('investReturn', 5) / 100;
+  const transfer  = num('transferTax', 4) / 100;
+  const otherBuy  = num('otherBuy', 1) / 100;
+  const propTaxR  = num('propTax', 0.1) / 100;
+  const maintR    = num('maintCost', 1) / 100;
+  const sellR     = num('sellCost', 3) / 100;
+  const cgtR      = num('cgtRate', 0) / 100;
+  const depMonths = Math.max(0, num('depositMonths', 2));
 
-  // ── Buying setup ──
-  const downPmt    = homePrice * downPct;
-  const loanAmt    = homePrice * (1 - downPct) + homePrice * buyClosingPct; // closing costs financed
-  const r          = rate / 12;
-  const n          = termYrs * 12;
-  const monthlyMtg = pmt(r, n, loanAmt);
-  const annualMtg  = monthlyMtg * 12;
+  const downFrac  = mode === 'cash' ? 1 : Math.min(1, Math.max(0, num('downPct', 20) / 100));
+  const rate      = mode === 'cash' ? 0 : Math.max(0, num('interestRate', 0) / 100);
+  const termYrs   = Math.min(30, Math.max(1, Math.round(num('loanTerm', 20))));
+  const n         = termYrs * 12;
+  const r         = rate / 12;
 
-  // ── Update down amount hint ──
-  document.getElementById('downAmtHint').innerHTML =
-    '= ' + fmt(downPmt) + ' down payment';
+  const downAmt   = price * downFrac;
+  const loan      = price - downAmt;
+  const payment   = pmt(r, n, loan);
+  const buyCosts  = price * (transfer + otherBuy);
+  const upfront   = downAmt + buyCosts;
+  const deposit   = rent0 * depMonths;
+  const taxFree   = PROP_TAX_THRESHOLD_KHR / getXR();
 
-  // ── Year-by-year data ──
+  const mApp = Math.pow(1 + app, 1 / 12);
+  const mRet = Math.pow(1 + ret, 1 / 12) - 1;
+
+  const pool = Math.max(upfront, deposit);
+  let invBuy  = pool - upfront;
+  let invRent = pool - deposit;
+  let balance = loan;
+  let value   = price;
+  let rentNow = rent0;
+  let ownYear1 = 0;
   const years = [];
-  let cumulativeBuy  = downPmt; // cash out = just down payment (closing financed)
-  let cumulativeRent = secDeposit + upfrontCost;
-  let investBal      = downPmt;  // down payment invested alternatively
-  let crossoverYear  = null;
-  let totalOppCost   = 0;
-  let totalRentPaid  = 0;
 
-  for (let t = 1; t <= termYrs; t++) {
-    // ── Buy: costs this year ──
-    const homeValT   = homePrice * Math.pow(1 + appRate, t - 1); // value at START of year t (end of prev year)
-    const propTaxT   = homeValT * propTaxPct;
-    const homeInsT   = homeInsAmt * Math.pow(1 + appRate, t - 1);
-    const maintT     = homeValT * maintPct;
-    const hoaT       = hoaAmt;
-    const oppCostT   = investBal * investReturn;         // what down pmt earns this year
-    investBal       *= (1 + investReturn);               // compound the investment balance
-    totalOppCost    += oppCostT;
+  for (let m = 1; m <= horizon * 12; m++) {
+    if (m > 1 && (m - 1) % 12 === 0) rentNow *= 1 + rentInc;
+    value *= mApp;
 
-    let annualBuyT   = annualMtg + propTaxT + homeInsT + maintT + hoaT + oppCostT;
-    const loanBalT   = loanBalance(loanAmt, r, monthlyMtg, t * 12);
-    const homeValTEnd= homePrice * Math.pow(1 + appRate, t - 1); // same: value at END of year t (before next appreciation)
-
-    // In final year, add selling costs to cumulative
-    let sellingCostsT = 0;
-    if (t === termYrs) {
-      const finalHomeVal  = homePrice * Math.pow(1 + appRate, t - 1);
-      sellingCostsT       = finalHomeVal * sellClosingPct;
-      annualBuyT         += sellingCostsT;
+    let pay = 0;
+    if (m <= n && balance > 0) {
+      pay = payment;
+      balance = Math.max(0, balance * (1 + r) - payment);
     }
+    const tax   = propTaxR * Math.max(0, value - taxFree) / 12;
+    const maint = maintR * value / 12;
+    const buyOut = pay + tax + maint;
+    if (m <= 12) ownYear1 += buyOut;
 
-    cumulativeBuy += annualBuyT;
-    const homeEquityT  = homeValTEnd - Math.max(0, loanBalT);
-    const netBuyT      = homeEquityT - cumulativeBuy;
+    const budget = Math.max(buyOut, rentNow);
+    invBuy  = invBuy  * (1 + mRet) + (budget - buyOut);
+    invRent = invRent * (1 + mRet) + (budget - rentNow);
 
-    // ── Rent: costs this year ──
-    const rentT      = monthlyRent * 12 * Math.pow(1 + rentInc, t - 1);
-    const insT       = rentersIns * 12;
-    totalRentPaid   += rentT + insT;
-    let annualRentT  = rentT + insT;
-    if (t === termYrs) annualRentT -= secDeposit; // deposit returned at end of term
-    cumulativeRent  += annualRentT;
-    const netRentT   = -cumulativeRent;
-
-    // ── Crossover ──
-    if (crossoverYear === null && netBuyT > netRentT) {
-      crossoverYear = t;
+    if (m % 12 === 0) {
+      const sellCosts = value * sellR;
+      const gain      = value - sellCosts - price - buyCosts;
+      const cgt       = cgtR * Math.max(0, gain);
+      const wealthBuy  = value - sellCosts - cgt - balance + invBuy;
+      const wealthRent = invRent + deposit;
+      years.push({
+        year: m / 12, value, balance, wealthBuy, wealthRent,
+        diff: wealthBuy - wealthRent,
+      });
     }
-
-    years.push({
-      year: t,
-      annualBuy: annualBuyT,
-      cumulativeBuy,
-      homeEquity: homeEquityT,
-      netBuy: netBuyT,
-      annualRent: annualRentT,
-      cumulativeRent,
-      netRent: netRentT,
-    });
   }
 
-  const lastYr = years[years.length - 1];
-  const netBuyFinal  = lastYr.netBuy;
-  const netRentFinal = lastYr.netRent;
-  const buyWins      = netBuyFinal > netRentFinal; // less negative = cheaper
-  const finalHomeVal = homePrice * Math.pow(1 + appRate, termYrs - 1);
-
+  const last = years[years.length - 1];
+  const cross = years.find(y => y.diff >= 0);
   return {
-    years, netBuyFinal, netRentFinal, buyWins,
-    monthlyMtg, downPmt, finalHomeVal, totalOppCost, totalRentPaid,
-    crossoverYear, termYrs,
+    mode, horizon, years, last,
+    buyWins: last.diff >= 0,
+    crossoverYear: cross ? cross.year : null,
+    price, upfront, buyCosts, payment, downAmt, rent0,
+    monthlyOwn: ownYear1 / 12,
+    yieldPct: price > 0 ? rent0 * 12 / price * 100 : 0,
+    finalHomeVal: last.value,
   };
 }
 
-// ── Render results ─────────────────────────────────────────────────────────────
+// ── Financing mode ────────────────────────────────────────────────────────────
+function applyFinancing(resetDefaults) {
+  const mode = document.getElementById('financing').value;
+  document.getElementById('loanFields').hidden = (mode === 'cash');
+  if (resetDefaults && FIN_DEFAULTS[mode]) {
+    document.getElementById('downPct').value = FIN_DEFAULTS[mode].down;
+    document.getElementById('interestRate').value = FIN_DEFAULTS[mode].rate;
+    document.getElementById('loanTerm').value = FIN_DEFAULTS[mode].term;
+  }
+  document.getElementById('finHint').textContent = T('rvb.c.hint.' + mode);
+}
+
+// ── Render results ────────────────────────────────────────────────────────────
 function calculate() {
+  applyFinancing(false);
   const d = compute();
   lastData = d;
 
-  // Winner banner
+  document.getElementById('downAmtHint').textContent =
+    T('rvb.c.js.down_hint').replace('{amount}', fmtPlain(d.downAmt));
+
   const banner = document.getElementById('winnerBanner');
-  const winTitle= document.getElementById('winnerTitle');
-  const winSaving=document.getElementById('winnerSaving');
-  const saving  = Math.abs(d.netBuyFinal - d.netRentFinal);
+  const winTitle = document.getElementById('winnerTitle');
+  const winSaving = document.getElementById('winnerSaving');
+  const adv = '<strong>' + fmt(Math.abs(d.last.diff)) + '</strong>';
+  const side = d.buyWins ? 'buy' : 'rent';
+  banner.className = 'winner-banner ' + side;
+  document.getElementById('winnerIcon').textContent = d.buyWins ? '🏠' : '🏘';
+  winTitle.className = 'winner-title ' + side;
+  winTitle.textContent = T(d.buyWins ? 'rvb.c.js.buy_wins' : 'rvb.c.js.rent_wins');
+  winSaving.innerHTML = T(d.buyWins ? 'rvb.c.js.buy_adv' : 'rvb.c.js.rent_adv')
+    .replace('{amount}', adv).replace('{years}', d.horizon);
 
-  if (d.buyWins) {
-    banner.className = 'winner-banner buy';
-    document.getElementById('winnerIcon').textContent = '🏠';
-    winTitle.className = 'winner-title buy';
-    winTitle.textContent = T('rvb.js.buy_wins');
-    winSaving.innerHTML = T('rvb.js.buy_saving')
-      .replace('{amount}', '<strong>' + fmt(saving) + '</strong>')
-      .replace('{years}', d.termYrs);
-  } else {
-    banner.className = 'winner-banner rent';
-    document.getElementById('winnerIcon').textContent = '🏘';
-    winTitle.className = 'winner-title rent';
-    winTitle.textContent = T('rvb.js.rent_wins');
-    winSaving.innerHTML = T('rvb.js.rent_saving')
-      .replace('{amount}', '<strong>' + fmt(saving) + '</strong>')
-      .replace('{years}', d.termYrs);
-  }
+  const buyCard = document.getElementById('buyCostCard');
+  const rentCard = document.getElementById('rentCostCard');
+  buyCard.className = 'cost-card' + (d.buyWins ? ' winner' : '');
+  rentCard.className = 'cost-card' + (!d.buyWins ? ' winner-rent' : '');
+  [buyCard, rentCard].forEach(c => c.querySelectorAll('.cost-card-badge').forEach(b => b.remove()));
+  const badge = document.createElement('div');
+  badge.className = 'cost-card-badge' + (d.buyWins ? '' : ' rent-badge');
+  badge.textContent = T('rvb.c.js.better');
+  (d.buyWins ? buyCard : rentCard).appendChild(badge);
 
-  // Cost cards
-  const buyCostCard  = document.getElementById('buyCostCard');
-  const rentCostCard = document.getElementById('rentCostCard');
-  buyCostCard.className  = 'cost-card' + (d.buyWins  ? ' winner' : '');
-  rentCostCard.className = 'cost-card' + (!d.buyWins ? ' winner-rent' : '');
+  document.getElementById('r-buyWealth').innerHTML  = fmt(d.last.wealthBuy);
+  document.getElementById('r-rentWealth').innerHTML = fmt(d.last.wealthRent);
 
-  // Remove old badges
-  buyCostCard.querySelectorAll('.cost-card-badge').forEach(b => b.remove());
-  rentCostCard.querySelectorAll('.cost-card-badge').forEach(b => b.remove());
-  if (d.buyWins) {
-    const b = document.createElement('div');
-    b.className = 'cost-card-badge'; b.textContent = '✓ Better';
-    buyCostCard.appendChild(b);
-  } else {
-    const b = document.createElement('div');
-    b.className = 'cost-card-badge rent-badge'; b.textContent = '✓ Better';
-    rentCostCard.appendChild(b);
-  }
+  document.getElementById('r-upfront').innerHTML  = fmt(d.upfront);
+  document.getElementById('r-buyCosts').innerHTML = fmt(d.buyCosts);
+  document.getElementById('r-payment').innerHTML  = d.payment > 0 ? fmt(d.payment) : T('rvb.c.js.na');
+  document.getElementById('r-monthlyOwn').innerHTML  = fmt(d.monthlyOwn);
+  document.getElementById('r-monthlyRent').innerHTML = fmt(d.rent0);
+  document.getElementById('r-yield').textContent  = d.yieldPct.toFixed(1) + '%';
+  document.getElementById('r-finalHomeVal').innerHTML = fmt(d.finalHomeVal);
+  document.getElementById('r-crossover').textContent = d.crossoverYear
+    ? T('rvb.js.year') + ' ' + d.crossoverYear
+    : T('rvb.c.js.never').replace('{years}', d.horizon);
 
-  document.getElementById('r-buyCost').innerHTML  = fmt(Math.abs(d.netBuyFinal));
-  document.getElementById('r-rentCost').innerHTML = fmt(Math.abs(d.netRentFinal));
-
-  // Key stats
-  document.getElementById('r-monthlyMortgage').innerHTML = fmt(d.monthlyMtg);
-  document.getElementById('r-downPmt').innerHTML         = fmt(d.downPmt);
-  document.getElementById('r-finalHomeVal').innerHTML    = fmt(d.finalHomeVal);
-  document.getElementById('r-oppCost').innerHTML         = fmt(d.totalOppCost);
-  document.getElementById('r-totalRent').innerHTML       = fmt(d.totalRentPaid);
-  document.getElementById('r-crossover').textContent     =
-    d.crossoverYear ? T('rvb.js.year') + ' ' + d.crossoverYear : '—';
-
-  // Chart
   renderChart(d.years);
-
-  // Table (if visible)
   if (tableVisible) renderTable(d.years);
 }
 
 // ── Chart ─────────────────────────────────────────────────────────────────────
 function renderChart(years) {
-  const labels    = years.map(y => 'Yr ' + y.year);
-  const buyData   = years.map(y => Math.round(Math.abs(y.netBuy)));
-  const rentData  = years.map(y => Math.round(Math.abs(y.netRent)));
+  const labels   = years.map(y => T('rvb.js.year') + ' ' + y.year);
+  const buyData  = years.map(y => Math.round(y.wealthBuy));
+  const rentData = years.map(y => Math.round(y.wealthRent));
+  const xr = getXR();
 
   const ctx = document.getElementById('lineChart').getContext('2d');
   if (lineChartInst) lineChartInst.destroy();
@@ -724,25 +734,14 @@ function renderChart(years) {
       labels,
       datasets: [
         {
-          label: T('rvb.chart.buy'),
-          data: buyData,
-          borderColor: '#059669',
-          backgroundColor: 'rgba(5,150,105,0.08)',
-          borderWidth: 2.5,
-          pointRadius: 2,
-          tension: 0.3,
-          fill: false,
+          label: T('rvb.c.chart.buy'), data: buyData,
+          borderColor: '#059669', backgroundColor: 'rgba(5,150,105,0.08)',
+          borderWidth: 2.5, pointRadius: 2, tension: 0.3, fill: false,
         },
         {
-          label: T('rvb.chart.rent'),
-          data: rentData,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,0.08)',
-          borderWidth: 2.5,
-          pointRadius: 2,
-          tension: 0.3,
-          borderDash: [5, 3],
-          fill: false,
+          label: T('rvb.c.chart.rent'), data: rentData,
+          borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)',
+          borderWidth: 2.5, pointRadius: 2, tension: 0.3, borderDash: [5, 3], fill: false,
         },
       ],
     },
@@ -752,21 +751,19 @@ function renderChart(years) {
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { position: 'top', labels: { font: { size: 12 }, padding: 14 } },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y),
-          },
-        },
+        tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmtPlain(c.parsed.y) } },
       },
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 11 }, maxTicksLimit: 10 } },
         y: {
           ticks: {
             font: { size: 11 },
-            callback: v => '$' + (v / 1000).toFixed(0) + 'k',
+            callback: v => currency === 'KHR'
+              ? '៛' + (v * xr / 1000000).toFixed(0) + 'M'
+              : '$' + (v / 1000).toFixed(0) + 'k',
           },
           grid: { color: 'rgba(0,0,0,0.05)' },
-          title: { display: true, text: T('rvb.chart.axis'), font: { size: 11 } },
+          title: { display: true, text: T('rvb.c.chart.axis'), font: { size: 11 } },
         },
       },
     },
@@ -781,12 +778,12 @@ function renderTable(years) {
     const tr = document.createElement('tr');
     tr.innerHTML =
       '<td>' + y.year + '</td>' +
-      '<td class="buy-col col-group-buy">' + fmt(y.annualBuy)       + '</td>' +
-      '<td class="buy-col">'               + fmt(y.cumulativeBuy)   + '</td>' +
-      '<td class="buy-col">'               + fmt(y.homeEquity)       + '</td>' +
-      '<td class="' + (y.netBuy  > y.netRent ? 'buy-col' : 'neg') + '">' + fmt(Math.abs(y.netBuy))  + '</td>' +
-      '<td class="rent-col col-group-rent">'+ fmt(y.annualRent)      + '</td>' +
-      '<td class="' + (y.netRent > y.netBuy  ? 'rent-col' : 'neg') + '">' + fmt(Math.abs(y.netRent)) + '</td>';
+      '<td>' + fmt(y.value) + '</td>' +
+      '<td>' + fmt(y.balance) + '</td>' +
+      '<td class="buy-col">' + fmt(y.wealthBuy) + '</td>' +
+      '<td class="rent-col">' + fmt(y.wealthRent) + '</td>' +
+      '<td class="' + (y.diff >= 0 ? 'buy-col' : 'neg') + '">' +
+        (y.diff < 0 ? '−' : '') + fmt(Math.abs(y.diff)) + '</td>';
     tbody.appendChild(tr);
   });
 }
@@ -796,13 +793,25 @@ function toggleTable() {
   document.getElementById('tableWrap').style.display = tableVisible ? '' : 'none';
   const tb = document.getElementById('tableToggleBtn');
   tb.setAttribute('data-i18n', tableVisible ? 'rvb.table.hide' : 'rvb.table.show');
-  tb.textContent = tableVisible ? T('rvb.table.hide') : T('rvb.table.show');
+  tb.textContent = T(tableVisible ? 'rvb.table.hide' : 'rvb.table.show');
   if (tableVisible && lastData) renderTable(lastData.years);
 }
 
-// ── Auto-calculate on any input change ───────────────────────────────────────
+function toggleMore() {
+  moreVisible = !moreVisible;
+  document.getElementById('moreWrap').style.display = moreVisible ? '' : 'none';
+  const tb = document.getElementById('moreToggleBtn');
+  tb.setAttribute('data-i18n', moreVisible ? 'rvb.c.more.hide' : 'rvb.c.more.show');
+  tb.textContent = T(moreVisible ? 'rvb.c.more.hide' : 'rvb.c.more.show');
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
 document.querySelectorAll('input[type="number"]').forEach(el => {
   el.addEventListener('input', calculate);
+});
+document.getElementById('financing').addEventListener('change', () => {
+  applyFinancing(true);
+  calculate();
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
